@@ -63,22 +63,18 @@ class Plot(FigureCanvasQTAgg):
         self.setParent(parent)
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
+        self.ax = self.figure.add_subplot(111)
+
+        self.spec = None # Set during initialization
+        self.data = []
+
+    def add_data(self,data):
+        self.data.append(data)
 
     def plot(self):
         ''' plot some random stuff '''
-        # random data
-        data = [random.random() for i in range(10)]
+        self.ax.plot(self.data, '-')
 
-        # create an axis
-        ax = self.figure.add_subplot(111)
-
-        # discards the old graph
-        ax.clear()
-
-        # plot data
-        ax.plot(data, '*-')
-
-        # refresh canvas
         self.draw()
 
 
@@ -154,7 +150,7 @@ class Application():
         # For some reason best to add matplotlib plots after the
         # MainWindow is shown, otherwise the plot size isn't adjusted
         # to the window size
-        self.add_plots(self.model.plots, self.plots_box)
+        self.add_plots(self.model.plot_specs, self.plots_box)
 
     def add_button(self, button_spec, row):
         btn = QtWidgets.QPushButton(button_spec.label)
@@ -175,8 +171,9 @@ class Application():
     def add_plot(self, plot_spec, plots_box):
         # TODO Record data and display
         plot = Plot()
-        plot.plot()
+        plot.spec = plot_spec
         plots_box.addWidget(plot)
+        self.model.plots.add(plot)
 
     def add_controllers(self, rows, controller_box):
         for row in rows:
@@ -194,8 +191,8 @@ class Application():
                     self.add_slider(controller, rowbox)
             rowbox.addStretch(1)
 
-    def add_plots(self, plots, plots_box):
-        for plot_spec in plots:
+    def add_plots(self, plot_specs, plots_box):
+        for plot_spec in plot_specs:
             self.add_plot(plot_spec, plots_box)
 
 def run(model):

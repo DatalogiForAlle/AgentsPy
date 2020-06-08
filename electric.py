@@ -40,10 +40,6 @@ def setup(model):
     for i in range(50):
         model.add_agent(Nucleon())
 
-    # Setup agents (make this implicit?)
-    for agent in model.agents:
-        agent.setup(model)
-
     # Setup tiles
     for tile in model.tiles:
         tile.color = (100, 100, 100)
@@ -54,6 +50,7 @@ def step(model):
     for agent in model.agents:
         agent.step(model)
     model["charge_flow"] = model["charge_flow"] * 0.01 + old_charge_flow * 0.99
+    model.update_plot()
 
 modello = Model("Electricity", 50, 25)
 modello.add_button("Setup", setup)

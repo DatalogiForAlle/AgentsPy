@@ -26,10 +26,6 @@ class Agent():
 
     # Ensures that the agent stays inside the simulation area.
     def __wraparound(self):
-        """
-        self.x = self.x % self.__model.w
-        self.y = self.y % self.__model.h
-        """
         self.x = ((self.x - self.size) % (self.__model.width - self.size * 2)) + self.size
         self.y = ((self.y - self.size) % (self.__model.height - self.size * 2)) + self.size
 
@@ -66,10 +62,11 @@ class Agent():
         return nearby
 
     def current_tile(self):
-        x = math.floor(self.__model.x_tiles * self.x / self.__model.w)
-        y = math.floor(self.__model.y_tiles * self.y / self.__model.h)
+        x = math.floor(self.__model.x_tiles * self.x / self.__model.width)
+        y = math.floor(self.__model.y_tiles * self.y / self.__model.height)
         try:
-            return self.__model.tiles[x][y]
+            i = y*self.__model.x_tiles + x
+            return self.__model.tiles[i]
         except:
             print(self.x, self.y, x, y)
 
@@ -79,8 +76,8 @@ class Agent():
         (tx,ty) = self.model.get_tiles_xy()
         for y in range(3):
             for x in range(3):
-                x = (floor(tx * self.x / self.__model.w)+x-1) % tx
-                y = (floor(ty * self.y / self.__model.h)+y-1) % ty
+                x = (floor(tx * self.x / self.__model.width)+x-1) % tx
+                y = (floor(ty * self.y / self.__model.height)+y-1) % ty
                 tileset[x][y] = self.__model.tiles[x][y]
         return tileset
 
@@ -166,15 +163,17 @@ class Model:
                       for x in range(x_tiles)]
 
         self.variables = {}
-        self.plots = []
+        self.plot_specs = []
         self.controller_rows = []
         self.add_controller_row()
+        self.plots = set() # Filled in during initialization
 
     def add_agent(self, agent):
         agent.set_model(self)
         agent.x = RNG(self.width)
         agent.y = RNG(self.height)
         self.agents.add(agent)
+        agent.setup(self)
 
     def add_agents(self, agents):
         for a in agents:
@@ -191,6 +190,11 @@ class Model:
                 self.tiles[i].color = (0,0,0)
                 self.tiles[i].info = {}
 
+    def update_plot(self):
+        for plot in self.plots:
+            plot.add_data(self.variables[plot.spec.variable])
+            plot.plot()
+
     def add_controller_row(self):
         self.current_row = []
         self.controller_rows.append(self.current_row)
@@ -205,7 +209,7 @@ class Model:
         self.current_row.append(SliderSpec(variable, minval, maxval, initial))
 
     def plot_variable(self, variable, color):
-        self.plots.append(PlotSpec(variable, color))
+        self.plot_specs.append(PlotSpec(variable, color))
 
     def __setitem__(self, key, item):
         self.variables[key] = item
