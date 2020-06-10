@@ -2,6 +2,9 @@ import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
 
+from pyqtgraph import PlotWidget, plot
+import pyqtgraph as pg
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -55,6 +58,27 @@ class SimulationArea(QtWidgets.QWidget):
         y = self.model.tile_size * tile.y
         painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
 
+# Based on https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
+class QtPlot(PlotWidget):
+    def __init__(self, parent=None):
+        super().__init__()
+
+        self.x = []
+        self.y = []
+
+        self.setBackground('w')
+
+        pen = pg.mkPen(color=(255, 0, 0))
+        self.data_line =  self.plot(self.x, self.y, pen=pen)
+
+    def add_data(self,data):
+
+        self.x.append(len(self.x))  # Add a new value 1 higher than the last.
+        self.y.append(data)  # Add a new random value.
+
+        self.data_line.setData(self.x, self.y)  # Update the data.
+
+
 class Plot(FigureCanvasQTAgg):
     # TODO: Connect with data, just shows random data
     def __init__(self, parent=None):
@@ -73,6 +97,7 @@ class Plot(FigureCanvasQTAgg):
 
     def plot(self):
         ''' plot some random stuff '''
+        self.ax.clear()
         self.ax.plot(self.data, '-')
 
         self.draw()
@@ -170,7 +195,7 @@ class Application():
 
     def add_plot(self, plot_spec, plots_box):
         # TODO Record data and display
-        plot = Plot()
+        plot = QtPlot()
         plot.spec = plot_spec
         plots_box.addWidget(plot)
         self.model.plots.add(plot)

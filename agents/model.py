@@ -193,7 +193,7 @@ class Model:
     def update_plot(self):
         for plot in self.plots:
             plot.add_data(self.variables[plot.spec.variable])
-            plot.plot()
+            #plot.plot()
 
     def add_controller_row(self):
         self.current_row = []
