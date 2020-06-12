@@ -4,9 +4,6 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtCore import QPointF
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-
 from agents.model import ButtonSpec, ToggleSpec, SliderSpec, PlotSpec
 
 class SimulationArea(QtWidgets.QWidget):
@@ -71,7 +68,7 @@ class QtPlot(QChartView):
     def add_data(self,data):
         self._series << QPointF(self._series.count(), data)
 
-
+"""
 class Plot(FigureCanvasQTAgg):
     # TODO: Connect with data, just shows random data
     def __init__(self, parent=None):
@@ -94,7 +91,7 @@ class Plot(FigureCanvasQTAgg):
         self.ax.plot(self.data, '-')
 
         self.draw()
-
+"""
 
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
