@@ -1,9 +1,8 @@
 import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
-
-from pyqtgraph import PlotWidget, plot
-import pyqtgraph as pg
+from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtCore import QPointF
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -58,25 +57,19 @@ class SimulationArea(QtWidgets.QWidget):
         y = self.model.tile_size * tile.y
         painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
 
-# Based on https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
-class QtPlot(PlotWidget):
-    def __init__(self, parent=None):
-        super().__init__()
+# Based on https://codeloop.org/pyqtchart-how-to-create-linechart-in-pyqt5/
+class QtPlot(QChartView):
+    def __init__(self):
+        self._chart = QChart()
+        self._chart.createDefaultAxes()
 
-        self.x = []
-        self.y = []
+        self._series = QLineSeries()
+        self._chart.addSeries(self._series)
 
-        self.setBackground('w')
-
-        pen = pg.mkPen(color=(255, 0, 0))
-        self.data_line =  self.plot(self.x, self.y, pen=pen)
+        super().__init__(self._chart)
 
     def add_data(self,data):
-
-        self.x.append(len(self.x))  # Add a new value 1 higher than the last.
-        self.y.append(data)  # Add a new random value.
-
-        self.data_line.setData(self.x, self.y)  # Update the data.
+        self._series << QPointF(self._series.count(), data)
 
 
 class Plot(FigureCanvasQTAgg):
