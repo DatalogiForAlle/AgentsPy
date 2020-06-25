@@ -1,8 +1,10 @@
 import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtChart import QChart, QChartView, QLineSeries
-from PyQt5.QtCore import QPointF
+from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
+from PyQt5.QtCore import QPointF, Qt
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen
+
 
 from agents.model import ButtonSpec, ToggleSpec, SliderSpec, PlotSpec
 
@@ -38,8 +40,21 @@ class SimulationArea(QtWidgets.QWidget):
             for tile in self.model.tiles:
                 self.paintTile(painter, tile)
             # Draw agents
+            select = None
             for agent in self.model.agents:
                 self.paintAgent(painter, agent)
+                if agent.selected:
+                    select = agent
+
+            if select:
+                path = QPainterPath()
+                path.addRect(0, 0, 400, 400)
+                path.addEllipse(select.x-select.size*3/2,
+                                select.y-select.size*3/2,
+                                select.size*4,
+                                select.size*4)
+                painter.setBrush(QColor(0, 0, 0, 150))
+                painter.drawPath(path)
 
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
@@ -54,44 +69,44 @@ class SimulationArea(QtWidgets.QWidget):
         y = self.model.tile_size * tile.y
         painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
 
-# Based on https://codeloop.org/pyqtchart-how-to-create-linechart-in-pyqt5/
+    def mousePressEvent(self,e):
+        self.model.mouse_click(e.localPos().x(),e.localPos().y())
+
 class QtPlot(QChartView):
     def __init__(self):
-        self._chart = QChart()
-        self._chart.createDefaultAxes()
-
-        self._series = QLineSeries()
-        self._chart.addSeries(self._series)
-
-        super().__init__(self._chart)
-
-    def add_data(self,data):
-        self._series << QPointF(self._series.count(), data)
-
-"""
-class Plot(FigureCanvasQTAgg):
-    # TODO: Connect with data, just shows random data
-    def __init__(self, parent=None):
-        self.figure = Figure()
-        super(Plot, self).__init__(self.figure)
-        self.setParent(parent)
+        super().__init__(None)
+        self.chart = QChart()
+        self.chart.createDefaultAxes()
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.series = QLineSeries()
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
-        self.ax = self.figure.add_subplot(111)
 
-        self.spec = None # Set during initialization
-        self.data = []
+        self.axis_x = QValueAxis()
+        self.axis_y = QValueAxis()
+        self.axis_x.setRange(0, 100)
+        self.axis_y.setRange(0, 100)
+        self.chart.addSeries(self.series)
+        self.chart.setAxisX(self.axis_x, self.series)
+        self.chart.setAxisY(self.axis_y, self.series)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.redraw())
+        self.timer.start(1000/10)
+        self._data = []
 
     def add_data(self,data):
-        self.data.append(data)
+        self._data.append(QPointF(self.series.count(), data))
 
-    def plot(self):
-        ''' plot some random stuff '''
-        self.ax.clear()
-        self.ax.plot(self.data, '-')
-
-        self.draw()
-"""
+    def redraw(self):
+        self.axis_x.setRange(0,self.series.count())
+        self.axis_y.setRange(0,100)
+        self.series.clear()
+        for x in self._data:
+            self.series.append(x)
 
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
@@ -118,7 +133,6 @@ class Slider(QtWidgets.QSlider):
         self.setMinimumWidth(150)
 
     # TODO: Support floats. See https://stackoverflow.com/a/50300848/
-
 
 class Application():
     def __init__(self, model):
@@ -147,7 +161,7 @@ class Application():
         self.plots_box = QtWidgets.QVBoxLayout()
         self.horizontal_divider.addLayout(self.right_box)
         self.right_box.addLayout(self.plots_box)
-        self.right_box.addStretch(1)
+        #self.right_box.addStretch(1)
 
         # Simulation area
         self.simulation_area = SimulationArea()

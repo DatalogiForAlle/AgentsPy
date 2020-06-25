@@ -23,15 +23,42 @@ class Agent():
         self.size = 1
         self.direction = RNG(359)
         self.speed = 1
+        self.__current_tile = None
+        self.selected = False
+
+    # Update current tile
+    def __update_current_tile(self):
+        new_tile = self.current_tile()
+        if not self.__current_tile:
+            self.__current_tile = self.current_tile()
+            self.__current_tile.add_agent(self)
+        elif not (self.__current_tile is new_tile):
+            self.__current_tile.remove_agent(self)
+            new_tile.add_agent(self)
+            self.__current_tile = new_tile
+
+    # To be called after each movement step
+    def __post_move(self):
+        self.__wraparound()
+        self.__update_current_tile()
 
     # Ensures that the agent stays inside the simulation area.
     def __wraparound(self):
         self.x = ((self.x - self.size) % (self.__model.width - self.size * 2)) + self.size
         self.y = ((self.y - self.size) % (self.__model.height - self.size * 2)) + self.size
 
+    def align(self):
+        w = self.__model.width
+        h = self.__model.height
+        tx = self.__model.x_tiles
+        ty = self.__model.y_tiles
+        self.x = math.floor(self.x * tx / w) * w / tx + (w/tx)/2
+        self.y = math.floor(self.y * ty / h) * w / ty + (h/ty)/2
+
     def jump_to(self, x, y):
         self.x = x
         self.y = y
+        self.__post_move()
 
     def set_model(self, model):
         self.__model = model
@@ -46,7 +73,7 @@ class Agent():
     def forward(self):
         self.x += math.cos(math.radians(self.direction)) * self.speed
         self.y += math.sin(math.radians(self.direction)) * self.speed
-        self.__wraparound()
+        self.__post_move()
 
     def distance_to(self, other_x, other_y):
         return ((self.x-other_x)**2 + (self.y-other_y)**2)**0.5
@@ -104,6 +131,16 @@ class Tile():
         self.y = y
         self.info = {}
         self.color = (0, 0, 0)
+        self.__agents = set()
+
+    def add_agent(self,agent):
+        self.__agents.add(agent)
+
+    def remove_agent(self,agent):
+        self.__agents.discard(agent)
+
+    def get_agents(self):
+        return self.__agents
 
         # Associated model.
         self.__model = model
@@ -193,7 +230,17 @@ class Model:
     def update_plot(self):
         for plot in self.plots:
             plot.add_data(self.variables[plot.spec.variable])
-            #plot.plot()
+
+    def mouse_click(self,x,y):
+        for a in self.agents:
+            a.selected = False
+            if (a.x < x
+                and a.x+a.size > x
+                and a.y < y
+                and a.y+a.size > y):
+                for b in self.agents:
+                    b.selected = False
+                a.selected = True
 
     def add_controller_row(self):
         self.current_row = []
