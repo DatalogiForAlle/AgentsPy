@@ -27,7 +27,7 @@ class Agent():
         self.selected = False
 
     # Update current tile
-    def __update_current_tile(self):
+    def update_current_tile(self):
         new_tile = self.current_tile()
         if not self.__current_tile:
             self.__current_tile = self.current_tile()
@@ -40,7 +40,7 @@ class Agent():
     # To be called after each movement step
     def __post_move(self):
         self.__wraparound()
-        self.__update_current_tile()
+        self.update_current_tile()
 
     # Ensures that the agent stays inside the simulation area.
     def __wraparound(self):
@@ -89,8 +89,8 @@ class Agent():
         return nearby
 
     def current_tile(self):
-        x = math.floor(self.__model.x_tiles * self.x / self.__model.width)
-        y = math.floor(self.__model.y_tiles * self.y / self.__model.height)
+        x = math.floor(self.__model.x_tiles * (self.x+self.size/2) / self.__model.width)
+        y = math.floor(self.__model.y_tiles * (self.y+self.size/2) / self.__model.height)
         try:
             i = y*self.__model.x_tiles + x
             return self.__model.tiles[i]
@@ -165,17 +165,15 @@ class SliderSpec(Spec):
         self.maxval = maxval
         self.initial = initial
 
-class SliderSpec(Spec):
-    def __init__(self, variable, minval, maxval, initial):
-        self.variable = variable
-        self.minval = minval
-        self.maxval = maxval
-        self.initial = initial
-
-class PlotSpec(Spec):
+class GraphSpec(Spec):
     def __init__(self, variable, color):
         self.variable = variable
         self.color = color
+
+class HistogramSpec(Spec):
+    def __init__(self, variables, colors):
+        self.variables = variables
+        self.colors = colors
 
 class Model:
     def __init__(self, title, x_tiles, y_tiles, tile_size=8):
@@ -227,9 +225,19 @@ class Model:
                 self.tiles[i].color = (0,0,0)
                 self.tiles[i].info = {}
 
-    def update_plot(self):
+    def update_plots(self):
         for plot in self.plots:
-            plot.add_data(self.variables[plot.spec.variable])
+            if type(plot.spec) is GraphSpec:
+                plot.add_data(self.variables[plot.spec.variable])
+            elif type(plot.spec) is HistogramSpec:
+                dataset = []
+                for d in plot.spec.variables:
+                    dataset.append(self.variables[d])
+                plot.update_data(dataset)
+
+    def clear_plots(self):
+        for plot in self.plots:
+            plot.clear()
 
     def mouse_click(self,x,y):
         for a in self.agents:
@@ -253,10 +261,14 @@ class Model:
         self.current_row.append(ToggleSpec(label, func))
 
     def add_slider(self, variable, minval, maxval, initial):
+        self.variables[variable] = initial
         self.current_row.append(SliderSpec(variable, minval, maxval, initial))
 
-    def plot_variable(self, variable, color):
-        self.plot_specs.append(PlotSpec(variable, color))
+    def graph(self, variable, color):
+        self.plot_specs.append(GraphSpec(variable, color))
+
+    def histogram(self, variables, colors):
+        self.plot_specs.append(HistogramSpec(variables,colors))
 
     def __setitem__(self, key, item):
         self.variables[key] = item

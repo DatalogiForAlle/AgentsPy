@@ -59,11 +59,10 @@ def setup(model):
     model["decay"] = 2
     people = set([Person() for i in range(100)])
     model.add_agents(people)
-    for a in model.agents:
-        a.setup(model)
     for t in model.tiles:
         t.color = (0,50,0)
         t.info["infection"] = 0
+    model.clear_plots()
 
 def step(model):
     for a in model.agents:
@@ -74,7 +73,7 @@ def step(model):
             t.info["infection"] -= 1
         else:
             t.color = (0,50,0)
-    model.update_plot()
+    model.update_plots()
 
 def direction(model):
     for a in model.agents:
@@ -86,8 +85,9 @@ epidemic_model.add_button("Step", step)
 epidemic_model.add_toggle_button("Go", step)
 epidemic_model.add_slider("movespeed", 0.1, 1, .1)
 epidemic_model.add_slider("decay", 0, 3, 2)
-epidemic_model.plot_variable("normal", (0, 255, 0))
-epidemic_model.plot_variable("immune", (100, 100, 255))
-epidemic_model.plot_variable("infected", (255, 255, 0))
+#epidemic_model.plot_variable("normal", (0, 255, 0))
+epidemic_model.graph("immune", (100, 100, 255))
+epidemic_model.graph("infected", (255, 255, 0))
+epidemic_model.histogram(["normal","infected","immune"], (255, 255, 0))
 run(epidemic_model)
 

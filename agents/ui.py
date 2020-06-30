@@ -1,12 +1,11 @@
 import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
-from PyQt5.QtCore import QPointF, Qt
+from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, QBarSeries, QBarCategoryAxis
+from PyQt5.QtCore import QPointF, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen
 
-
-from agents.model import ButtonSpec, ToggleSpec, SliderSpec, PlotSpec
+from agents.model import ButtonSpec, ToggleSpec, SliderSpec, GraphSpec, HistogramSpec
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -72,9 +71,10 @@ class SimulationArea(QtWidgets.QWidget):
     def mousePressEvent(self,e):
         self.model.mouse_click(e.localPos().x(),e.localPos().y())
 
-class QtPlot(QChartView):
-    def __init__(self):
+class QtGraph(QChartView):
+    def __init__(self, spec):
         super().__init__(None)
+        self.spec = spec
         self.chart = QChart()
         self.chart.createDefaultAxes()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
@@ -84,8 +84,6 @@ class QtPlot(QChartView):
 
         self.axis_x = QValueAxis()
         self.axis_y = QValueAxis()
-        self.axis_x.setRange(0, 100)
-        self.axis_y.setRange(0, 100)
         self.chart.addSeries(self.series)
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
@@ -98,15 +96,64 @@ class QtPlot(QChartView):
         self.timer.start(1000/10)
         self._data = []
 
+    def clear(self):
+        self.series.clear()
+        self._data = []
+
     def add_data(self,data):
-        self._data.append(QPointF(self.series.count(), data))
+        self._data.append(data)
 
     def redraw(self):
-        self.axis_x.setRange(0,self.series.count())
-        self.axis_y.setRange(0,100)
-        self.series.clear()
-        for x in self._data:
-            self.series.append(x)
+        if len(self._data) > 0:
+            self.series.clear()
+            for i in range(len(self._data)):
+                self.series.append(QPointF(i, self._data[i]))
+            self.axis_x.setRange(0,self.series.count())
+            self.axis_y.setRange(0, max(self._data))
+
+class QtHistogram(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.mainset = QBarSet('MainSet')
+        self.mainset.append([0 for i in range(len(spec.variables))])
+        self.series = QBarSeries()
+        self.series.append(self.mainset)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.axis_x = QBarCategoryAxis()
+        self.axis_y = QValueAxis()
+        self.axis_x.append(spec.variables)
+        self.chart.addSeries(self.series)
+        self.chart.setAxisX(self.axis_x, self.series)
+        self.chart.setAxisY(self.axis_y, self.series)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.redraw())
+        self.timer.start(1000/10)
+        self._dataset = []
+
+    def clear(self):
+        self._dataset = []
+
+    def update_data(self,dataset):
+        data = []
+        for d in dataset:
+            data.append(d)
+        self._dataset = data
+
+    def redraw(self):
+        if len(self._dataset) > 0:
+            for i in range(len(self._dataset)):
+                self.mainset.replace(i,self._dataset[i])
+            self.axis_y.setRange(0, max(self._dataset))
 
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
@@ -124,15 +171,16 @@ class ToggleButton(QtWidgets.QPushButton):
         else:
             self.timer.stop()
 
+ # Based on https://stackoverflow.com/a/50300848/
 class Slider(QtWidgets.QSlider):
+
     def __init__(self, variable, minval, maxval, initial):
         super().__init__(QtCore.Qt.Horizontal)
-        self.setMinimum(minval)
-        self.setMaximum(maxval)
-        self.setValue(initial)
+        self.factor = 1000
+        self.setMinimum(minval * self.factor)
+        self.setMaximum(maxval * self.factor)
+        self.setValue(initial * self.factor)
         self.setMinimumWidth(150)
-
-    # TODO: Support floats. See https://stackoverflow.com/a/50300848/
 
 class Application():
     def __init__(self, model):
@@ -193,16 +241,20 @@ class Application():
     def add_slider(self, slider_spec, row):
         slider = Slider(slider_spec.variable, slider_spec.minval, slider_spec.maxval, slider_spec.initial)
         def update_variable(v):
-            self.model[slider_spec.variable] = v
+            self.model[slider_spec.variable] = v/slider.factor
         slider.valueChanged.connect(update_variable)
         row.addWidget(slider)
 
-    def add_plot(self, plot_spec, plots_box):
+    def add_graph(self, graph_spec, plots_box):
         # TODO Record data and display
-        plot = QtPlot()
-        plot.spec = plot_spec
-        plots_box.addWidget(plot)
-        self.model.plots.add(plot)
+        graph = QtGraph(graph_spec)
+        plots_box.addWidget(graph)
+        self.model.plots.add(graph)
+
+    def add_histogram(self, histogram_spec, plots_box):
+        histogram = QtHistogram(histogram_spec)
+        plots_box.addWidget(histogram)
+        self.model.plots.add(histogram)
 
     def add_controllers(self, rows, controller_box):
         for row in rows:
@@ -222,7 +274,10 @@ class Application():
 
     def add_plots(self, plot_specs, plots_box):
         for plot_spec in plot_specs:
-            self.add_plot(plot_spec, plots_box)
+            if type(plot_spec) is GraphSpec:
+                self.add_graph(plot_spec, plots_box)
+            elif type(plot_spec) is HistogramSpec:
+                self.add_histogram(plot_spec, plots_box)
 
 def run(model):
     # Initialize application
