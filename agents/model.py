@@ -1,5 +1,6 @@
 import math
 import random
+import operator
 
 def RNG(maximum):
     return random.randint(0,maximum)
@@ -44,8 +45,8 @@ class Agent():
 
     # Ensures that the agent stays inside the simulation area.
     def __wraparound(self):
-        self.x = ((self.x - self.size) % (self.__model.width - self.size * 2)) + self.size
-        self.y = ((self.y - self.size) % (self.__model.height - self.size * 2)) + self.size
+        self.x = self.x % self.__model.width
+        self.y = self.y % self.__model.height
 
     def align(self):
         w = self.__model.width
@@ -89,8 +90,8 @@ class Agent():
         return nearby
 
     def current_tile(self):
-        x = math.floor(self.__model.x_tiles * (self.x+self.size/2) / self.__model.width)
-        y = math.floor(self.__model.y_tiles * (self.y+self.size/2) / self.__model.height)
+        x = math.floor(self.__model.x_tiles * self.x / self.__model.width) % self.__model.x_tiles
+        y = math.floor(self.__model.y_tiles * self.y / self.__model.height) % self.__model.y_tiles
         try:
             i = y*self.__model.x_tiles + x
             return self.__model.tiles[i]
@@ -214,6 +215,20 @@ class Model:
         for a in agents:
             self.add_agent(a)
 
+    # Returns a list of all agents with random order
+    def agents_random(self):
+        agent_list = list(self.agents)
+        random.shuffle(agent_list)
+        return agent_list
+
+    # Based on kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
+    def agents_ordered(self, variable, increasing=True):
+        agent_list = list(self.agents)
+        ret_list = sorted(agent_list, key=operator.attrgetter(variable))
+        if not increasing:
+            ret_list.reverse()
+        return ret_list
+
     # Destroys all agents, clears the agent set, and resets all tiles.
     def reset(self):
         for a in self.agents:
@@ -235,17 +250,27 @@ class Model:
                     dataset.append(self.variables[d])
                 plot.update_data(dataset)
 
+    def remove_destroyed_agents(self):
+        new_agents = set()
+        for a in self.agents:
+            if not a.is_destroyed():
+                new_agents.add(a)
+            else:
+                a.current_tile().remove_agent(a)
+        self.agents = new_agents
+
     def clear_plots(self):
         for plot in self.plots:
             plot.clear()
 
+
     def mouse_click(self,x,y):
         for a in self.agents:
             a.selected = False
-            if (a.x < x
-                and a.x+a.size > x
-                and a.y < y
-                and a.y+a.size > y):
+            if (a.x-a.size/2 < x
+                and a.x+a.size/2 > x
+                and a.y-a.size/2 < y
+                and a.y+a.size/2 > y):
                 for b in self.agents:
                     b.selected = False
                 a.selected = True

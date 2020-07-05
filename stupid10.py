@@ -28,6 +28,8 @@ class Bug(Agent):
             self.state = "B3"
         else:
             self.state = "B4"
+        if self.grow_size > 100:
+            model["stop"] = True
         new_x = (t.x + RNG(8) - 4) % model.x_tiles
         new_y = (t.y + RNG(8) - 4) % model.y_tiles
         new_t = model.tiles[new_y * model.x_tiles + new_x]
@@ -41,6 +43,8 @@ class Bug(Agent):
         self.align()
 
 def setup(model):
+    global f
+    f = open("stupid.data", "w")
     model.reset()
     people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
     model["B0"] = len(people)
@@ -48,26 +52,41 @@ def setup(model):
     model["B2"] = 0
     model["B3"] = 0
     model["B4"] = 0
+    model["stop"] = False
     model.add_agents(people)
     for t in model.tiles:
         t.info["food"] = 0.0
         t.color = (0,0,0)
 
 def step(model):
-    model["B0"] = 0
-    model["B1"] = 0
-    model["B2"] = 0
-    model["B3"] = 0
-    model["B4"] = 0
-    for a in model.agents:
-        a.step(model)
-        model[a.state] += 1
-    for t in model.tiles:
-        food_prod = random.random() * model["max_food_prod"]
-        t.info["food"] += food_prod
-        c = min(255,math.floor(t.info["food"] * 255))
-        t.color = (c,c,c)
-    model.update_plots()
+    global f
+    if not model["stop"]:
+        model["B0"] = 0
+        model["B1"] = 0
+        model["B2"] = 0
+        model["B3"] = 0
+        model["B4"] = 0
+
+        bug_min = None
+        bug_mean = 0
+        bug_max = None
+        for a in model.agents_ordered("grow_size"):
+            a.step(model)
+            model[a.state] += 1
+            if not bug_min or bug_min > a.grow_size:
+                bug_min = a.grow_size
+            if not bug_max or bug_max < a.grow_size:
+                bug_max = a.grow_size
+            bug_mean += a.grow_size
+        bug_mean /= model["initial_bugs"]
+        f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+
+        for t in model.tiles:
+            food_prod = random.random() * model["max_food_prod"]
+            t.info["food"] += food_prod
+            c = min(255,math.floor(t.info["food"] * 255))
+            t.color = (c,c,c)
+        model.update_plots()
 
 stupid_model = Model("Dum-dum", 100,100)
 stupid_model.add_button("setup", setup)

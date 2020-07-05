@@ -47,9 +47,9 @@ class SimulationArea(QtWidgets.QWidget):
 
             if select:
                 path = QPainterPath()
-                path.addRect(0, 0, 400, 400)
-                path.addEllipse(select.x-select.size*3/2,
-                                select.y-select.size*3/2,
+                path.addRect(0, 0, self.model.width, self.model.height)
+                path.addEllipse(select.x-select.size*2,
+                                select.y-select.size*2,
                                 select.size*4,
                                 select.size*4)
                 painter.setBrush(QColor(0, 0, 0, 150))
@@ -58,7 +58,7 @@ class SimulationArea(QtWidgets.QWidget):
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
         painter.setBrush(QtGui.QColor(r, g, b))
-        painter.drawEllipse(agent.x, agent.y, agent.size, agent.size)
+        painter.drawEllipse(agent.x-agent.size/2, agent.y-agent.size/2, agent.size, agent.size)
 
     def paintTile(self, painter, tile):
         r, g, b = tile.color

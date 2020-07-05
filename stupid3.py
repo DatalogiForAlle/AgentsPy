@@ -8,7 +8,7 @@ class Bug(Agent):
 
     def setup(self, model):
         self.size = 8
-        self.grow_size = 0
+        self.grow_size = 1
         self.draw_color()
         self.align()
 
@@ -26,6 +26,7 @@ class Bug(Agent):
         self.draw_color()
         self.jump_to(new_x*model.width/model.x_tiles,
                      new_y*model.height/model.y_tiles)
+        self.align()
 
 def setup(model):
     model.reset()

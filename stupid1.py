@@ -22,6 +22,7 @@ class Bug(Agent):
         self.draw_color()
         self.jump_to(new_x*model.width/model.x_tiles,
                      new_y*model.height/model.y_tiles)
+        self.align()
 
 def setup(model):
     model.reset()
