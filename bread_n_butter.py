@@ -2,18 +2,16 @@
 import random
 import math
 from agents import *
+
 """
-# Utility function
-# to varer / to agenter der har hver deres slags varer
-# ex. man kan have 0-10 brod og 0-10 smor
-# random mængder
-# Agenterne har ens "AI" men forskellige mængder af brød
-# Alle agenterne har en nyttefunktion (eks brød^a * smør^b)
-# Når man møder en anden agent, hvor meget vil man så bytte?
-# Der vil som udgangspunkt altid være en optimal bytte-fordeling
-# Der kan også være ulighed: nogle der startet med meget brød/smør, nogen der starter med lidt
-# Der skal også være en model/graf der viser hvor "tilfredse" folk er
+  Forklaring af model:
+  Modellen viser et sæt agenter der foretager handel med hinanden med resourcerne brød og smør.
+  Grafen til højre viser summen af agenternes nyttefunktioner (som er brød^0.5 * smør^0.5).
+  Agenterne farves blå, jo mere brød de har, og gule, jo mere smør de har. Hvide/grå agenter har
+  god balance i deres to resourcer.
+  Agenternes størrelse er en funktion af deres nyttefunktion.
 """
+
 
 """
  Udregninger:
@@ -64,8 +62,10 @@ from agents import *
 
 class Person(Agent):
     def update_visual(self):
-        self.color = (int(self.butter*20),int(self.butter*20),int(self.bread*20))
-        self.size = (self.bread+self.butter)*2
+        self.color = (min(255,int(self.butter*20)),
+                      min(255,int(self.butter*20)),
+                      min(255,int(self.bread*20)))
+        self.size = self.utility()*5
 
     def utility(self):
         return (self.bread**0.5) * (self.butter**0.5)
@@ -86,7 +86,7 @@ class Person(Agent):
         if self.trade_cooldown > 0:
             return
 
-        nearby = self.agents_nearby(15)
+        nearby = self.agents_nearby(self.size)
         if len(nearby) > 0:
             other = nearby.pop()
             """
@@ -112,6 +112,7 @@ class Person(Agent):
 
 def setup(model):
     model.reset()
+    model.clear_plots()
     model["total_util"] = 0
     model["movespeed"] = 0.2
     people = set([Person() for i in range(20)])

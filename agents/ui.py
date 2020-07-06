@@ -109,7 +109,7 @@ class QtGraph(QChartView):
             for i in range(len(self._data)):
                 self.series.append(QPointF(i, self._data[i]))
             self.axis_x.setRange(0,self.series.count())
-            self.axis_y.setRange(0, max(self._data))
+            self.axis_y.setRange(min(self._data), max(self._data))
 
 class QtHistogram(QChartView):
     def __init__(self, spec):
