@@ -48,10 +48,10 @@ class SimulationArea(QtWidgets.QWidget):
             if select:
                 path = QPainterPath()
                 path.addRect(0, 0, self.model.width, self.model.height)
-                path.addEllipse(select.x-select.size*2,
-                                select.y-select.size*2,
-                                select.size*4,
-                                select.size*4)
+                path.addEllipse(select.x-select.size*1.5,
+                                select.y-select.size*1.5,
+                                select.size*3,
+                                select.size*3)
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
 
@@ -93,7 +93,7 @@ class QtGraph(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000/10)
+        self.timer.start(1000/5)
         self._data = []
 
     def clear(self):

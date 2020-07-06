@@ -28,6 +28,11 @@ class Person(Agent):
     def step(self, model):
         self.direction += RNG(20)-10
         self.speed = model["movespeed"]
+        nearby = self.agents_nearby(30)
+        for other in nearby:
+            if other.infection > 0:
+                self.point_towards(other.x,other.y)
+                self.direction += 180
         self.forward()
 
         if self.infection > 1:
