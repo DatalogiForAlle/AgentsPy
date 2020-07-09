@@ -166,6 +166,10 @@ class SliderSpec(Spec):
         self.maxval = maxval
         self.initial = initial
 
+class CheckboxSpec(Spec):
+    def __init__(self, variable):
+        self.variable = variable
+
 class GraphSpec(Spec):
     def __init__(self, variable, color):
         self.variable = variable
@@ -288,6 +292,10 @@ class Model:
     def add_slider(self, variable, minval, maxval, initial):
         self.variables[variable] = initial
         self.current_row.append(SliderSpec(variable, minval, maxval, initial))
+
+    def add_checkbox(self, variable):
+        self.variables[variable] = False
+        self.current_row.append(CheckboxSpec(variable))
 
     def graph(self, variable, color):
         self.plot_specs.append(GraphSpec(variable, color))

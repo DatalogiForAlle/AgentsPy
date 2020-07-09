@@ -5,7 +5,7 @@ from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, 
 from PyQt5.QtCore import QPointF, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen
 
-from agents.model import ButtonSpec, ToggleSpec, SliderSpec, GraphSpec, HistogramSpec
+from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -173,7 +173,6 @@ class ToggleButton(QtWidgets.QPushButton):
 
  # Based on https://stackoverflow.com/a/50300848/
 class Slider(QtWidgets.QSlider):
-
     def __init__(self, variable, minval, maxval, initial):
         super().__init__(QtCore.Qt.Horizontal)
         self.factor = 1000
@@ -181,6 +180,11 @@ class Slider(QtWidgets.QSlider):
         self.setMaximum(maxval * self.factor)
         self.setValue(initial * self.factor)
         self.setMinimumWidth(150)
+
+class Checkbox(QtWidgets.QCheckBox):
+    def __init__(self, variable):
+        super().__init__(variable)
+        self.setText(variable)
 
 class Application():
     def __init__(self, model):
@@ -245,6 +249,13 @@ class Application():
         slider.valueChanged.connect(update_variable)
         row.addWidget(slider)
 
+    def add_checkbox(self, checkbox_spec, row):
+        checkbox = Checkbox(checkbox_spec.variable)
+        def update_variable(v):
+            self.model[checkbox_spec.variable] = checkbox.isChecked()
+        checkbox.stateChanged.connect(update_variable)
+        row.addWidget(checkbox)
+
     def add_graph(self, graph_spec, plots_box):
         # TODO Record data and display
         graph = QtGraph(graph_spec)
@@ -279,6 +290,8 @@ class Application():
                     self.add_toggle(controller, rowbox)
                 elif isinstance(controller, SliderSpec):
                     self.add_slider(controller, rowbox)
+                elif isinstance(controller, CheckboxSpec):
+                    self.add_checkbox(controller, rowbox)
             rowbox.addStretch(1)
 
     def add_plots(self, plot_specs, plots_box):

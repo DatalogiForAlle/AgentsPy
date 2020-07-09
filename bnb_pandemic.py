@@ -36,11 +36,12 @@ class Person(Agent):
             self.color = (200,200,0)
 
     def step(self, model):
-        self.bread *= 0.9999
-        self.butter *= 0.9999
-        if RNG(10000) == 10000:
-            self.bread += RNG(5)
-            self.butter += RNG(5)
+        if model["Decay"]:
+            self.bread *= 0.9999
+            self.butter *= 0.9999
+            if RNG(10000) == 10000:
+                self.bread += RNG(5)
+                self.butter += RNG(5)
         self.direction += RNG(20)-10
         self.speed = model["movespeed"]
         model["total_util"] += self.utility()
@@ -106,7 +107,6 @@ def setup(model):
     model.clear_plots()
     model["total_util"] = 0
     model["BNP"] = 0
-    model["movespeed"] = 0.5
     people = set([Person() for i in range(20)])
     model.add_agents(people)
 
@@ -123,6 +123,7 @@ bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_slider("movespeed", 0.1, 1, 0.5)
+bnb_model.add_checkbox("Decay")
 bnb_model.graph("BNP",(0,0,0))
 run(bnb_model)
 
