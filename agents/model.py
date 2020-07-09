@@ -312,3 +312,10 @@ class Model:
 
     def __delitem__(self, key):
         del self.variables[key]
+
+class SimpleModel(Model):
+    def __init__(self, title, x_tiles, y_tiles, setup_func, step_func, tile_size=8):
+        super().__init__(title,x_tiles,y_tiles,tile_size)
+        self.add_button("Setup",setup_func)
+        self.add_toggle_button("Step",step_func)
+

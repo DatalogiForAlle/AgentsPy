@@ -91,9 +91,7 @@ def direction(model):
     for a in model.agents:
         a.show_direction = not a.show_direction
 
-epidemic_model = Model("Epidemic",50,50)
-epidemic_model.add_button("Setup", setup)
-epidemic_model.add_button("Step", step)
+epidemic_model = SimpleModel("Epidemic",50,50,setup,step)
 epidemic_model.add_toggle_button("Go", step)
 epidemic_model.add_slider("movespeed", 0.1, 1, .1)
 epidemic_model.add_slider("decay", 0, 3, 2)
