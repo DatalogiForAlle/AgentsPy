@@ -29,10 +29,17 @@ class Person(Agent):
         self.direction += RNG(20)-10
         self.speed = model["movespeed"]
         nearby = self.agents_nearby(30)
+        nearby = self.agents_nearby(60)
+        nearby_infected = 0
+        new_dir = 0
         for other in nearby:
             if other.infection > 0:
+                nearby_infected += 1
                 self.point_towards(other.x,other.y)
-                self.direction += 180
+                new_dir += self.direction
+        if nearby_infected > 0:
+            new_dir /= nearby_infected
+            self.direction = new_dir + 180
         self.forward()
 
         if self.infection > 1:
