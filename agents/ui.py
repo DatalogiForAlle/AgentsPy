@@ -261,6 +261,15 @@ class Application():
             # Create a horizontal box layout for this row
             rowbox = QtWidgets.QHBoxLayout()
             controller_box.addLayout(rowbox)
+            toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
+            def toggle(checked):
+                if checked:
+                    self.simulation_area.timer.stop()
+                else:
+                    self.simulation_area.timer.start(1000/60)
+            toggle_render_btn.toggled.connect(toggle)
+            toggle_render_btn.setCheckable(True)
+            rowbox.addWidget(toggle_render_btn)
 
             # Add controllers
             for controller in row:
