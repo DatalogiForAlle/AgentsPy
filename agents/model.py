@@ -207,6 +207,7 @@ class Model:
         self.controller_rows = []
         self.add_controller_row()
         self.plots = set() # Filled in during initialization
+        self.show_direction = False
 
     def add_agent(self, agent):
         agent.set_model(self)
