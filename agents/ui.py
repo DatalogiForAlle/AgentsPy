@@ -1,9 +1,10 @@
 import sys
 import random
+import math
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, QBarSeries, QBarCategoryAxis
 from PyQt5.QtCore import QPointF, Qt, pyqtSignal
-from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen, QPolygonF
 
 from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec
 
@@ -58,7 +59,18 @@ class SimulationArea(QtWidgets.QWidget):
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
         painter.setBrush(QtGui.QColor(r, g, b))
-        painter.drawEllipse(agent.x-agent.size/2, agent.y-agent.size/2, agent.size, agent.size)
+        if self.model.show_direction:
+            x = agent.x
+            y = agent.y
+            d = math.radians(agent.direction)
+            s = agent.size
+            point_list = [QPointF(x + math.cos(d) * s, y + math.sin(d) * s),
+                          QPointF(x + math.cos(d+2.3) * s, y + math.sin(d+2.3) * s),
+                          QPointF(x + math.cos(d+math.pi) * s/2, y + math.sin(d+math.pi) * s/2),
+                          QPointF(x + math.cos(d-2.3) * s, y + math.sin(d-2.3) * s)]
+            painter.drawPolygon(QPolygonF(point_list))
+        else:
+            painter.drawEllipse(agent.x-agent.size/2, agent.y-agent.size/2, agent.size, agent.size)
 
     def paintTile(self, painter, tile):
         r, g, b = tile.color
