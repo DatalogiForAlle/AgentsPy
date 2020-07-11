@@ -184,14 +184,22 @@ class ToggleButton(QtWidgets.QPushButton):
             self.timer.stop()
 
  # Based on https://stackoverflow.com/a/50300848/
-class Slider(QtWidgets.QSlider):
+class Slider(QtWidgets.QHBoxLayout):
     def __init__(self, variable, minval, maxval, initial):
-        super().__init__(QtCore.Qt.Horizontal)
-        self.factor = 1000
-        self.setMinimum(minval * self.factor)
-        self.setMaximum(maxval * self.factor)
-        self.setValue(initial * self.factor)
-        self.setMinimumWidth(150)
+        super().__init__()
+        label = QtWidgets.QLabel()
+        label.setText(variable)
+        self.addWidget(label)
+        self.sliderBar = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.sliderBar.factor = 1000
+        self.sliderBar.setMinimum(minval * self.sliderBar.factor)
+        self.sliderBar.setMaximum(maxval * self.sliderBar.factor)
+        self.sliderBar.setValue(initial * self.sliderBar.factor)
+        self.sliderBar.setMinimumWidth(150)
+        self.addWidget(self.sliderBar)
+        self.indicator = QtWidgets.QLabel()
+        self.indicator.setText(str(initial))
+        self.addWidget(self.indicator)
 
 class Checkbox(QtWidgets.QCheckBox):
     def __init__(self, variable):
@@ -257,9 +265,11 @@ class Application():
     def add_slider(self, slider_spec, row):
         slider = Slider(slider_spec.variable, slider_spec.minval, slider_spec.maxval, slider_spec.initial)
         def update_variable(v):
-            self.model[slider_spec.variable] = v/slider.factor
-        slider.valueChanged.connect(update_variable)
-        row.addWidget(slider)
+            value = v/slider.sliderBar.factor
+            self.model[slider_spec.variable] = value
+            slider.indicator.setText(str(value))
+        slider.sliderBar.valueChanged.connect(update_variable)
+        row.addLayout(slider)
 
     def add_checkbox(self, checkbox_spec, row):
         checkbox = Checkbox(checkbox_spec.variable)
@@ -282,7 +292,7 @@ class Application():
     def add_controllers(self, rows, controller_box):
         for row in rows:
             # Create a horizontal box layout for this row
-            rowbox = QtWidgets.QHBoxLayout()
+            rowbox = QtWidgets.QVBoxLayout()
             controller_box.addLayout(rowbox)
             toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
             def toggle(checked):
