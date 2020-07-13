@@ -99,5 +99,6 @@ epidemic_model.add_slider("decay", 0, 3, 2)
 epidemic_model.graph("immune", (100, 100, 255))
 epidemic_model.graph("infected", (255, 255, 0))
 epidemic_model.histogram(["normal","infected","immune"], (255, 255, 0))
+epidemic_model.monitor("immune")
 run(epidemic_model)
 

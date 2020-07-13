@@ -175,6 +175,10 @@ class GraphSpec(Spec):
         self.variable = variable
         self.color = color
 
+class MonitorSpec(Spec):
+    def __init__(self,variable):
+        self.variable = variable
+
 class HistogramSpec(Spec):
     def __init__(self, variables, colors):
         self.variables = variables
@@ -303,6 +307,9 @@ class Model:
 
     def histogram(self, variables, colors):
         self.plot_specs.append(HistogramSpec(variables,colors))
+
+    def monitor(self, variable):
+        self.current_row.append(MonitorSpec(variable))
 
     def __setitem__(self, key, item):
         self.variables[key] = item

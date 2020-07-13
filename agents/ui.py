@@ -6,7 +6,7 @@ from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, 
 from PyQt5.QtCore import QPointF, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen, QPolygonF
 
-from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec
+from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec, MonitorSpec
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -201,6 +201,19 @@ class Slider(QtWidgets.QHBoxLayout):
         self.indicator.setText(str(initial))
         self.addWidget(self.indicator)
 
+class Monitor(QtWidgets.QLabel):
+    def __init__(self, variable, model):
+        super().__init__()
+        self.variable = variable
+        self.setText(variable + ": -")
+        self.model = model
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.update_label())
+        self.timer.start(1000/60)
+
+    def update_label(self):
+        self.setText(self.variable + ": " + str(self.model[self.variable]))
+
 class Checkbox(QtWidgets.QCheckBox):
     def __init__(self, variable):
         super().__init__(variable)
@@ -289,6 +302,10 @@ class Application():
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
 
+    def add_monitor(self, monitor_spec, plots_box):
+        monitor = Monitor(monitor_spec.variable, self.model)
+        plots_box.addWidget(monitor)
+
     def add_controllers(self, rows, controller_box):
         for row in rows:
             # Create a horizontal box layout for this row
@@ -314,6 +331,8 @@ class Application():
                     self.add_slider(controller, rowbox)
                 elif isinstance(controller, CheckboxSpec):
                     self.add_checkbox(controller, rowbox)
+                elif isinstance(controller, MonitorSpec):
+                    self.add_monitor(controller, rowbox)
             rowbox.addStretch(1)
 
     def add_plots(self, plot_specs, plots_box):
