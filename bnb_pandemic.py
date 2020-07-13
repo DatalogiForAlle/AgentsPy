@@ -57,8 +57,6 @@ class Person(Agent):
             if nearby_infected > 0:
                 new_dir /= nearby_infected
                 self.direction = new_dir + 180
-        else:
-            print("Whatever")
         self.forward()
         self.update_visual()
 
@@ -125,6 +123,6 @@ bnb_model.add_toggle_button("Go", step)
 bnb_model.add_slider("movespeed", 0.1, 1, 0.5)
 bnb_model.add_checkbox("Decay")
 bnb_model.graph("BNP",(0,0,0))
-bnb_model.show_direction = True
+bnb_model.show_direction = False
 run(bnb_model)
 
