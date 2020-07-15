@@ -54,7 +54,7 @@ class Agent():
         tx = self.__model.x_tiles
         ty = self.__model.y_tiles
         self.x = math.floor(self.x * tx / w) * w / tx + (w/tx)/2
-        self.y = math.floor(self.y * ty / h) * w / ty + (h/ty)/2
+        self.y = math.floor(self.y * ty / h) * h / ty + (h/ty)/2
 
     def jump_to(self, x, y):
         self.x = x
@@ -217,6 +217,7 @@ class Model:
         agent.set_model(self)
         agent.x = RNG(self.width)
         agent.y = RNG(self.height)
+        agent.update_current_tile()
         self.agents.add(agent)
         agent.setup(self)
 
@@ -232,7 +233,8 @@ class Model:
 
     # Based on kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
-        agent_list = list(self.agents)
+        # Only returns the list of agents that actually have that attribute
+        agent_list = filter(lambda a: hasattr(a,variable), list(self.agents))
         ret_list = sorted(agent_list, key=operator.attrgetter(variable))
         if not increasing:
             ret_list.reverse()
