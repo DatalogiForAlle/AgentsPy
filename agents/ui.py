@@ -6,7 +6,7 @@ from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, 
 from PyQt5.QtCore import QPointF, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen, QPolygonF
 
-from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec, MonitorSpec
+from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec, HistogramBinSpec, MonitorSpec
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -167,6 +167,50 @@ class QtHistogram(QChartView):
                 self.mainset.replace(i,self._dataset[i])
             self.axis_y.setRange(0, max(self._dataset))
 
+class QtHistogramBins(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.mainset = QBarSet('MainSet')
+        self.mainset.append([0 for i in range(len(spec.bins))])
+        self.series = QBarSeries()
+        self.series.append(self.mainset)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.axis_x = QBarCategoryAxis()
+        self.axis_y = QValueAxis()
+        self.axis_x.append(map(str,spec.bins))
+        self.chart.addSeries(self.series)
+        self.chart.setAxisX(self.axis_x, self.series)
+        self.chart.setAxisY(self.axis_y, self.series)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.redraw())
+        self.timer.start(1000/10)
+        self._dataset = []
+
+    def clear(self):
+        self._dataset = []
+
+    def update_data(self,dataset):
+        data = []
+        for d in dataset:
+            data.append(d)
+        self._dataset = data
+
+    def redraw(self):
+        if len(self._dataset) > 0:
+            for i in range(len(self._dataset)):
+                self.mainset.replace(i,self._dataset[i])
+            self.axis_y.setRange(0, max(self._dataset))
+
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
         super().__init__(text)
@@ -212,7 +256,8 @@ class Monitor(QtWidgets.QLabel):
         self.timer.start(1000/60)
 
     def update_label(self):
-        self.setText(self.variable + ": " + str(self.model[self.variable]))
+        if self.variable in self.model.variables:
+            self.setText(self.variable + ": " + str(self.model[self.variable]))
 
 class Checkbox(QtWidgets.QCheckBox):
     def __init__(self, variable):
@@ -302,6 +347,11 @@ class Application():
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
 
+    def add_histogram_bins(self, histogram_bins_spec, plots_box):
+        histogram = QtHistogramBins(histogram_bins_spec)
+        plots_box.addWidget(histogram)
+        self.model.plots.add(histogram)
+
     def add_monitor(self, monitor_spec, plots_box):
         monitor = Monitor(monitor_spec.variable, self.model)
         plots_box.addWidget(monitor)
@@ -341,6 +391,8 @@ class Application():
                 self.add_graph(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:
                 self.add_histogram(plot_spec, plots_box)
+            elif type(plot_spec) is HistogramBinSpec:
+                self.add_histogram_bins(plot_spec, plots_box)
 
 def run(model):
     # Initialize application

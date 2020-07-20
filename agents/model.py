@@ -100,14 +100,16 @@ class Agent():
 
     # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
-        tileset = [[None for y in range(3)] for x in range(3)]
-        (tx,ty) = self.model.get_tiles_xy()
-        for y in range(3):
-            for x in range(3):
-                x = (floor(tx * self.x / self.__model.width)+x-1) % tx
-                y = (floor(ty * self.y / self.__model.height)+y-1) % ty
-                tileset[x][y] = self.__model.tiles[x][y]
-        return tileset
+        return self.nearby_tiles(-1,-1,1,1)
+
+    def nearby_tiles(self,x1,y1,x2,y2):
+        t = self.__current_tile
+        tiles = []
+        for y in range(y1,y2+1):
+            row = self.__model.x_tiles * ((t.y+y) % self.__model.y_tiles)
+            tiles +=  self.__model.tiles[(row + t.x + x1)
+                                         :(row + t.x + x2+1)]
+        return tiles
 
     def is_destroyed(self):
         return self.__destroyed
@@ -124,7 +126,6 @@ class Agent():
     def color(self, color):
         r, g, b = color
         self.__color = [r, g, b]
-
 
 class Tile():
     def __init__(self,x, y, model):
@@ -182,6 +183,12 @@ class MonitorSpec(Spec):
 class HistogramSpec(Spec):
     def __init__(self, variables, colors):
         self.variables = variables
+        self.colors = colors
+
+class HistogramBinSpec(Spec):
+    def __init__(self, variable, bins, colors):
+        self.variable = variable
+        self.bins = bins
         self.colors = colors
 
 class Model:
@@ -260,6 +267,17 @@ class Model:
                 for d in plot.spec.variables:
                     dataset.append(self.variables[d])
                 plot.update_data(dataset)
+            elif type(plot.spec) is HistogramBinSpec:
+                dataset = []
+                for b in plot.spec.bins:
+                    bin_count = 0
+                    for a in self.agents:
+                        if hasattr(a,plot.spec.variable):
+                            val = getattr(a,plot.spec.variable)
+                            if val >= b[0] and val <= b[1]:
+                                bin_count += 1
+                    dataset.append(bin_count)
+                plot.update_data(dataset)
 
     def remove_destroyed_agents(self):
         new_agents = set()
@@ -309,6 +327,9 @@ class Model:
 
     def histogram(self, variables, colors):
         self.plot_specs.append(HistogramSpec(variables,colors))
+
+    def histogram_bins(self, variable, bins, colors):
+        self.plot_specs.append(HistogramBinSpec(variable,bins,colors))
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))
