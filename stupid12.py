@@ -9,25 +9,19 @@ class Bug(Agent):
     def setup(self, model):
         self.size = 8
         self.grow_size = 1
-        self.state = "B0"
         self.survivalprobability = 95
         self.draw_color()
         self.align()
         self.update_current_tile()
 
     def step(self, model):
+        # Eat from the current tile
         t = self.current_tile()
         self.grow_size += min(model["max_food_eat"],t.info["food"])
         t.info["food"] = max(0,t.info["food"]-model["max_food_eat"])
-        if self.grow_size < 2.5:
-            self.state = "B0"
-        elif self.grow_size < 5:
-            self.state = "B1"
-        elif self.grow_size < 7.5:
-            self.state = "B2"
-        elif self.grow_size < 10:
-            self.state = "B3"
-        else:
+
+        # Split into new bugs
+        if self.grow_size > 10:
             for _ in range(5):
                 for _ in range(5):
                     newbug_x = 3-RNG(6)
@@ -43,25 +37,27 @@ class Bug(Agent):
                         break
             self.destroy()
             return
-        if self.grow_size > 100:
-            model["stop"] = True
-        new_x = -4
-        new_y = -4
+
+        # Find all nearby valid tiles
+        nearby_tiles = self.nearby_tiles(-4,-4,4,4)
+        random.shuffle(nearby_tiles)
+        def is_valid_tile(t):
+            return len(t.get_agents()) == 0
+        filter(is_valid_tile,nearby_tiles)
+
+        # Move to the best tile
         best_t = None
-        for y in range(-4,5):
-            for x in range(-4,5):
-                new_t = model.tiles[((t.y+y) % model.y_tiles) * model.x_tiles
-                                    + (t.x+x) % model.x_tiles]
-                if (not best_t
-                    or (best_t.info["food"] < new_t.info["food"])):
-                    if (len(new_t.get_agents()) == 0 or (x == 0 and y == 0)):
-                        new_x = x
-                        new_y = y
-                        best_t = new_t
-        self.draw_color()
-        self.jump_to((best_t.x)*model.width/model.x_tiles,
+        for new_t in nearby_tiles:
+            if (not best_t
+                or (best_t.info["food"] < new_t.info["food"])):
+                if len(new_t.get_agents()) == 0:
+                    best_t = new_t
+        if best_t:
+            self.jump_to((best_t.x)*model.width/model.x_tiles,
                      (best_t.y)*model.height/model.y_tiles)
-        self.align()
+            self.align()
+        self.draw_color()
+
         if self.survivalprobability < RNG(100):
             self.destroy()
 
@@ -70,11 +66,6 @@ def setup(model):
     f = open("stupid.data", "w")
     model.reset()
     people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
-    model["B0"] = len(people)
-    model["B1"] = 0
-    model["B2"] = 0
-    model["B3"] = 0
-    model["B4"] = 0
     model["stop"] = False
     model.add_agents(people)
     for t in model.tiles:
@@ -84,17 +75,11 @@ def setup(model):
 def step(model):
     global f
     if not model["stop"]:
-        model["B0"] = 0
-        model["B1"] = 0
-        model["B2"] = 0
-        model["B3"] = 0
-        model["B4"] = 0
         bug_min = None
         bug_mean = 0
         bug_max = None
         for a in model.agents_ordered("grow_size"):
             a.step(model)
-            model[a.state] += 1
             if not bug_min or bug_min > a.grow_size:
                 bug_min = a.grow_size
             if not bug_max or bug_max < a.grow_size:
@@ -118,5 +103,11 @@ stupid_model.add_toggle_button("go", step)
 stupid_model.add_slider("initial_bugs",10,300,100)
 stupid_model.add_slider("max_food_eat",0.1,1.0,1.0)
 stupid_model.add_slider("max_food_prod",0.01,0.1,0.01)
-stupid_model.histogram(["B0","B1","B2","B3","B4"],[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)])
+stupid_model.histogram_bins("grow_size",
+                            [(0.0,2.5),
+                             (2.5,5.0),
+                             (5.0,7.5),
+                             (7.5,10.0),
+                             (10.0,100.0)],
+                            [(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)])
 run(stupid_model)

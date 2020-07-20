@@ -11,22 +11,28 @@ class Bug(Agent):
         self.grow_size = 1
         self.draw_color()
         self.align()
+        self.update_current_tile()
 
     def step(self, model):
+        # Eat from the current tile
         t = self.current_tile()
         self.grow_size += min(model["max_food_eat"],t.info["food"])
         t.info["food"] = max(0,t.info["food"]-model["max_food_eat"])
-        new_x = (t.x + RNG(8) - 4) % model.x_tiles
-        new_y = (t.y + RNG(8) - 4) % model.y_tiles
-        new_t = model.tiles[new_y * model.x_tiles + new_x]
-        while len(new_t.get_agents()) > 0:
-            new_x = (t.x + RNG(8) - 4) % model.x_tiles
-            new_y = (t.y + RNG(8) - 4) % model.y_tiles
-            new_t = model.tiles[new_y * model.x_tiles + new_x]
+
+        # Find all nearby valid tiles
+        nearby_tiles = self.nearby_tiles(-4,-4,4,4)
+        random.shuffle(nearby_tiles)
+        def is_valid_tile(t):
+            return len(t.get_agents()) == 0
+        filter(is_valid_tile,nearby_tiles)
+
+        # If there is a valid tile, pick the "first" one and jump to it
+        if len(nearby_tiles) > 0:
+            new_t = nearby_tiles[0] # Just use the first one in the list, it is shuffled anyways
+            self.jump_to(new_t.x*model.width/model.x_tiles,
+                     new_t.y*model.height/model.y_tiles)
+            self.align()
         self.draw_color()
-        self.jump_to(new_x*model.width/model.x_tiles,
-                     new_y*model.height/model.y_tiles)
-        self.align()
 
 def setup(model):
     model.reset()

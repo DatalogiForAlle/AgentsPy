@@ -9,49 +9,38 @@ class Bug(Agent):
     def setup(self, model):
         self.size = 8
         self.grow_size = 1
-        self.state = "B0"
         self.draw_color()
         self.align()
         self.update_current_tile()
 
     def step(self, model):
+        # Eat from the current tile
         t = self.current_tile()
         self.grow_size += min(model["max_food_eat"],t.info["food"])
         t.info["food"] = max(0,t.info["food"]-model["max_food_eat"])
-        if self.grow_size < 2.5:
-            self.state = "B0"
-        elif self.grow_size < 5:
-            self.state = "B1"
-        elif self.grow_size < 7.5:
-            self.state = "B2"
-        elif self.grow_size < 10:
-            self.state = "B3"
-        else:
-            self.state = "B4"
         if self.grow_size > 100:
             model["stop"] = True
-        new_x = (t.x + RNG(8) - 4) % model.x_tiles
-        new_y = (t.y + RNG(8) - 4) % model.y_tiles
-        new_t = model.tiles[new_y * model.x_tiles + new_x]
-        while len(new_t.get_agents()) > 0:
-            new_x = (t.x + RNG(8) - 4) % model.x_tiles
-            new_y = (t.y + RNG(8) - 4) % model.y_tiles
-            new_t = model.tiles[new_y * model.x_tiles + new_x]
+
+        # Find all nearby valid tiles
+        nearby_tiles = self.nearby_tiles(-4,-4,4,4)
+        random.shuffle(nearby_tiles)
+        def is_valid_tile(t):
+            return len(t.get_agents()) == 0
+        filter(is_valid_tile,nearby_tiles)
+
+        # If there is a valid tile, pick the "first" one and jump to it
+        if len(nearby_tiles) > 0:
+            new_t = nearby_tiles[0] # Just use the first one in the list, it is shuffled anyways
+            self.jump_to(new_t.x*model.width/model.x_tiles,
+                     new_t.y*model.height/model.y_tiles)
+            self.align()
         self.draw_color()
-        self.jump_to(new_x*model.width/model.x_tiles,
-                     new_y*model.height/model.y_tiles)
-        self.align()
 
 def setup(model):
     global f
     f = open("stupid.data", "w")
     model.reset()
     people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
-    model["B0"] = len(people)
-    model["B1"] = 0
-    model["B2"] = 0
-    model["B3"] = 0
-    model["B4"] = 0
     model["stop"] = False
     model.add_agents(people)
     for t in model.tiles:
@@ -61,18 +50,11 @@ def setup(model):
 def step(model):
     global f
     if not model["stop"]:
-        model["B0"] = 0
-        model["B1"] = 0
-        model["B2"] = 0
-        model["B3"] = 0
-        model["B4"] = 0
-
         bug_min = None
         bug_mean = 0
         bug_max = None
         for a in model.agents:
             a.step(model)
-            model[a.state] += 1
             if not bug_min or bug_min > a.grow_size:
                 bug_min = a.grow_size
             if not bug_max or bug_max < a.grow_size:
@@ -95,5 +77,11 @@ stupid_model.add_toggle_button("go", step)
 stupid_model.add_slider("initial_bugs",10,300,100)
 stupid_model.add_slider("max_food_eat",0.1,1.0,1.0)
 stupid_model.add_slider("max_food_prod",0.01,0.1,0.01)
-stupid_model.histogram(["B0","B1","B2","B3","B4"],[(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)])
+stupid_model.histogram_bins("grow_size",
+                            [(0.0,2.5),
+                             (2.5,5.0),
+                             (5.0,7.5),
+                             (7.5,10.0),
+                             (10.0,100.0)],
+                            [(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)])
 run(stupid_model)
