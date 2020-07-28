@@ -91,6 +91,7 @@ class QtGraph(QChartView):
         self.chart.createDefaultAxes()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
         self.series = QLineSeries()
+        self.series.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
 
@@ -105,8 +106,10 @@ class QtGraph(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000/5)
+        self.timer.start(1000/2)
         self._data = []
+        self._min = 0
+        self._max = 0
 
     def clear(self):
         self.series.clear()
@@ -117,11 +120,13 @@ class QtGraph(QChartView):
 
     def redraw(self):
         if len(self._data) > 0:
-            self.series.clear()
-            for i in range(len(self._data)):
-                self.series.append(QPointF(i, self._data[i]))
-            self.axis_x.setRange(0,self.series.count())
-            self.axis_y.setRange(min(self._data), max(self._data))
+            datapoint = sum(self._data) / len(self._data)
+            self.series.append(QPointF(self.series.count()/2, datapoint))
+            self.axis_x.setRange(0,(self.series.count()-1)/2)
+            self._min = min(self._min, datapoint)
+            self._max = max(self._max, datapoint)
+            self.axis_y.setRange(self._min, self._max)
+            self._data = []
 
 class QtHistogram(QChartView):
     def __init__(self, spec):
@@ -129,8 +134,9 @@ class QtHistogram(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-        self.mainset = QBarSet('MainSet')
+        self.mainset = QBarSet('')
         self.mainset.append([0 for i in range(len(spec.variables))])
+        self.mainset.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
         self.series = QBarSeries()
         self.series.append(self.mainset)
 
@@ -173,8 +179,9 @@ class QtHistogramBins(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-        self.mainset = QBarSet('MainSet')
+        self.mainset = QBarSet('')
         self.mainset.append([0 for i in range(len(spec.bins))])
+        self.mainset.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
         self.series = QBarSeries()
         self.series.append(self.mainset)
 

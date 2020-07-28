@@ -14,7 +14,7 @@ class Bug(Agent):
         random.shuffle(nearby_tiles)
         def is_valid_tile(t):
             return len(t.get_agents()) == 0
-        filter(is_valid_tile,nearby_tiles)
+        nearby_tiles = list(filter(is_valid_tile,nearby_tiles))
 
         # If there is a valid tile, pick the "first" one and jump to it
         if len(nearby_tiles) > 0:
@@ -22,7 +22,6 @@ class Bug(Agent):
             self.jump_to(new_t.x*model.width/model.x_tiles,
                      new_t.y*model.height/model.y_tiles)
             self.align()
-        self.draw_color()
 
 def setup(model):
     model.reset()

@@ -92,11 +92,8 @@ class Agent():
     def current_tile(self):
         x = math.floor(self.__model.x_tiles * self.x / self.__model.width) % self.__model.x_tiles
         y = math.floor(self.__model.y_tiles * self.y / self.__model.height) % self.__model.y_tiles
-        try:
-            i = y*self.__model.x_tiles + x
-            return self.__model.tiles[i]
-        except:
-            print(self.x, self.y, x, y)
+        i = y*self.__model.x_tiles + x
+        return self.__model.tiles[i]
 
     # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
@@ -181,15 +178,15 @@ class MonitorSpec(Spec):
         self.variable = variable
 
 class HistogramSpec(Spec):
-    def __init__(self, variables, colors):
+    def __init__(self, variables, color):
         self.variables = variables
-        self.colors = colors
+        self.color = color
 
 class HistogramBinSpec(Spec):
-    def __init__(self, variable, bins, colors):
+    def __init__(self, variable, bins, color):
         self.variable = variable
         self.bins = bins
-        self.colors = colors
+        self.color = color
 
 class Model:
     def __init__(self, title, x_tiles, y_tiles, tile_size=8):
@@ -206,7 +203,7 @@ class Model:
         self.height = y_tiles * tile_size
 
         # Internal set of agents.
-        self.agents = set()
+        self.__agents = set()
 
         # Initial tileset (empty).
         self.tiles = [Tile(x, y, self)
@@ -281,12 +278,12 @@ class Model:
 
     def remove_destroyed_agents(self):
         new_agents = set()
-        for a in self.agents:
+        for a in self.__agents:
             if not a.is_destroyed():
                 new_agents.add(a)
             else:
                 a.current_tile().remove_agent(a)
-        self.agents = new_agents
+        self.__agents = new_agents
 
     def clear_plots(self):
         for plot in self.plots:
@@ -325,14 +322,23 @@ class Model:
     def graph(self, variable, color):
         self.plot_specs.append(GraphSpec(variable, color))
 
-    def histogram(self, variables, colors):
-        self.plot_specs.append(HistogramSpec(variables,colors))
+    def histogram(self, variables, color):
+        self.plot_specs.append(HistogramSpec(variables,color))
 
-    def histogram_bins(self, variable, bins, colors):
-        self.plot_specs.append(HistogramBinSpec(variable,bins,colors))
+    def histogram_bins(self, variable, bins, color):
+        self.plot_specs.append(HistogramBinSpec(variable,bins,color))
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))
+
+    @property
+    def agents(self):
+        self.remove_destroyed_agents()
+        return self.__agents
+
+    @agents.setter
+    def agents(self, agents):
+        self.__agents = agents
 
     def __setitem__(self, key, item):
         self.variables[key] = item

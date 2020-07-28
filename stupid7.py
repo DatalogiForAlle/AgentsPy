@@ -26,7 +26,7 @@ class Bug(Agent):
         random.shuffle(nearby_tiles)
         def is_valid_tile(t):
             return len(t.get_agents()) == 0
-        filter(is_valid_tile,nearby_tiles)
+        nearby_tiles = list(filter(is_valid_tile,nearby_tiles))
 
         # If there is a valid tile, pick the "first" one and jump to it
         if len(nearby_tiles) > 0:
@@ -69,5 +69,5 @@ stupid_model.histogram_bins("grow_size",
                              (5.0,7.5),
                              (7.5,10.0),
                              (10.0,100.0)],
-                            [(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)])
+                            (0,0,0))
 run(stupid_model)
