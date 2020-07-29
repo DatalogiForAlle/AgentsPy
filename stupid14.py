@@ -26,8 +26,8 @@ class Bug(Agent):
         if self.grow_size > 10:
             for _ in range(5):
                 for _ in range(5):
-                    newbug_x = 3-RNG(6)
-                    newbug_y = 3-RNG(6)
+                    newbug_x = 3-random.randint(0,6)
+                    newbug_y = 3-random.randint(0,6)
                     newbug_t = model.tiles[((t.y+newbug_y) % model.y_tiles) * model.x_tiles
                                            + (t.x+newbug_x) % model.x_tiles]
                     if len(newbug_t.get_agents()) == 0:
@@ -61,7 +61,7 @@ class Bug(Agent):
             self.align()
         self.draw_color()
 
-        if self.survivalprobability < RNG(100):
+        if self.survivalprobability < random.randint(0,100):
             model["current_bugs"] -= 1
             self.destroy()
 
@@ -108,12 +108,6 @@ stupid_model.add_toggle_button("go", step)
 stupid_model.add_slider("initial_bugs",10,300,100)
 stupid_model.add_slider("max_food_eat",0.1,1.0,1.0)
 stupid_model.add_slider("max_food_prod",0.01,0.1,0.01)
-stupid_model.histogram_bins("grow_size",
-                            [(0.0,2.5),
-                             (2.5,5.0),
-                             (5.0,7.5),
-                             (7.5,10.0),
-                             (10.0,100.0)],
-                            (0,0,0))
+stupid_model.histogram_bins("grow_size",0,10,5,(0,0,0))
 stupid_model.graph("current_bugs",(0,0,0))
 run(stupid_model)

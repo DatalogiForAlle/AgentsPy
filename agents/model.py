@@ -2,9 +2,6 @@ import math
 import random
 import operator
 
-def RNG(maximum):
-    return random.randint(0,maximum)
-
 class Agent():
     def __init__(self):
         # Associated simulation area.
@@ -17,12 +14,12 @@ class Agent():
         self.__resolution = 10
 
         # Color of the agent in RGB.
-        self.__color = [RNG(255), RNG(255), RNG(255)]
+        self.__color = [random.randint(0,255), random.randint(0,255), random.randint(0,255)]
 
         self.x = 0
         self.y = 0
         self.size = 1
-        self.direction = RNG(359)
+        self.direction = random.randint(0,359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
@@ -183,9 +180,12 @@ class HistogramSpec(Spec):
         self.color = color
 
 class HistogramBinSpec(Spec):
-    def __init__(self, variable, bins, color):
+    def __init__(self, variable, minimum, maximum, intervals, color):
         self.variable = variable
-        self.bins = bins
+        self.minimum = minimum
+        self.maximum = maximum
+        i_size = (maximum - minimum) / intervals
+        self.bins = [(minimum+i_size*i,minimum+i_size*(i+1)) for i in range(intervals)]
         self.color = color
 
 class Model:
@@ -219,8 +219,8 @@ class Model:
 
     def add_agent(self, agent):
         agent.set_model(self)
-        agent.x = RNG(self.width)
-        agent.y = RNG(self.height)
+        agent.x = random.randint(0,self.width)
+        agent.y = random.randint(0,self.height)
         agent.update_current_tile()
         self.agents.add(agent)
         agent.setup(self)
@@ -325,8 +325,8 @@ class Model:
     def histogram(self, variables, color):
         self.plot_specs.append(HistogramSpec(variables,color))
 
-    def histogram_bins(self, variable, bins, color):
-        self.plot_specs.append(HistogramBinSpec(variable,bins,color))
+    def histogram_bins(self, variable, minimum, maximum, bins, color):
+        self.plot_specs.append(HistogramBinSpec(variable,minimum,maximum,bins,color))
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))

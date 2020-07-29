@@ -82,11 +82,5 @@ stupid_model.add_toggle_button("go", step)
 stupid_model.add_slider("initial_bugs",10,300,100)
 stupid_model.add_slider("max_food_eat",0.1,1.0,1.0)
 stupid_model.add_slider("max_food_prod",0.01,0.1,0.01)
-stupid_model.histogram_bins("grow_size",
-                            [(0.0,2.5),
-                             (2.5,5.0),
-                             (5.0,7.5),
-                             (7.5,10.0),
-                             (10.0,100.0)],
-                            (0,0,0))
+stupid_model.histogram_bins("grow_size",0,10,5,(0,0,0))
 run(stupid_model)
