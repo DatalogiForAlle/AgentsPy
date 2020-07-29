@@ -61,6 +61,15 @@ class Agent():
     def set_model(self, model):
         self.__model = model
 
+    def direction_to(self, other_x, other_y):
+        direction = 0
+        dist = self.distance_to(other_x,other_y)
+        if dist > 0:
+            direction = math.degrees(math.acos((other_x - self.x) / dist))
+            if (self.y - other_y) > 0:
+                direction = 360 - direction
+        return direction
+
     def point_towards(self, other_x, other_y):
         dist = self.distance_to(other_x,other_y)
         if dist > 0:

@@ -22,24 +22,25 @@ class Person(Agent):
         self.size = 10
         self.infection = 0
         model["normal"] += 1
-        if (RNG(100) < 5):
+        if (random.randint(0,100) < 5):
             self.infect(model)
 
     def step(self, model):
-        self.direction += RNG(20)-10
-        self.speed = model["movespeed"]
         nearby = self.agents_nearby(30)
-        nearby = self.agents_nearby(60)
         nearby_infected = 0
-        new_dir = 0
+        # Find the average angle of nearby infected agents
+        average_angle = 0
         for other in nearby:
             if other.infection > 0:
                 nearby_infected += 1
-                self.point_towards(other.x,other.y)
-                new_dir += self.direction
+                average_angle += self.direction_to(other.x,other.y)
+        # If any nearby infected, move away from them
         if nearby_infected > 0:
-            new_dir /= nearby_infected
-            self.direction = new_dir + 180
+            average_angle /= nearby_infected
+            self.direction = average_angle + 180
+        else:
+            self.direction += random.randint(0,20)-10
+        self.speed = model["movespeed"]
         self.forward()
 
         if self.infection > 1:
