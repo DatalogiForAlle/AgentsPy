@@ -1,5 +1,6 @@
 import random
-from agents import *
+from agents import Agent, Model, run
+
 
 class Electron(Agent):
     def setup(self, model):
@@ -18,8 +19,9 @@ class Electron(Agent):
         for b in self.agents_nearby(distance=10, agent_type=Nucleon):
             self.point_towards(b.x, b.y)
             self.direction -= 180
-            self.direction += random.randrange(-1,2)
+            self.direction += random.randrange(-1, 2)
         self.forward()
+
 
 class Nucleon(Agent):
     def setup(self, model):
@@ -29,8 +31,9 @@ class Nucleon(Agent):
     def step(self, model):
         pass
 
+
 def setup(model):
-    model.reset() # can this be made implicit?
+    model.reset()  # can this be made implicit?
     model["speed"] = 2
     model["charge_flow"] = 0
 
@@ -44,6 +47,7 @@ def setup(model):
     for tile in model.tiles:
         tile.color = (100, 100, 100)
 
+
 def step(model):
     old_charge_flow = model["charge_flow"]
     model["charge_flow"] = 0
@@ -51,6 +55,7 @@ def step(model):
         agent.step(model)
     model["charge_flow"] = model["charge_flow"] * 0.01 + old_charge_flow * 0.99
     model.update_plot()
+
 
 modello = Model("Electricity", 50, 25)
 modello.add_button("Setup", setup)
