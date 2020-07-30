@@ -1,15 +1,14 @@
 from distutils.core import setup
 setup(
-  name='pyagents',
-  packages=['pyagents'],
+  name='agentspy',
+  packages=['agentspy'],
   version='0.1',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
   author='Jens Kanstrup Larsen / Martin Dybdal',
   author_email='jkl@di.ku.dk',
   url='https://github.com/DatalogiForAlle/pyagents',
-  download_url='https://github.com/'
-               + 'DatalogiForAlle/pyagents/archive/v0.1.tar.gz',
+  download_url='https://github.com/DatalogiForAlle/AgentsPy/releases/tag/v0.1',
   keywords=['AGENT', 'MODELING', 'SIMULATION'],
   install_requires=[
           'PyQt5'
