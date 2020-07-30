@@ -2,7 +2,8 @@ import math
 import random
 import operator
 
-class Agent():
+
+class Agent:
     def __init__(self):
         # Associated simulation area.
         self.__model = None
@@ -14,12 +15,16 @@ class Agent():
         self.__resolution = 10
 
         # Color of the agent in RGB.
-        self.__color = [random.randint(0,255), random.randint(0,255), random.randint(0,255)]
+        self.__color = [
+            random.randint(0, 255),
+            random.randint(0, 255),
+            random.randint(0, 255),
+        ]
 
         self.x = 0
         self.y = 0
         self.size = 1
-        self.direction = random.randint(0,359)
+        self.direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
@@ -50,8 +55,8 @@ class Agent():
         h = self.__model.height
         tx = self.__model.x_tiles
         ty = self.__model.y_tiles
-        self.x = math.floor(self.x * tx / w) * w / tx + (w/tx)/2
-        self.y = math.floor(self.y * ty / h) * h / ty + (h/ty)/2
+        self.x = math.floor(self.x * tx / w) * w / tx + (w / tx) / 2
+        self.y = math.floor(self.y * ty / h) * h / ty + (h / ty) / 2
 
     def jump_to(self, x, y):
         self.x = x
@@ -63,7 +68,7 @@ class Agent():
 
     def direction_to(self, other_x, other_y):
         direction = 0
-        dist = self.distance_to(other_x,other_y)
+        dist = self.distance_to(other_x, other_y)
         if dist > 0:
             direction = math.degrees(math.acos((other_x - self.x) / dist))
             if (self.y - other_y) > 0:
@@ -71,7 +76,7 @@ class Agent():
         return direction
 
     def point_towards(self, other_x, other_y):
-        dist = self.distance_to(other_x,other_y)
+        dist = self.distance_to(other_x, other_y)
         if dist > 0:
             self.direction = math.degrees(math.acos((other_x - self.x) / dist))
             if (self.y - other_y) > 0:
@@ -83,35 +88,40 @@ class Agent():
         self.__post_move()
 
     def distance_to(self, other_x, other_y):
-        return ((self.x-other_x)**2 + (self.y-other_y)**2)**0.5
+        return ((self.x - other_x) ** 2 + (self.y - other_y) ** 2) ** 0.5
 
     # Returns a list of nearby agents.
     # May take a type as argument and only return agents of that type.
     def agents_nearby(self, distance, agent_type=None):
         nearby = set()
         for a in self.__model.agents:
-            if self.distance_to(a.x,a.y) <= distance and not (a is self):
-                if agent_type == None or type(a) is agent_type:
+            if self.distance_to(a.x, a.y) <= distance and not (a is self):
+                if agent_type is None or type(a) is agent_type:
                     nearby.add(a)
         return nearby
 
     def current_tile(self):
-        x = math.floor(self.__model.x_tiles * self.x / self.__model.width) % self.__model.x_tiles
-        y = math.floor(self.__model.y_tiles * self.y / self.__model.height) % self.__model.y_tiles
-        i = y*self.__model.x_tiles + x
+        x = (
+            math.floor(self.__model.x_tiles * self.x / self.__model.width)
+            % self.__model.x_tiles
+        )
+        y = (
+            math.floor(self.__model.y_tiles * self.y / self.__model.height)
+            % self.__model.y_tiles
+        )
+        i = y * self.__model.x_tiles + x
         return self.__model.tiles[i]
 
     # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
-        return self.nearby_tiles(-1,-1,1,1)
+        return self.nearby_tiles(-1, -1, 1, 1)
 
-    def nearby_tiles(self,x1,y1,x2,y2):
+    def nearby_tiles(self, x1, y1, x2, y2):
         t = self.__current_tile
         tiles = []
-        for y in range(y1,y2+1):
-            row = self.__model.x_tiles * ((t.y+y) % self.__model.y_tiles)
-            tiles +=  self.__model.tiles[(row + t.x + x1)
-                                         :(row + t.x + x2+1)]
+        for y in range(y1, y2 + 1):
+            row = self.__model.x_tiles * ((t.y + y) % self.__model.y_tiles)
+            tiles += self.__model.tiles[(row + t.x + x1):(row + t.x + x2 + 1)]
         return tiles
 
     def is_destroyed(self):
@@ -130,38 +140,41 @@ class Agent():
         r, g, b = color
         self.__color = [r, g, b]
 
-class Tile():
-    def __init__(self,x, y, model):
+
+class Tile:
+    def __init__(self, x, y, model):
         self.x = x
         self.y = y
         self.info = {}
         self.color = (0, 0, 0)
         self.__agents = set()
+        self.__model = model
 
-    def add_agent(self,agent):
+    def add_agent(self, agent):
         self.__agents.add(agent)
 
-    def remove_agent(self,agent):
+    def remove_agent(self, agent):
         self.__agents.discard(agent)
 
     def get_agents(self):
         return self.__agents
 
-        # Associated model.
-        self.__model = model
 
-class Spec():
+class Spec:
     pass
+
 
 class ButtonSpec(Spec):
     def __init__(self, label, function):
         self.label = label
         self.function = function
 
+
 class ToggleSpec(Spec):
     def __init__(self, label, function):
         self.label = label
         self.function = function
+
 
 class SliderSpec(Spec):
     def __init__(self, variable, minval, maxval, initial):
@@ -170,23 +183,28 @@ class SliderSpec(Spec):
         self.maxval = maxval
         self.initial = initial
 
+
 class CheckboxSpec(Spec):
     def __init__(self, variable):
         self.variable = variable
+
 
 class GraphSpec(Spec):
     def __init__(self, variable, color):
         self.variable = variable
         self.color = color
 
+
 class MonitorSpec(Spec):
-    def __init__(self,variable):
+    def __init__(self, variable):
         self.variable = variable
+
 
 class HistogramSpec(Spec):
     def __init__(self, variables, color):
         self.variables = variables
         self.color = color
+
 
 class HistogramBinSpec(Spec):
     def __init__(self, variable, minimum, maximum, intervals, color):
@@ -194,8 +212,12 @@ class HistogramBinSpec(Spec):
         self.minimum = minimum
         self.maximum = maximum
         i_size = (maximum - minimum) / intervals
-        self.bins = [(minimum+i_size*i,minimum+i_size*(i+1)) for i in range(intervals)]
+        self.bins = [
+            (minimum + i_size * i, minimum + i_size * (i + 1))
+            for i in range(intervals)
+        ]
         self.color = color
+
 
 class Model:
     def __init__(self, title, x_tiles, y_tiles, tile_size=8):
@@ -223,13 +245,13 @@ class Model:
         self.plot_specs = []
         self.controller_rows = []
         self.add_controller_row()
-        self.plots = set() # Filled in during initialization
+        self.plots = set()  # Filled in during initialization
         self.show_direction = False
 
     def add_agent(self, agent):
         agent.set_model(self)
-        agent.x = random.randint(0,self.width)
-        agent.y = random.randint(0,self.height)
+        agent.x = random.randint(0, self.width)
+        agent.y = random.randint(0, self.height)
         agent.update_current_tile()
         self.agents.add(agent)
         agent.setup(self)
@@ -244,10 +266,14 @@ class Model:
         random.shuffle(agent_list)
         return agent_list
 
-    # Based on kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
+    # Based on
+    # kite.com
+    # /python
+    # /answers
+    # /how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
         # Only returns the list of agents that actually have that attribute
-        agent_list = filter(lambda a: hasattr(a,variable), list(self.agents))
+        agent_list = filter(lambda a: hasattr(a, variable), list(self.agents))
         ret_list = sorted(agent_list, key=operator.attrgetter(variable))
         if not increasing:
             ret_list.reverse()
@@ -260,8 +286,8 @@ class Model:
         self.agents.clear()
         for x in range(self.x_tiles):
             for y in range(self.y_tiles):
-                i = y*self.x_tiles + x
-                self.tiles[i].color = (0,0,0)
+                i = y * self.x_tiles + x
+                self.tiles[i].color = (0, 0, 0)
                 self.tiles[i].info = {}
 
     def update_plots(self):
@@ -278,8 +304,8 @@ class Model:
                 for b in plot.spec.bins:
                     bin_count = 0
                     for a in self.agents:
-                        if hasattr(a,plot.spec.variable):
-                            val = getattr(a,plot.spec.variable)
+                        if hasattr(a, plot.spec.variable):
+                            val = getattr(a, plot.spec.variable)
                             if val >= b[0] and val <= b[1]:
                                 bin_count += 1
                     dataset.append(bin_count)
@@ -298,14 +324,15 @@ class Model:
         for plot in self.plots:
             plot.clear()
 
-
-    def mouse_click(self,x,y):
+    def mouse_click(self, x, y):
         for a in self.agents:
             a.selected = False
-            if (a.x-a.size/2 < x
-                and a.x+a.size/2 > x
-                and a.y-a.size/2 < y
-                and a.y+a.size/2 > y):
+            if (
+                a.x - a.size / 2 < x
+                and a.x + a.size / 2 > x
+                and a.y - a.size / 2 < y
+                and a.y + a.size / 2 > y
+            ):
                 for b in self.agents:
                     b.selected = False
                 a.selected = True
@@ -332,10 +359,12 @@ class Model:
         self.plot_specs.append(GraphSpec(variable, color))
 
     def histogram(self, variables, color):
-        self.plot_specs.append(HistogramSpec(variables,color))
+        self.plot_specs.append(HistogramSpec(variables, color))
 
     def histogram_bins(self, variable, minimum, maximum, bins, color):
-        self.plot_specs.append(HistogramBinSpec(variable,minimum,maximum,bins,color))
+        self.plot_specs.append(
+            HistogramBinSpec(variable, minimum, maximum, bins, color)
+        )
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))
@@ -358,9 +387,12 @@ class Model:
     def __delitem__(self, key):
         del self.variables[key]
 
-class SimpleModel(Model):
-    def __init__(self, title, x_tiles, y_tiles, setup_func, step_func, tile_size=8):
-        super().__init__(title,x_tiles,y_tiles,tile_size)
-        self.add_button("Setup",setup_func)
-        self.add_toggle_button("Step",step_func)
 
+class SimpleModel(Model):
+    def __init__(self, title,
+                 x_tiles, y_tiles,
+                 setup_func, step_func,
+                 tile_size=8):
+        super().__init__(title, x_tiles, y_tiles, tile_size)
+        self.add_button("Setup", setup_func)
+        self.add_toggle_button("Step", step_func)

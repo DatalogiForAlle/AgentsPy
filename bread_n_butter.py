@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import random
 import math
-from agents import *
+from agents import Agent, Model, run
 
 """
   Forklaring af model:
-  Modellen viser et sæt agenter der foretager handel med hinanden med resourcerne brød og smør.
-  Grafen til højre viser summen af agenternes nyttefunktioner (som er brød^0.5 * smør^0.5).
-  Agenterne farves blå, jo mere brød de har, og gule, jo mere smør de har. Hvide/grå agenter har
-  god balance i deres to resourcer.
+  Modellen viser et sæt agenter der foretager handel med hinanden
+   med resourcerne brød og smør.
+  Grafen til højre viser summen af agenternes nyttefunktioner
+   (som er brød^0.5 * smør^0.5).
+  Agenterne farves blå, jo mere brød de har, og gule, jo mere smør de har.
+   Hvide/grå agenter har god balance i deres to resourcer.
   Agenternes størrelse er en funktion af deres nyttefunktion.
 """
 
@@ -26,7 +28,8 @@ from agents import *
  butter_2 / bread_2 = (total_butter - butter_2) / (total_bread - bread_2)
  butter_2 = (total_butter - butter_2) / (total_bread - bread_2) * bread_2
  butter_2 * (total_bread - bread_2) = (total_butter - butter_2) * bread_2
- butter_2 * total_bread - butter_2 * bread_2 = total_butter * bread_2 - butter_2 * bread_2
+ butter_2 * total_bread - butter_2 * bread_2 =
+  total_butter * bread_2 - butter_2 * bread_2
  butter_2 * total_bread = total_butter * bread_2
  butter_2 = total_butter * bread_2 / total_bread
 
@@ -60,24 +63,27 @@ from agents import *
    + 2.butter
 """
 
+
 class Person(Agent):
     def update_visual(self):
-        self.color = (min(255,int(self.butter*20)),
-                      min(255,int(self.butter*20)),
-                      min(255,int(self.bread*20)))
-        self.size = self.utility()*5
+        self.color = (
+            min(255, int(self.butter * 20)),
+            min(255, int(self.butter * 20)),
+            min(255, int(self.bread * 20)),
+        )
+        self.size = self.utility() * 5
 
     def utility(self):
-        return (self.bread**0.5) * (self.butter**0.5)
+        return math.sqrt(self.bread) * math.sqrt(self.butter)
 
     def setup(self, model):
-        self.bread = RNG(9)+1.0
-        self.butter = RNG(9)+1.0
+        self.bread = random.randint(0, 9) + 1.0
+        self.butter = random.randint(0, 9) + 1.0
         self.update_visual()
         self.trade_cooldown = 0
 
     def step(self, model):
-        self.direction += RNG(20)-10
+        self.direction += random.randint(0, 20) - 10
         self.speed = model["movespeed"]
         self.forward()
         model["total_util"] += self.utility()
@@ -100,15 +106,17 @@ class Person(Agent):
             butter_2 = bread_2*P_bread
             """
             total_bread = self.bread + other.bread
-            price_bread = self.butter / total_bread + other.butter / total_bread
-            self.bread = self.bread / 2 + self.butter / (2*price_bread)
+            price_bread = (self.butter / total_bread
+                           + other.butter / total_bread)
+            self.bread = self.bread / 2 + self.butter / (2 * price_bread)
             self.butter = self.bread * price_bread
-            other.bread = other.bread / 2 + other.butter / (2*price_bread)
+            other.bread = other.bread / 2 + other.butter / (2 * price_bread)
             other.butter = other.bread * price_bread
-            self.trade_cooldown = 60 # 1 second
+            self.trade_cooldown = 60  # 1 second
             other.trade_cooldown = 60
             self.update_visual()
             other.update_visual()
+
 
 def setup(model):
     model.reset()
@@ -118,6 +126,7 @@ def setup(model):
     people = set([Person() for i in range(20)])
     model.add_agents(people)
 
+
 def step(model):
     model["total_util"] = 0
     for a in model.agents:
@@ -125,11 +134,11 @@ def step(model):
     model.update_plots()
     model.remove_destroyed_agents()
 
-bnb_model = Model("Epidemic",50,50)
+
+bnb_model = Model("Epidemic", 50, 50)
 bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
-bnb_model.add_slider("movespeed", 0.1, 1, .1)
-bnb_model.graph("total_util",(0,0,0))
+bnb_model.add_slider("movespeed", 0.1, 1, 0.1)
+bnb_model.graph("total_util", (0, 0, 0))
 run(bnb_model)
-

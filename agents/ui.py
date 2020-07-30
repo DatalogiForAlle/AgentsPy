@@ -1,12 +1,29 @@
 import sys
-import random
 import math
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QBarSet, QBarSeries, QBarCategoryAxis
-from PyQt5.QtCore import QPointF, Qt, pyqtSignal
-from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen, QPolygonF
+from PyQt5.QtChart import (
+    QChart,
+    QChartView,
+    QLineSeries,
+    QValueAxis,
+    QBarSet,
+    QBarSeries,
+    QBarCategoryAxis,
+)
+from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
-from agents.model import ButtonSpec, ToggleSpec, SliderSpec, CheckboxSpec, GraphSpec, HistogramSpec, HistogramBinSpec, MonitorSpec
+from agents.model import (
+    ButtonSpec,
+    ToggleSpec,
+    SliderSpec,
+    CheckboxSpec,
+    GraphSpec,
+    HistogramSpec,
+    HistogramBinSpec,
+    MonitorSpec,
+)
+
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -14,7 +31,7 @@ class SimulationArea(QtWidgets.QWidget):
         self.__model = None
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update)
-        self.timer.start(1000/60)
+        self.timer.start(1000 / 60)
 
     @property
     def model(self):
@@ -31,9 +48,11 @@ class SimulationArea(QtWidgets.QWidget):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         # Default to a white background
-        white = QtGui.QColor('white')
+        white = QtGui.QColor("white")
         painter.setBrush(white)
-        painter.drawRect(0, 0, painter.device().width(), painter.device().height())
+        painter.drawRect(0, 0,
+                         painter.device().width(),
+                         painter.device().height())
 
         if self.model:
             # Draw tiles
@@ -49,10 +68,12 @@ class SimulationArea(QtWidgets.QWidget):
             if select:
                 path = QPainterPath()
                 path.addRect(0, 0, self.model.width, self.model.height)
-                path.addEllipse(select.x-select.size*1.5,
-                                select.y-select.size*1.5,
-                                select.size*3,
-                                select.size*3)
+                path.addEllipse(
+                    select.x - select.size * 1.5,
+                    select.y - select.size * 1.5,
+                    select.size * 3,
+                    select.size * 3,
+                )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
 
@@ -64,13 +85,23 @@ class SimulationArea(QtWidgets.QWidget):
             y = agent.y
             d = math.radians(agent.direction)
             s = agent.size
-            point_list = [QPointF(x + math.cos(d) * s, y + math.sin(d) * s),
-                          QPointF(x + math.cos(d+2.3) * s, y + math.sin(d+2.3) * s),
-                          QPointF(x + math.cos(d+math.pi) * s/2, y + math.sin(d+math.pi) * s/2),
-                          QPointF(x + math.cos(d-2.3) * s, y + math.sin(d-2.3) * s)]
+            point_list = [
+                QPointF(x + math.cos(d) * s, y + math.sin(d) * s),
+                QPointF(x + math.cos(d + 2.3) * s, y + math.sin(d + 2.3) * s),
+                QPointF(
+                    x + math.cos(d + math.pi) * s / 2,
+                    y + math.sin(d + math.pi) * s / 2
+                ),
+                QPointF(x + math.cos(d - 2.3) * s, y + math.sin(d - 2.3) * s),
+            ]
             painter.drawPolygon(QPolygonF(point_list))
         else:
-            painter.drawEllipse(agent.x-agent.size/2, agent.y-agent.size/2, agent.size, agent.size)
+            painter.drawEllipse(
+                agent.x - agent.size / 2,
+                agent.y - agent.size / 2,
+                agent.size,
+                agent.size,
+            )
 
     def paintTile(self, painter, tile):
         r, g, b = tile.color
@@ -80,8 +111,9 @@ class SimulationArea(QtWidgets.QWidget):
         y = self.model.tile_size * tile.y
         painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
 
-    def mousePressEvent(self,e):
-        self.model.mouse_click(e.localPos().x(),e.localPos().y())
+    def mousePressEvent(self, e):
+        self.model.mouse_click(e.localPos().x(), e.localPos().y())
+
 
 class QtGraph(QChartView):
     def __init__(self, spec):
@@ -91,7 +123,9 @@ class QtGraph(QChartView):
         self.chart.createDefaultAxes()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
         self.series = QLineSeries()
-        self.series.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
+        self.series.setColor(QColor(spec.color[0],
+                                    spec.color[1],
+                                    spec.color[2]))
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
 
@@ -106,7 +140,7 @@ class QtGraph(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000/2)
+        self.timer.start(1000 / 2)
         self._data = []
         self._min = 0
         self._max = 0
@@ -115,18 +149,19 @@ class QtGraph(QChartView):
         self.series.clear()
         self._data = []
 
-    def add_data(self,data):
+    def add_data(self, data):
         self._data.append(data)
 
     def redraw(self):
         if len(self._data) > 0:
             datapoint = sum(self._data) / len(self._data)
-            self.series.append(QPointF(self.series.count()/2, datapoint))
-            self.axis_x.setRange(0,(self.series.count()-1)/2)
+            self.series.append(QPointF(self.series.count() / 2, datapoint))
+            self.axis_x.setRange(0, (self.series.count() - 1) / 2)
             self._min = min(self._min, datapoint)
             self._max = max(self._max, datapoint)
             self.axis_y.setRange(self._min, self._max)
             self._data = []
+
 
 class QtHistogram(QChartView):
     def __init__(self, spec):
@@ -134,9 +169,11 @@ class QtHistogram(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-        self.mainset = QBarSet('')
+        self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
-        self.mainset.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
+        self.mainset.setColor(QColor(spec.color[0],
+                                     spec.color[1],
+                                     spec.color[2]))
         self.series = QBarSeries()
         self.series.append(self.mainset)
 
@@ -155,13 +192,13 @@ class QtHistogram(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000/10)
+        self.timer.start(1000 / 5)
         self._dataset = []
 
     def clear(self):
         self._dataset = []
 
-    def update_data(self,dataset):
+    def update_data(self, dataset):
         data = []
         for d in dataset:
             data.append(d)
@@ -170,8 +207,9 @@ class QtHistogram(QChartView):
     def redraw(self):
         if len(self._dataset) > 0:
             for i in range(len(self._dataset)):
-                self.mainset.replace(i,self._dataset[i])
+                self.mainset.replace(i, self._dataset[i])
             self.axis_y.setRange(0, max(self._dataset))
+
 
 class QtHistogramBins(QChartView):
     def __init__(self, spec):
@@ -179,9 +217,11 @@ class QtHistogramBins(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
-        self.mainset = QBarSet('')
+        self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.bins))])
-        self.mainset.setColor(QColor(spec.color[0], spec.color[1], spec.color[2]))
+        self.mainset.setColor(QColor(spec.color[0],
+                                     spec.color[1],
+                                     spec.color[2]))
         self.series = QBarSeries()
         self.series.append(self.mainset)
 
@@ -190,7 +230,7 @@ class QtHistogramBins(QChartView):
 
         self.axis_x = QBarCategoryAxis()
         self.axis_y = QValueAxis()
-        self.axis_x.append(map(str,spec.bins))
+        self.axis_x.append(map(str, spec.bins))
         self.chart.addSeries(self.series)
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
@@ -200,13 +240,13 @@ class QtHistogramBins(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000/10)
+        self.timer.start(1000 / 5)
         self._dataset = []
 
     def clear(self):
         self._dataset = []
 
-    def update_data(self,dataset):
+    def update_data(self, dataset):
         data = []
         for d in dataset:
             data.append(d)
@@ -215,8 +255,9 @@ class QtHistogramBins(QChartView):
     def redraw(self):
         if len(self._dataset) > 0:
             for i in range(len(self._dataset)):
-                self.mainset.replace(i,self._dataset[i])
+                self.mainset.replace(i, self._dataset[i])
             self.axis_y.setRange(0, max(self._dataset))
+
 
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
@@ -230,11 +271,12 @@ class ToggleButton(QtWidgets.QPushButton):
 
     def on_toggle(self, checked):
         if checked:
-            self.timer.start(1000/60)
+            self.timer.start(1000 / 60)
         else:
             self.timer.stop()
 
- # Based on https://stackoverflow.com/a/50300848/
+
+# Based on https://stackoverflow.com/a/50300848/
 class Slider(QtWidgets.QHBoxLayout):
     def __init__(self, variable, minval, maxval, initial):
         super().__init__()
@@ -252,6 +294,7 @@ class Slider(QtWidgets.QHBoxLayout):
         self.indicator.setText(str(initial))
         self.addWidget(self.indicator)
 
+
 class Monitor(QtWidgets.QLabel):
     def __init__(self, variable, model):
         super().__init__()
@@ -260,18 +303,20 @@ class Monitor(QtWidgets.QLabel):
         self.model = model
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.update_label())
-        self.timer.start(1000/60)
+        self.timer.start(1000 / 60)
 
     def update_label(self):
         if self.variable in self.model.variables:
             self.setText(self.variable + ": " + str(self.model[self.variable]))
+
 
 class Checkbox(QtWidgets.QCheckBox):
     def __init__(self, variable):
         super().__init__(variable)
         self.setText(variable)
 
-class Application():
+
+class Application:
     def __init__(self, model):
         # self.controller_rows = []
         # self.plots = []
@@ -298,7 +343,7 @@ class Application():
         self.plots_box = QtWidgets.QVBoxLayout()
         self.horizontal_divider.addLayout(self.right_box)
         self.right_box.addLayout(self.plots_box)
-        #self.right_box.addStretch(1)
+        # self.right_box.addStretch(1)
 
         # Simulation area
         self.simulation_area = SimulationArea()
@@ -328,18 +373,27 @@ class Application():
         row.addWidget(btn)
 
     def add_slider(self, slider_spec, row):
-        slider = Slider(slider_spec.variable, slider_spec.minval, slider_spec.maxval, slider_spec.initial)
+        slider = Slider(
+            slider_spec.variable,
+            slider_spec.minval,
+            slider_spec.maxval,
+            slider_spec.initial,
+        )
+
         def update_variable(v):
-            value = v/slider.sliderBar.factor
+            value = v / slider.sliderBar.factor
             self.model[slider_spec.variable] = value
             slider.indicator.setText(str(value))
+
         slider.sliderBar.valueChanged.connect(update_variable)
         row.addLayout(slider)
 
     def add_checkbox(self, checkbox_spec, row):
         checkbox = Checkbox(checkbox_spec.variable)
+
         def update_variable(v):
             self.model[checkbox_spec.variable] = checkbox.isChecked()
+
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
 
@@ -369,11 +423,13 @@ class Application():
             rowbox = QtWidgets.QVBoxLayout()
             controller_box.addLayout(rowbox)
             toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
+
             def toggle(checked):
                 if checked:
                     self.simulation_area.timer.stop()
                 else:
-                    self.simulation_area.timer.start(1000/60)
+                    self.simulation_area.timer.start(1000 / 60)
+
             toggle_render_btn.toggled.connect(toggle)
             toggle_render_btn.setCheckable(True)
             rowbox.addWidget(toggle_render_btn)
@@ -401,10 +457,11 @@ class Application():
             elif type(plot_spec) is HistogramBinSpec:
                 self.add_histogram_bins(plot_spec, plots_box)
 
+
 def run(model):
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)
-    myapp = Application(model)
+    Application(model)
 
     # Launch the application
     qapp.exec_()
