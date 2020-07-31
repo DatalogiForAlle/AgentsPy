@@ -1,7 +1,7 @@
-from distutils.core import setup
+from setuptools import setup
 setup(
-  name='agentspy',
-  packages=['agentspy'],
+  name='AgentsPy',
+  packages=['agents'],
   version='0.1',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
