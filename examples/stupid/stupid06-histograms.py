@@ -51,20 +51,24 @@ def setup(model):
 def step(model):
     for a in model.agents:
         a.step(model)
-        if a.grow_size > 100:
-            model["stop"] = True
     for t in model.tiles:
         food_prod = random.random() * model["max_food_prod"]
         t.info["food"] += food_prod
-        c = min(255, math.floor(t.info["food"]/10 * 255))
+        c = min(255, math.floor(t.info["food"] * 255))
         t.color = (c, c, c)
+    model.update_plots()
 
 
-stupid_model = Model("Dum-dum", 100, 100)
+stupid_model = Model("StupidModel w. histograms (stupid06)",
+                     100, 100, tile_size=5)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
+stupid_model.add_controller_row()
 stupid_model.add_slider("initial_bugs", 10, 300, 100)
+stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
+stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
+stupid_model.histogram_bins("grow_size", 0, 10, 5, (0, 0, 0))
 run(stupid_model)
