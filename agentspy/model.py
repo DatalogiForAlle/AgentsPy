@@ -399,4 +399,4 @@ class SimpleModel(Model):
                  tile_size=8):
         super().__init__(title, x_tiles, y_tiles, tile_size)
         self.add_button("Setup", setup_func)
-        self.add_toggle_button("Step", step_func)
+        self.add_toggle_button("Go", step_func)
