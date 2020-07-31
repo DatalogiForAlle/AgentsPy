@@ -1,10 +1,15 @@
 from setuptools import setup
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
   name='AgentsPy',
   packages=['agents'],
   version='0.1',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
+  long_description=long_description,
   author='Jens Kanstrup Larsen / Martin Dybdal',
   author_email='jkl@di.ku.dk',
   url='https://github.com/DatalogiForAlle/pyagents',
