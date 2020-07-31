@@ -3,3 +3,6 @@ sdist:
 
 clean:
 	rm -rf dist/
+
+check:
+	flake8
