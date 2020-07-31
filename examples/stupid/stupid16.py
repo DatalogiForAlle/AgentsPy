@@ -109,8 +109,8 @@ def setup(model):
     model.add_agents(bugs)
     model.add_agents(predators)
     cell_data = open("stupid.cell", "r")
-    for l in cell_data:
-        cell = l.split()
+    for line in cell_data:
+        cell = line.split()
         x = int(cell[0])
         y = int(cell[1])
         prod_rate = float(cell[2])
