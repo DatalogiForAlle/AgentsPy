@@ -13,7 +13,7 @@ from PyQt5.QtChart import (
 from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
-from agents.model import (
+from agentspy.model import (
     ButtonSpec,
     ToggleSpec,
     SliderSpec,

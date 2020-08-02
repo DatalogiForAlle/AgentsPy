@@ -29,6 +29,10 @@ class Agent:
         self.__current_tile = None
         self.selected = False
 
+    # Should be overwritten by a subclass
+    def setup(self, model):
+        pass
+
     # Update current tile
     def update_current_tile(self):
         new_tile = self.current_tile()
