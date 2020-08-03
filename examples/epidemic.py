@@ -4,12 +4,15 @@ from agents import Agent, SimpleModel, run
 
 
 class Person(Agent):
+
+    # Inficer agenten
     def infect(self, model):
         self.infection = 1000
         model["infected"] += 1
         model["normal"] -= 1
         self.color = (200, 200, 0)
 
+    # Gør agenten immun
     def immunize(self, model):
         self.infection = 0
         model["infected"] -= 1
