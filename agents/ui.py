@@ -275,7 +275,12 @@ class ToggleButton(QtWidgets.QPushButton):
         self.model = model
         self.func = func
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.func(model))
+
+        def call_func():
+            if not model.is_paused():
+                self.func(model)
+
+        self.timer.timeout.connect(call_func)
 
     def on_toggle(self, checked):
         if checked:
