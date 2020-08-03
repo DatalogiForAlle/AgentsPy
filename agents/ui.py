@@ -121,7 +121,8 @@ class QtGraph(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.createDefaultAxes()
-        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.setTitle(self.spec.variable)
+        self.chart.legend().hide()
         self.series = QLineSeries()
         self.series.setColor(QColor(spec.color[0],
                                     spec.color[1],
@@ -140,7 +141,7 @@ class QtGraph(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self.timer.start(1000 / 2)
+        self.timer.start(1000 / 20)
         self._data = []
         self._min = 0
         self._max = 0
@@ -172,7 +173,8 @@ class QtHistogram(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.setTitle(str(self.spec.variables))
+        self.chart.legend().hide()
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
         self.mainset.setColor(QColor(spec.color[0],
@@ -220,7 +222,9 @@ class QtHistogramBins(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.setTitle(self.spec.variable)
+        self.chart.legend().hide()
+
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.bins))])
         self.mainset.setColor(QColor(spec.color[0],
