@@ -193,7 +193,7 @@ class CheckboxSpec(Spec):
         self.variable = variable
 
 
-class GraphSpec(Spec):
+class LineChartSpec(Spec):
     def __init__(self, variable, color):
         self.variable = variable
         self.color = color
@@ -204,13 +204,13 @@ class MonitorSpec(Spec):
         self.variable = variable
 
 
-class HistogramSpec(Spec):
+class BarChartSpec(Spec):
     def __init__(self, variables, color):
         self.variables = variables
         self.color = color
 
 
-class HistogramBinSpec(Spec):
+class HistogramSpec(Spec):
     def __init__(self, variable, minimum, maximum, intervals, color):
         self.variable = variable
         self.minimum = minimum
@@ -296,14 +296,14 @@ class Model:
 
     def update_plots(self):
         for plot in self.plots:
-            if type(plot.spec) is GraphSpec:
+            if type(plot.spec) is LineChartSpec:
                 plot.add_data(self.variables[plot.spec.variable])
-            elif type(plot.spec) is HistogramSpec:
+            elif type(plot.spec) is BarChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
                     dataset.append(self.variables[d])
                 plot.update_data(dataset)
-            elif type(plot.spec) is HistogramBinSpec:
+            elif type(plot.spec) is HistogramSpec:
                 dataset = []
                 for b in plot.spec.bins:
                     bin_count = 0
@@ -359,15 +359,15 @@ class Model:
         self.variables[variable] = False
         self.current_row.append(CheckboxSpec(variable))
 
-    def graph(self, variable, color):
-        self.plot_specs.append(GraphSpec(variable, color))
+    def line_chart(self, variable, color):
+        self.plot_specs.append(LineChartSpec(variable, color))
 
-    def histogram(self, variables, color):
-        self.plot_specs.append(HistogramSpec(variables, color))
+    def bar_chart(self, variables, color):
+        self.plot_specs.append(BarChartSpec(variables, color))
 
-    def histogram_bins(self, variable, minimum, maximum, bins, color):
+    def histogram(self, variable, minimum, maximum, bins, color):
         self.plot_specs.append(
-            HistogramBinSpec(variable, minimum, maximum, bins, color)
+            HistogramSpec(variable, minimum, maximum, bins, color)
         )
 
     def monitor(self, variable):

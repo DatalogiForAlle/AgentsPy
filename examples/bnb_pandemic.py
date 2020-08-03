@@ -119,13 +119,13 @@ def step(model):
     model.remove_destroyed_agents()
 
 
-bnb_model = Model("Epidemic", 50, 50)
+bnb_model = Model("Bread & butter economy during pandemic", 50, 50)
 bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
 bnb_model.add_slider("movespeed", 0.1, 1, 0.5)
 bnb_model.add_checkbox("Decay")
-bnb_model.graph("BNP", (0, 0, 0))
+bnb_model.line_chart("BNP", (0, 0, 0))
 bnb_model.show_direction = False
 run(bnb_model)
