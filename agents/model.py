@@ -251,6 +251,7 @@ class Model:
         self.add_controller_row()
         self.plots = set()  # Filled in during initialization
         self.show_direction = False
+        self._paused = False
 
     def add_agent(self, agent):
         agent.set_model(self)
@@ -293,6 +294,7 @@ class Model:
                 i = y * self.x_tiles + x
                 self.tiles[i].color = (0, 0, 0)
                 self.tiles[i].info = {}
+        self.unpause()
 
     def update_plots(self):
         for plot in self.plots:
@@ -372,6 +374,15 @@ class Model:
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))
+
+    def is_paused(self):
+        return self._paused
+
+    def pause(self):
+        self._paused = True
+
+    def unpause(self):
+        self._paused = False
 
     @property
     def agents(self):
