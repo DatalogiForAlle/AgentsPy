@@ -1,6 +1,6 @@
 import random
 import math
-from agents import Agent, Model, run
+from agentspy import Agent, Model, run
 
 
 class Bug(Agent):
@@ -21,7 +21,7 @@ class Bug(Agent):
         self.grow_size += min(model["max_food_eat"], t.info["food"])
         t.info["food"] = max(0, t.info["food"]-model["max_food_eat"])
         if self.grow_size > 100:
-            model["stop"] = True
+            model.pause()
 
         # Find all nearby valid tiles
         nearby_tiles = self.nearby_tiles(-4, -4, 4, 4)
@@ -44,7 +44,6 @@ class Bug(Agent):
 def setup(model):
     model.reset()
     people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
-    model["stop"] = False
     model.add_agents(people)
     for t in model.tiles:
         t.info["food"] = 0.0
@@ -52,15 +51,14 @@ def setup(model):
 
 
 def step(model):
-    if not model["stop"]:
-        for a in model.agents:
-            a.step(model)
-        for t in model.tiles:
-            food_prod = random.random() * model["max_food_prod"]
-            t.info["food"] += food_prod
-            c = min(255, math.floor(t.info["food"] * 255))
-            t.color = (c, c, c)
-        model.update_plots()
+    for a in model.agents:
+        a.step(model)
+    for t in model.tiles:
+        food_prod = random.random() * model["max_food_prod"]
+        t.info["food"] += food_prod
+        c = min(255, math.floor(t.info["food"] * 255))
+        t.color = (c, c, c)
+    model.update_plots()
 
 
 stupid_model = Model("StupidModel w. stop condition (stupid07)",
