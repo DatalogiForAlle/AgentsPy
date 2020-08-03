@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import random
-from agents import Agent, SimpleModel, run
+from agentspy import Agent, SimpleModel, run
 
 
 class Person(Agent):
@@ -66,7 +66,7 @@ class Person(Agent):
 
 def setup(model):
     model.reset()
-    model["movespeed"] = 0.2
+    model["movespeed"] = 0.5
     model["normal"] = 0
     model["infected"] = 0
     model["immune"] = 0
@@ -98,10 +98,10 @@ def direction(model):
 
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step)
 epidemic_model.add_toggle_button("Go", step)
-epidemic_model.add_slider("movespeed", 0.1, 1, 0.1)
+epidemic_model.add_slider("movespeed", 0.1, 2, 0.5)
 epidemic_model.add_slider("decay", 0, 3, 2)
 epidemic_model.graph("immune", (100, 100, 255))
-epidemic_model.graph("infected", (255, 255, 0))
-epidemic_model.histogram(["normal", "infected", "immune"], (255, 255, 0))
+epidemic_model.graph("infected", (200, 200, 0))
+epidemic_model.histogram(["normal", "infected", "immune"], (100, 200, 100))
 epidemic_model.monitor("immune")
 run(epidemic_model)

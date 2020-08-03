@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import random
 import math
-from agents import Agent, Model, run
+from agentspy import Agent, Model, run
 
 """
   Forklaring af model:
