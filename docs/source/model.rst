@@ -8,7 +8,7 @@ Models contain the agents and tiles that make up the simulation. They also provi
 To run a model, use
 ::
 
-    agentspy.run(model)
+    agents.run(model)
 
 where **model** is a reference to your model.
 
