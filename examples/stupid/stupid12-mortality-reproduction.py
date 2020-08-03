@@ -92,6 +92,8 @@ def step(model):
             bug_mean += a.grow_size
         bug_mean /= model["initial_bugs"]
         f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+        f.flush() # Flush is necessary as long as we can't call f.close()
+                  # when the user exits the program
 
         for t in model.tiles:
             food_prod = random.random() * model["max_food_prod"]
@@ -102,12 +104,16 @@ def step(model):
         model.remove_destroyed_agents()
 
 
-stupid_model = Model("Dum-dum", 100, 100)
+stupid_model = Model("StupidModel w. mortality and reproduction (stupid12)",
+                     100, 100, tile_size=5)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
+stupid_model.add_controller_row()
 stupid_model.add_slider("initial_bugs", 10, 300, 100)
+stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
+stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
 stupid_model.histogram_bins("grow_size", 0, 10, 5, (0, 0, 0))
 run(stupid_model)
