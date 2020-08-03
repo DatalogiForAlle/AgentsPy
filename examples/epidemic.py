@@ -99,7 +99,7 @@ def direction(model):
         a.show_direction = not a.show_direction
 
 
-epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step)
+epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
 epidemic_model.add_button("Step", step)
 epidemic_model.add_controller_row()
 epidemic_model.add_slider("movespeed", 0.1, 2, 0.5)
@@ -107,8 +107,8 @@ epidemic_model.add_controller_row()
 epidemic_model.add_slider("decay", 0, 3, 2)
 epidemic_model.add_controller_row()
 epidemic_model.monitor("immune")
-epidemic_model.graph("immune", (100, 100, 255))
-epidemic_model.graph("infected", (200, 200, 0))
-epidemic_model.histogram(["normal", "infected", "immune"], (100, 200, 100))
+epidemic_model.line_chart("infected", (200, 200, 0))
+epidemic_model.line_chart("immune", (100, 100, 255))
+epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
 
 run(epidemic_model)

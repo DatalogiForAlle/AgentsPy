@@ -18,9 +18,9 @@ from agents.model import (
     ToggleSpec,
     SliderSpec,
     CheckboxSpec,
-    GraphSpec,
+    LineChartSpec,
+    BarChartSpec,
     HistogramSpec,
-    HistogramBinSpec,
     MonitorSpec,
 )
 
@@ -168,7 +168,7 @@ class QtGraph(QChartView):
             self._data = []
 
 
-class QtHistogram(QChartView):
+class QtBarChart(QChartView):
     def __init__(self, spec):
         super().__init__(None)
         self.spec = spec
@@ -217,7 +217,7 @@ class QtHistogram(QChartView):
             self.axis_y.setRange(0, max(self._dataset))
 
 
-class QtHistogramBins(QChartView):
+class QtHistogram(QChartView):
     def __init__(self, spec):
         super().__init__(None)
         self.spec = spec
@@ -405,19 +405,19 @@ class Application:
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
 
-    def add_graph(self, graph_spec, plots_box):
+    def add_line_chart(self, line_chart_spec, plots_box):
         # TODO Record data and display
-        graph = QtGraph(graph_spec)
-        plots_box.addWidget(graph)
-        self.model.plots.add(graph)
+        chart = QtGraph(line_chart_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
+
+    def add_bar_chart(self, bar_chart_spec, plots_box):
+        chart = QtBarChart(bar_chart_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
 
     def add_histogram(self, histogram_spec, plots_box):
         histogram = QtHistogram(histogram_spec)
-        plots_box.addWidget(histogram)
-        self.model.plots.add(histogram)
-
-    def add_histogram_bins(self, histogram_bins_spec, plots_box):
-        histogram = QtHistogramBins(histogram_bins_spec)
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
 
@@ -464,12 +464,12 @@ class Application:
 
     def add_plots(self, plot_specs, plots_box):
         for plot_spec in plot_specs:
-            if type(plot_spec) is GraphSpec:
-                self.add_graph(plot_spec, plots_box)
+            if type(plot_spec) is LineChartSpec:
+                self.add_line_chart(plot_spec, plots_box)
+            elif type(plot_spec) is BarChartSpec:
+                self.add_bar_chart(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:
                 self.add_histogram(plot_spec, plots_box)
-            elif type(plot_spec) is HistogramBinSpec:
-                self.add_histogram_bins(plot_spec, plots_box)
 
 
 def run(model):

@@ -97,7 +97,7 @@ def build_bot(model):
 
 miner_model.add_button("Setup", setup)
 miner_model.add_toggle_button("Go", step)
-miner_model.graph("minerals_collected", (0, 0, 255))
+miner_model.line_chart("minerals_collected", (0, 0, 255))
 miner_model.add_button("Build new bot", build_bot)
 miner_model.add_slider("robot_speed", 1, 5, 2)
 run(miner_model)
