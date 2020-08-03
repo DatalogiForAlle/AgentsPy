@@ -159,7 +159,11 @@ class QtGraph(QChartView):
             self.axis_x.setRange(0, (self.series.count() - 1) / 2)
             self._min = min(self._min, datapoint)
             self._max = max(self._max, datapoint)
-            self.axis_y.setRange(self._min, self._max)
+            diff = self._max - self._min
+            if diff > 0:
+                self.axis_y.setRange(self._min, self._max)
+            else:
+                self.axis_y.setRange(self._min-0.5, self._max+0.5)
             self._data = []
 
 
