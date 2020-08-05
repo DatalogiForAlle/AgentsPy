@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import random
-from agentspy import Agent, SimpleModel, run
+from agents import Agent, SimpleModel, run
 
 
 class Person(Agent):
@@ -56,10 +56,3 @@ def step(model):
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step)
 epidemic_model.add_toggle_button("Go", step)
 run(epidemic_model)
-
-
-        if self.infection > 0:
-            self.color = (200, 200, 0)
-        elif self.immune:
-        else:
-            self.color = (50, 150, 50)
