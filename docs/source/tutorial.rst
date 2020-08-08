@@ -28,6 +28,9 @@ This line should generally be the last one in your file.
 
 Running the python file, you should see a window with a black square and the name "MinerBots".
 
+.. image:: tutorial_images/minerbots_1.png
+   :width: 500
+
 Setup
 -----
 While we add functionality to our model, we will also add a bit of UI that makes it easier to control the flow of the simulation. First, we want to make starting and restarting the model simple, so we will create a **Setup** button. Start out by creating a function, also named ``setup``, and give it the following contents:
@@ -42,6 +45,9 @@ While we add functionality to our model, we will also add a bit of UI that makes
    miner_model.add_button("Setup", setup)
 
 Running the program, the model should now show a button labelled *"Setup"*.
+
+.. image:: tutorial_images/minerbots_2.png
+   :width: 500
 
 Tiles
 -----
@@ -65,6 +71,9 @@ By inserting the following code in the ``setup`` function, we can generate our t
 
 Running the program and clicking the *Setup* button, the window should now display a red-brown background with light-blue squares scattered around.
 
+.. image:: tutorial_images/minerbots_3.png
+   :width: 500
+
 The first robots
 ----------------
 The model is not very interesting without *agents*, so we will add some now.
@@ -85,6 +94,9 @@ We can now add 10 robots to the model, by inserting the following code in the ``
    miner_model.add_agents(bots)
 
 The simulation should now show 10 grey circles scattered around the landscape.
+
+.. image:: tutorial_images/minerbots_4.png
+   :width: 500
 
 Better robots
 -------------
@@ -116,6 +128,9 @@ Finally, as with the *Setup* button, add a *Go* button, which, when pressed, wil
    miner_model.add_toggle_button("Go", step)
 
 Running the simulation and pressing the *Go* button, you should now see the robots moving around.
+
+.. image:: tutorial_images/minerbots_5.png
+   :width: 500
 
 Even better robots
 ------------------
@@ -153,6 +168,9 @@ This code inspects the tile that the robot is standing on, and, if the tile cont
 4. Recolor the robot (to show that it is loaded)
 
 The simulation should now show the robots moving around randomly, picking up minerals they come across.
+
+.. image:: tutorial_images/minerbots_6.png
+   :width: 500
 
 More agent types
 ----------------
@@ -204,6 +222,9 @@ Finally, add a single ``Homebase`` to the model by inserting:
    model.add_agent(Homebase())
 
 into the ``step`` function where the robots are also created.
+
+.. image:: tutorial_images/minerbots_7.png
+   :width: 500
 
 Graphs
 ------
