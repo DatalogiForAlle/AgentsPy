@@ -76,6 +76,7 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
+        painter.end()
 
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
@@ -416,7 +417,6 @@ class Application:
         row.addWidget(checkbox)
 
     def add_line_chart(self, line_chart_spec, plots_box):
-        # TODO Record data and display
         chart = QtGraph(line_chart_spec)
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
