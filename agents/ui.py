@@ -141,8 +141,8 @@ class QtGraph(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self._ups = 20  # updates per second
-        self.timer.start(1000 / self._ups)
+        self._updates_per_second = 20
+        self.timer.start(1000 / self._updates_per_second)
         self._data = []
         self._min = 0
         self._max = 0
@@ -157,8 +157,10 @@ class QtGraph(QChartView):
     def redraw(self):
         if len(self._data) > 0:
             datapoint = sum(self._data) / len(self._data)
-            self.series.append(QPointF(self.series.count() / self._ups, datapoint))
-            self.axis_x.setRange(0, (self.series.count() - 1) / self._ups)
+            self.series.append(QPointF(self.series.count() /
+                                       self._updates_per_second, datapoint))
+            self.axis_x.setRange(0, (self.series.count() - 1)
+                                 / self._updates_per_second)
             self._min = min(self._min, datapoint)
             self._max = max(self._max, datapoint)
             diff = self._max - self._min
@@ -199,8 +201,8 @@ class QtBarChart(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self._ups = 20  # updates per second
-        self.timer.start(1000 / self._ups)
+        self._updates_per_second = 20
+        self.timer.start(1000 / self._updates_per_second)
         self._dataset = []
 
     def clear(self):
@@ -250,8 +252,8 @@ class QtHistogram(QChartView):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.redraw())
-        self._ups = 20  # updates per second
-        self.timer.start(1000 / self._ups)
+        self._updates_per_second = 20
+        self.timer.start(1000 / self._updates_per_second)
         self._dataset = []
 
     def clear(self):
