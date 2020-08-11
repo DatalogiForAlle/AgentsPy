@@ -73,21 +73,14 @@ def setup(model):
     global f
     f = open("stupid.data", "w")
     model.reset()
+    model.reload()
     people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
     model["current_bugs"] = model["initial_bugs"]
     model["stop"] = False
     model.add_agents(people)
-    cell_data = open("stupid.cell", "r")
-    for line in cell_data:
-        cell = line.split()
-        x = int(cell[0])
-        y = int(cell[1])
-        prod_rate = float(cell[2])
-        t = model.tiles[y*model.x_tiles+x]
-        t.info["prod"] = prod_rate
+    for t in model.tiles:
         t.info["food"] = 0.0
         t.color = (0, 0, 0)
-
 
 def step(model):
     global f
@@ -116,7 +109,8 @@ def step(model):
 
 
 stupid_model = Model("StupidModel reading habitat data from file (stupid15)",
-                     250, 112, tile_size=3)
+                     tile_size=3,
+                     cell_data_file="stupid.cell")
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
