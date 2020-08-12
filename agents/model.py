@@ -46,13 +46,22 @@ class Agent:
 
     # To be called after each movement step
     def __post_move(self):
-        self.__wraparound()
+        if self.__model.wrapping():
+            self.__wraparound()
+        else:
+            self.__stay_inside()
         self.update_current_tile()
 
-    # Ensures that the agent stays inside the simulation area.
+    # Makes the agent wrap around the simulation area
     def __wraparound(self):
         self.x = self.x % self.__model.width
         self.y = self.y % self.__model.height
+
+    # If the agent is outside the simulation area,
+    # return it to the closest point inside
+    def __stay_inside(self):
+        self.x = min(max(self.x,0),self.__model.width)
+        self.y = min(max(self.y,0),self.__model.height)
 
     def align(self):
         w = self.__model.width
@@ -252,6 +261,7 @@ class Model:
         self.plots = set()  # Filled in during initialization
         self.show_direction = False
         self._paused = False
+        self._wrapping = True
 
     def add_agent(self, agent):
         agent.set_model(self)
@@ -383,6 +393,15 @@ class Model:
 
     def unpause(self):
         self._paused = False
+
+    def enable_wrapping(self):
+        self._wrapping = True
+
+    def disable_wrapping(self):
+        self._wrapping = False
+
+    def wrapping(self):
+        return self._wrapping
 
     @property
     def agents(self):
