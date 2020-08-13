@@ -384,6 +384,12 @@ class Model:
     def unpause(self):
         self._paused = False
 
+    def on_close(self, func):
+        self._close_func = func
+
+    def close(self):
+        self._close_func(self)
+
     @property
     def agents(self):
         self.remove_destroyed_agents()

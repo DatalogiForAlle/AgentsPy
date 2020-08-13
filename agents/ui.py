@@ -333,6 +333,14 @@ class Checkbox(QtWidgets.QCheckBox):
         super().__init__(variable)
         self.setText(variable)
 
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, model):
+        self.model = model
+        super().__init__()
+
+    def closeEvent(self, event):
+        self.model.close()
+        super().closeEvent(event)
 
 class Application:
     def __init__(self, model):
@@ -343,7 +351,7 @@ class Application:
 
     def initializeUI(self):
         # Initialize main window and central widget
-        self.mainwindow = QtWidgets.QMainWindow()
+        self.mainwindow = MainWindow(self.model)
         self.mainwindow.setWindowTitle(self.model.title)
         self.centralwidget = QtWidgets.QWidget(self.mainwindow)
         self.mainwindow.setCentralWidget(self.centralwidget)
