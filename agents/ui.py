@@ -360,11 +360,12 @@ class Application:
         self.graphics_timer.start(1000 / 60)
 
     def update_logic(self):
-        for controller in self.controllers:
-            if isinstance(controller, ToggleButton) and controller.isChecked():
-                controller.func(controller.model)
-            elif isinstance(controller, Monitor):
-                controller.update_label()
+        if not self.model.is_paused():
+            for controller in self.controllers:
+                if isinstance(controller, ToggleButton) and controller.isChecked():
+                    controller.func(controller.model)
+                elif isinstance(controller, Monitor):
+                    controller.update_label()
 
     def update_graphics(self):
         if not self.toggle_render_btn.isChecked():
