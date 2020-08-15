@@ -411,6 +411,11 @@ class Application:
         row.addWidget(checkbox)
         self.controllers.append(slider)
 
+    def add_monitor(self, monitor_spec, plots_box):
+        monitor = Monitor(monitor_spec.variable, self.model)
+        plots_box.addWidget(monitor)
+        self.controllers.append(monitor)
+
     def add_line_chart(self, line_chart_spec, plots_box):
         chart = QtGraph(line_chart_spec)
         plots_box.addWidget(chart)
@@ -425,10 +430,6 @@ class Application:
         histogram = QtHistogram(histogram_spec)
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
-
-    def add_monitor(self, monitor_spec, plots_box):
-        monitor = Monitor(monitor_spec.variable, self.model)
-        plots_box.addWidget(monitor)
 
     def add_render_toggle(self, rowbox):
         self.toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
