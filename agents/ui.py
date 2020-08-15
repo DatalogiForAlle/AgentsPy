@@ -29,9 +29,6 @@ class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__model = None
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.update)
-        self.timer.start(1000 / 60)
 
     @property
     def model(self):
@@ -139,10 +136,7 @@ class QtGraph(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.redraw())
-        self._updates_per_second = 20
-        self.timer.start(1000 / self._updates_per_second)
+        self._updates_per_second = 60
         self._data = []
         self._min = 0
         self._max = 0
@@ -199,10 +193,7 @@ class QtBarChart(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.redraw())
-        self._updates_per_second = 20
-        self.timer.start(1000 / self._updates_per_second)
+        self._updates_per_second = 60
         self._dataset = []
 
     def clear(self):
@@ -250,10 +241,7 @@ class QtHistogram(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.redraw())
-        self._updates_per_second = 20
-        self.timer.start(1000 / self._updates_per_second)
+        self._updates_per_second = 60
         self._dataset = []
 
     def clear(self):
@@ -275,23 +263,9 @@ class QtHistogram(QChartView):
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
         super().__init__(text)
-        self.toggled.connect(self.on_toggle)
         self.setCheckable(True)
         self.model = model
         self.func = func
-        self.timer = QtCore.QTimer()
-
-        def call_func():
-            if not model.is_paused():
-                self.func(model)
-
-        self.timer.timeout.connect(call_func)
-
-    def on_toggle(self, checked):
-        if checked:
-            self.timer.start(1000 / 60)
-        else:
-            self.timer.stop()
 
 
 # Based on https://stackoverflow.com/a/50300848/
@@ -319,9 +293,6 @@ class Monitor(QtWidgets.QLabel):
         self.variable = variable
         self.setText(variable + ": -")
         self.model = model
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda: self.update_label())
-        self.timer.start(1000 / 60)
 
     def update_label(self):
         if self.variable in self.model.variables:
@@ -336,9 +307,11 @@ class Checkbox(QtWidgets.QCheckBox):
 
 class Application:
     def __init__(self, model):
-        # self.controller_rows = []
-        # self.plots = []
         self.model = model
+        self.logic_timer = QtCore.QTimer()
+        self.logic_timer.timeout.connect(self.update_logic)
+        self.graphics_timer = QtCore.QTimer()
+        self.graphics_timer.timeout.connect(self.update_graphics)
         self.initializeUI()
 
     def initializeUI(self):
@@ -355,6 +328,7 @@ class Application:
         # Box for left side (simulation area + controllers)
         self.left_box = QtWidgets.QVBoxLayout()
         self.horizontal_divider.addLayout(self.left_box)
+        self.controllers = []
 
         # Box for right side (plots)
         self.right_box = QtWidgets.QVBoxLayout()
@@ -381,14 +355,33 @@ class Application:
         # to the window size
         self.add_plots(self.model.plot_specs, self.plots_box)
 
+        # Start timers
+        self.logic_timer.start(1000 / 60)
+        self.graphics_timer.start(1000 / 60)
+
+    def update_logic(self):
+        for controller in self.controllers:
+            if isinstance(controller, ToggleButton) and controller.isChecked():
+                controller.func(controller.model)
+            elif isinstance(controller, Monitor):
+                controller.update_label()
+
+    def update_graphics(self):
+        if not self.toggle_render_btn.isChecked():
+            self.simulation_area.update()
+        for p in self.model.plots:
+            p.redraw()
+
     def add_button(self, button_spec, row):
         btn = QtWidgets.QPushButton(button_spec.label)
         btn.clicked.connect(lambda x: button_spec.function(self.model))
         row.addWidget(btn)
+        self.controllers.append(btn)
 
     def add_toggle(self, toggle_spec, row):
         btn = ToggleButton(toggle_spec.label, toggle_spec.function, self.model)
         row.addWidget(btn)
+        self.controllers.append(btn)
 
     def add_slider(self, slider_spec, row):
         slider = Slider(
@@ -405,6 +398,7 @@ class Application:
 
         slider.sliderBar.valueChanged.connect(update_variable)
         row.addLayout(slider)
+        self.controllers.append(slider)
 
     def add_checkbox(self, checkbox_spec, row):
         checkbox = Checkbox(checkbox_spec.variable)
@@ -414,9 +408,9 @@ class Application:
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
+        self.controllers.append(slider)
 
     def add_line_chart(self, line_chart_spec, plots_box):
-        # TODO Record data and display
         chart = QtGraph(line_chart_spec)
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
@@ -436,17 +430,9 @@ class Application:
         plots_box.addWidget(monitor)
 
     def add_render_toggle(self, rowbox):
-        toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
-
-        def toggle(checked):
-            if checked:
-                self.simulation_area.timer.stop()
-            else:
-                self.simulation_area.timer.start(1000 / 60)
-
-        toggle_render_btn.toggled.connect(toggle)
-        toggle_render_btn.setCheckable(True)
-        rowbox.addWidget(toggle_render_btn)
+        self.toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
+        self.toggle_render_btn.setCheckable(True)
+        rowbox.addWidget(self.toggle_render_btn)
 
     def add_controllers(self, rows, controller_box):
         first_row = True
