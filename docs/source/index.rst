@@ -12,6 +12,7 @@ Welcome to AgentsPy's documentation!
    agent
    tile
    model
+   simplemodel
 
 
 License
