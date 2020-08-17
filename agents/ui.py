@@ -14,6 +14,7 @@ from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
+    AgentIcon,
     ButtonSpec,
     ToggleSpec,
     SliderSpec,
@@ -23,7 +24,6 @@ from agents.model import (
     HistogramSpec,
     MonitorSpec,
 )
-
 
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -78,7 +78,14 @@ class SimulationArea(QtWidgets.QWidget):
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
         painter.setBrush(QtGui.QColor(r, g, b))
-        if self.model.show_direction:
+        if agent.icon == AgentIcon.CIRCLE:
+            painter.drawEllipse(
+                agent.x - agent.size / 2,
+                agent.y - agent.size / 2,
+                agent.size,
+                agent.size,
+            )
+        elif agent.icon == AgentIcon.ARROW:
             x = agent.x
             y = agent.y
             d = math.radians(agent.direction)
@@ -93,13 +100,47 @@ class SimulationArea(QtWidgets.QWidget):
                 QPointF(x + math.cos(d - 2.3) * s, y + math.sin(d - 2.3) * s),
             ]
             painter.drawPolygon(QPolygonF(point_list))
-        else:
-            painter.drawEllipse(
-                agent.x - agent.size / 2,
-                agent.y - agent.size / 2,
-                agent.size,
-                agent.size,
-            )
+        elif agent.icon == AgentIcon.PERSON:
+            x = agent.x - agent.size / 2
+            y = agent.y - agent.size / 2
+            size = agent.size
+            point_list = [
+                QPointF(x + 0.4*size, y + 0.4*size),
+                QPointF(x + 0.2*size, y + 0.5*size),
+                QPointF(x + 0.2*size, y + 0.6*size),
+                QPointF(x + 0.4*size, y + 0.5*size),
+                QPointF(x + 0.4*size, y + 0.8*size),
+                QPointF(x + 0.2*size, y + size),
+                QPointF(x + 0.3*size, y + size),
+                QPointF(x + 0.5*size, y + 0.85*size),
+                QPointF(x + 0.7*size, y + size),
+                QPointF(x + 0.8*size, y + size),
+                QPointF(x + 0.6*size, y + 0.8*size),
+                QPointF(x + 0.6*size, y + 0.5*size),
+                QPointF(x + 0.8*size, y + 0.6*size),
+                QPointF(x + 0.8*size, y + 0.5*size),
+                QPointF(x + 0.6*size, y + 0.4*size),
+            ]
+            painter.drawPolygon(QPolygonF(point_list))
+            painter.drawEllipse(x + 0.3*size, y, 0.4*size, 0.4*size)
+        elif agent.icon == AgentIcon.HOUSE:
+            x = agent.x - agent.size / 2
+            y = agent.y - agent.size / 2
+            size = agent.size
+            point_list = [
+                QPointF(x + 0.5*size, y),
+                QPointF(x, y + 0.5*size),
+                QPointF(x + 0.2*size, y + 0.5*size),
+                QPointF(x + 0.2*size, y + size),
+                QPointF(x + 0.40*size, y + size),
+                QPointF(x + 0.40*size, y + 0.7*size),
+                QPointF(x + 0.60*size, y + 0.7*size),
+                QPointF(x + 0.60*size, y + size),
+                QPointF(x + 0.8*size, y + size),
+                QPointF(x + 0.8*size, y + 0.5*size),
+                QPointF(x + size, y + 0.5*size)
+            ]
+            painter.drawPolygon(QPolygonF(point_list))
 
     def paintTile(self, painter, tile):
         r, g, b = tile.color
