@@ -37,7 +37,7 @@ class Agent:
     def update_current_tile(self):
         new_tile = self.current_tile()
         if not self.__current_tile:
-            self.__current_tile = self.current_tile()
+            self.__current_tile = new_tile
             self.__current_tile.add_agent(self)
         elif not (self.__current_tile is new_tile):
             self.__current_tile.remove_agent(self)
@@ -63,7 +63,7 @@ class Agent:
         self.x = min(max(self.x,0),self.__model.width)
         self.y = min(max(self.y,0),self.__model.height)
 
-    def align(self):
+    def center_on_tile(self):
         w = self.__model.width
         h = self.__model.height
         tx = self.__model.x_tiles
