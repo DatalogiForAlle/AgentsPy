@@ -47,7 +47,7 @@ While we add functionality to our model, we will also add a bit of UI that makes
 Running the program, the model should now show a button labelled *"Setup"*.
 
 .. image:: tutorial_images/minerbots_2.png
-   :width: 500
+   :width: 300
 
 Tiles
 -----
@@ -72,7 +72,7 @@ By inserting the following code in the ``setup`` function, we can generate our t
 Running the program and clicking the *Setup* button, the window should now display a red-brown background with light-blue squares scattered around.
 
 .. image:: tutorial_images/minerbots_3.png
-   :width: 500
+   :width: 300
 
 The first robots
 ----------------
@@ -96,7 +96,7 @@ We can now add 10 robots to the model, by inserting the following code in the ``
 The simulation should now show 10 grey circles scattered around the landscape.
 
 .. image:: tutorial_images/minerbots_4.png
-   :width: 500
+   :width: 300
 
 Better robots
 -------------
@@ -130,7 +130,7 @@ Finally, as with the *Setup* button, add a *Go* button, which, when pressed, wil
 Running the simulation and pressing the *Go* button, you should now see the robots moving around.
 
 .. image:: tutorial_images/minerbots_5.png
-   :width: 500
+   :width: 300
 
 Even better robots
 ------------------
@@ -170,7 +170,7 @@ This code inspects the tile that the robot is standing on, and, if the tile cont
 The simulation should now show the robots moving around randomly, picking up minerals they come across.
 
 .. image:: tutorial_images/minerbots_6.png
-   :width: 500
+   :width: 300
 
 More agent types
 ----------------
@@ -224,7 +224,7 @@ Finally, add a single ``Homebase`` to the model by inserting:
 into the ``step`` function where the robots are also created.
 
 .. image:: tutorial_images/minerbots_7.png
-   :width: 500
+   :width: 300
 
 Graphs
 ------
