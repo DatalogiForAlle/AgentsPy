@@ -102,6 +102,9 @@ def direction(model):
         a.show_direction = not a.show_direction
 
 
+def print_infections(model):
+    print("Total infections are " + str(model["infected"]))
+
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
 epidemic_model.add_button("Step", step)
 epidemic_model.add_controller_row()
@@ -113,5 +116,5 @@ epidemic_model.monitor("immune")
 epidemic_model.line_chart("infected", (200, 200, 0))
 epidemic_model.line_chart("immune", (100, 100, 255))
 epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
-
+epidemic_model.on_close(print_infections)
 run(epidemic_model)

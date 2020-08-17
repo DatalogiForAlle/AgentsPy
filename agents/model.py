@@ -394,6 +394,12 @@ class Model:
     def unpause(self):
         self._paused = False
 
+    def on_close(self, func):
+        self._close_func = func
+
+    def close(self):
+        self._close_func(self)
+
     def enable_wrapping(self):
         self._wrapping = True
 

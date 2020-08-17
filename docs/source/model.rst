@@ -114,3 +114,6 @@ Methods
 
 * **monitor(variable)**
     Adds a monitor to the simulation, which constantly shows the value of **self[variable]**.
+
+* **on_close(func)**
+    Defines a function that should be run when the simulation window closes. This could, for example, be an ``f.close()`` call to close a data file that is being written to.
