@@ -476,5 +476,17 @@ class SimpleModel(Model):
                  setup_func, step_func,
                  tile_size=8):
         super().__init__(title, x_tiles, y_tiles, tile_size)
-        self.add_button("Setup", setup_func)
-        self.add_toggle_button("Go", step_func)
+        self.setup_first = False
+
+        def setup_wrapper(model):
+            model.setup_first = True
+            setup_func(model)
+
+        def step_wrapper(model):
+            if model.setup_first:
+                step_func(model)
+            else:
+                print("Remember to click 'Setup' first!")
+
+        self.add_button("Setup", setup_wrapper)
+        self.add_toggle_button("Go", step_wrapper)

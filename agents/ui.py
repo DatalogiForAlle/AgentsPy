@@ -73,6 +73,7 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
+        painter.end()
 
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
