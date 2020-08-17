@@ -16,8 +16,9 @@ setup(
   download_url='https://github.com/DatalogiForAlle/AgentsPy/releases/tag/v0.1',
   keywords=['AGENT', 'MODELING', 'SIMULATION'],
   install_requires=[
-          'PyQt5'
-      ],
+      'PyQt5',
+      'PyQtChart'
+  ],
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
