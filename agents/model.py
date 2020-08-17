@@ -47,7 +47,7 @@ class Agent:
     def update_current_tile(self):
         new_tile = self.current_tile()
         if not self.__current_tile:
-            self.__current_tile = self.current_tile()
+            self.__current_tile = new_tile
             self.__current_tile.add_agent(self)
         elif not (self.__current_tile is new_tile):
             self.__current_tile.remove_agent(self)
