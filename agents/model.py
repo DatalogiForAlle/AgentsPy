@@ -1,7 +1,13 @@
 import math
 import random
 import operator
+from enum import Enum
 
+class AgentIcon(Enum):
+    CIRCLE = 1
+    ARROW = 2
+    PERSON = 3
+    HOUSE = 4
 
 class Agent:
     def __init__(self):
@@ -28,6 +34,7 @@ class Agent:
         self.speed = 1
         self.__current_tile = None
         self.selected = False
+        self.icon = AgentIcon.CIRCLE
 
     # Should be overwritten by a subclass
     def setup(self, model):
