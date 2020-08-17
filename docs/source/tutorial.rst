@@ -295,7 +295,7 @@ Now, add the method ``Alien.step``:
 Finally, add three aliens in the same manner as with the robots (in the ``setup`` function):
 ::
 
-   aliens = set([Alien() for _ in range(3)])
+   aliens = set([Alien() for x in range(3)])
    miner_model.add_agents(aliens)
 
 Robot control
