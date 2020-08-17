@@ -69,6 +69,7 @@ class Person(Agent):
 
 def setup(model):
     model.reset()
+    model.unpause()
     model["movespeed"] = 0.5
     model["normal"] = 0
     model["infected"] = 0
@@ -83,6 +84,8 @@ def setup(model):
 
 
 def step(model):
+    if model["immune"] == 100:
+        model.pause()
     for a in model.agents:
         a.step(model)
     for t in model.tiles:
