@@ -76,6 +76,16 @@ class Agent:
         self.y = y
         self.__post_move()
 
+    def jump_to_tile(self, t):
+        w = self.__model.width
+        h = self.__model.height
+        x_tiles = self.__model.x_tiles
+        y_tiles = self.__model.y_tiles
+        self.x = t.x * w / x_tiles
+        self.y = t.y * h / y_tiles
+        self.align()
+        self.__post_move()
+
     def set_model(self, model):
         self.__model = model
 
