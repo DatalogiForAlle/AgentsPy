@@ -90,8 +90,8 @@ The ``setup`` function is unique in the way that it is run automatically wheneve
 We can now add 10 robots to the model, by inserting the following code in the ``setup`` function (*not* the ``Minerbot.setup`` function):
 ::
 
-   bots = set([Minerbot() for x in range(10)])
-   miner_model.add_agents(bots)
+   for x in range(10):
+       miner_model.add_agent(Minerbot())
 
 The simulation should now show 10 grey circles scattered around the landscape.
 
@@ -295,8 +295,8 @@ Now, add the method ``Alien.step``:
 Finally, add three aliens in the same manner as with the robots (in the ``setup`` function):
 ::
 
-   aliens = set([Alien() for _ in range(3)])
-   miner_model.add_agents(aliens)
+   for x in range(3):
+       miner_model.add_agent(Alien())
 
 Robot control
 -------------
