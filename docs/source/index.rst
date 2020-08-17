@@ -14,6 +14,14 @@ Welcome to AgentsPy's documentation!
    model
    simplemodel
 
+Guides
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorial
+
 
 License
 ==================
