@@ -63,6 +63,7 @@ class Agent:
         self.x = min(max(self.x,0),self.__model.width)
         self.y = min(max(self.y,0),self.__model.height)
 
+    # Move the agent to the center of the tile it is standing on
     def center_on_tile(self):
         w = self.__model.width
         h = self.__model.height
@@ -71,11 +72,13 @@ class Agent:
         self.x = math.floor(self.x * tx / w) * w / tx + (w / tx) / 2
         self.y = math.floor(self.y * ty / h) * h / ty + (h / ty) / 2
 
+    # Move the agent to a specified point
     def jump_to(self, x, y):
         self.x = x
         self.y = y
         self.__post_move()
 
+    # Move the agent to a specified tile
     def jump_to_tile(self, t):
         w = self.__model.width
         h = self.__model.height
@@ -86,9 +89,11 @@ class Agent:
         self.align()
         self.__post_move()
 
+    # Sets the model of the agent
     def set_model(self, model):
         self.__model = model
 
+    # Returns the direction from the agent to another point, in degrees
     def direction_to(self, other_x, other_y):
         direction = 0
         dist = self.distance_to(other_x, other_y)
@@ -98,6 +103,7 @@ class Agent:
                 direction = 360 - direction
         return direction
 
+    # Points the agent towards a point
     def point_towards(self, other_x, other_y):
         dist = self.distance_to(other_x, other_y)
         if dist > 0:
@@ -105,11 +111,13 @@ class Agent:
             if (self.y - other_y) > 0:
                 self.direction = 360 - self.direction
 
+    # Moves the agent forward in the direction it is currently facing.
     def forward(self):
         self.x += math.cos(math.radians(self.direction)) * self.speed
         self.y += math.sin(math.radians(self.direction)) * self.speed
         self.__post_move()
 
+    # Returns the distance between the agent and another point.
     def distance_to(self, other_x, other_y):
         return ((self.x - other_x) ** 2 + (self.y - other_y) ** 2) ** 0.5
 
@@ -123,6 +131,7 @@ class Agent:
                     nearby.add(a)
         return nearby
 
+    # Returns the tile that the agent is currently standing on.
     def current_tile(self):
         x = (
             math.floor(self.__model.x_tiles * self.x / self.__model.width)
@@ -139,6 +148,7 @@ class Agent:
     def neighbor_tiles(self):
         return self.nearby_tiles(-1, -1, 1, 1)
 
+    # Returns a rectangle of tiles relative to the agent's current position.
     def nearby_tiles(self, x1, y1, x2, y2):
         t = self.__current_tile
         tiles = []
@@ -147,9 +157,11 @@ class Agent:
             tiles += self.__model.tiles[(row + t.x + x1):(row + t.x + x2 + 1)]
         return tiles
 
+    # True or false whether or not the agent is destroyed
     def is_destroyed(self):
         return self.__destroyed
 
+    # Marks the agent for destruction, removing it from the set of agents in the model.
     def destroy(self):
         if not self.__destroyed:
             self.__destroyed = True
