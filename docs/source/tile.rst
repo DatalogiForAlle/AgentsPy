@@ -7,16 +7,16 @@ A square, of which many make up the "floor" of the model.
 
 Fields
 ------
-* **x**
+* ``x``
     The x-coordinate of the tile.
 
-* **y**
+* ``y``
     The y-coordinate of the tile.
 
-* **info**
+* ``info``
     A dictionary, which may be used to store key-value pairs in the tile.
 
-* **color**
+* ``color``
   The color of the tile. Must be provided as an RGB 3-tuple, e.g. (255, 255, 255) to color the tile white.
 
 
@@ -30,14 +30,14 @@ Fields
 
 Methods
 -------
-* **__init__(x, y, model)**
+* ``__init__(x, y, model)``
     Creates a tile with the given x and y-coordinate, as well as defining the model it belongs to.
 
-* **add_agent(agent)**
-    Adds an Agent **agent** to the set of agents standing on the tile. Usually called by the method **Agent.update_current_tile**.
+* ``add_agent(agent)``
+    Adds an Agent ``agent`` to the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
 
-* **remove_agent(agent)**
-    Removes an Agent **agent** from the set of agents standing on the tile. Usually called by the method **Agent.update_current_tile**.
+* ``remove_agent(agent)``
+    Removes an Agent ``agent`` from the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
 
-* **get_agents()**
+* ``get_agents()``
     Returns the set of agents currently standing on the tile.
