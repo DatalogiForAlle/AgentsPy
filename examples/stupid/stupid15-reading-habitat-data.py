@@ -82,6 +82,7 @@ def setup(model):
         t.info["food"] = 0.0
         t.color = (0, 0, 0)
 
+
 def step(model):
     global f
     if not model["stop"]:
@@ -97,8 +98,9 @@ def step(model):
             bug_mean += a.grow_size
         bug_mean /= model["initial_bugs"]
         f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
-        f.flush() # Flush is necessary as long as we can't call f.close()
-                  # when the user exits the program
+        # Flush is necessary as long as we can't call f.close()
+        # when the user exits the program
+        f.flush()
 
         for t in model.tiles:
             t.info["food"] += t.info["prod"]
