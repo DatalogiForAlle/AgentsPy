@@ -1,6 +1,7 @@
 import math
 import random
 import operator
+import colorsys
 from enum import Enum
 
 class AgentShape(Enum):
@@ -20,16 +21,18 @@ class Agent:
         # Number of edges in the regular polygon representing the agent.
         self.__resolution = 10
 
-        # Color of the agent in RGB.
-        self.__color = [
-            random.randint(0, 255),
-            random.randint(0, 255),
-            random.randint(0, 255),
-        ]
+        # Generate agent color in HSL and convert to RGB, to avoid
+        # dark colors, with low contrast to the default black
+        # background
+        hue = random.random()
+        saturation = random.uniform(0.8, 1.0)
+        lightness = random.uniform(0.25, 1.0)
+        r,g,b = colorsys.hls_to_rgb(hue, lightness, saturation)
+        self.__color = (int(r*255), int(g*255), int(b*255))
 
         self.x = 0
         self.y = 0
-        self.size = 10
+        self.size = 8
         self.direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None

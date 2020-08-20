@@ -1,5 +1,5 @@
 import random
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 
 class Electron(Agent):
@@ -27,6 +27,7 @@ class Nucleon(Agent):
     def setup(self, model):
         self.size = 10
         self.color = (255, 0, 0)
+        self.shape = AgentShape.CIRCLE
 
     def step(self, model):
         pass
