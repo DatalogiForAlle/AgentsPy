@@ -306,6 +306,7 @@ class Model:
         self.show_direction = False
         self._paused = False
         self._wrapping = True
+        self._close_func = None
 
     def add_agent(self, agent):
         agent.set_model(self)
@@ -450,7 +451,8 @@ class Model:
         self._close_func = func
 
     def close(self):
-        self._close_func(self)
+        if self._close_func:
+            self._close_func(self)
 
     def enable_wrapping(self):
         self._wrapping = True
