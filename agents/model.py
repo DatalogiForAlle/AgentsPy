@@ -3,7 +3,7 @@ import random
 import operator
 from enum import Enum
 
-class AgentIcon(Enum):
+class AgentShape(Enum):
     CIRCLE = 1
     ARROW = 2
     PERSON = 3
@@ -29,12 +29,12 @@ class Agent:
 
         self.x = 0
         self.y = 0
-        self.size = 1
+        self.size = 10
         self.direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
-        self.icon = AgentIcon.CIRCLE
+        self.shape = AgentShape.ARROW
 
     # Should be overwritten by a subclass
     def setup(self, model):

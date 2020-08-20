@@ -14,7 +14,7 @@ from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
-    AgentIcon,
+    AgentShape,
     ButtonSpec,
     ToggleSpec,
     SliderSpec,
@@ -78,14 +78,14 @@ class SimulationArea(QtWidgets.QWidget):
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
         painter.setBrush(QtGui.QColor(r, g, b))
-        if agent.icon == AgentIcon.CIRCLE:
+        if agent.shape == AgentShape.CIRCLE:
             painter.drawEllipse(
                 agent.x - agent.size / 2,
                 agent.y - agent.size / 2,
                 agent.size,
                 agent.size,
             )
-        elif agent.icon == AgentIcon.ARROW:
+        elif agent.shape == AgentShape.ARROW:
             x = agent.x
             y = agent.y
             d = math.radians(agent.direction)
@@ -100,7 +100,7 @@ class SimulationArea(QtWidgets.QWidget):
                 QPointF(x + math.cos(d - 2.3) * s, y + math.sin(d - 2.3) * s),
             ]
             painter.drawPolygon(QPolygonF(point_list))
-        elif agent.icon == AgentIcon.PERSON:
+        elif agent.shape == AgentShape.PERSON:
             x = agent.x - agent.size / 2
             y = agent.y - agent.size / 2
             size = agent.size
@@ -123,7 +123,7 @@ class SimulationArea(QtWidgets.QWidget):
             ]
             painter.drawPolygon(QPolygonF(point_list))
             painter.drawEllipse(x + 0.3*size, y, 0.4*size, 0.4*size)
-        elif agent.icon == AgentIcon.HOUSE:
+        elif agent.shape == AgentShape.HOUSE:
             x = agent.x - agent.size / 2
             y = agent.y - agent.size / 2
             size = agent.size
