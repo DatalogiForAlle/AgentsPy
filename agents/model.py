@@ -257,9 +257,6 @@ class Model:
             self.width = x_tiles * tile_size
             self.height = y_tiles * tile_size
 
-            # Internal set of agents.
-            self.__agents = set()
-
             # Initial tileset (empty).
             self.tiles = [Tile(x, y, self)
                           for y in range(y_tiles)
@@ -298,6 +295,7 @@ class Model:
 
             cell_data.close()
 
+        self.__agents = []
         self.variables = {}
         self.plot_specs = []
         self.controller_rows = []
@@ -312,7 +310,7 @@ class Model:
         agent.x = random.randint(0, self.width)
         agent.y = random.randint(0, self.height)
         agent.update_current_tile()
-        self.agents.add(agent)
+        self.agents.append(agent)
         agent.setup(self)
 
     def add_agents(self, agents):
@@ -321,8 +319,7 @@ class Model:
 
     # Returns a list of all agents with random order
     def agents_random(self):
-        agent_list = list(self.agents)
-        random.shuffle(agent_list)
+        random.shuffle(self.agents)
         return agent_list
 
     # Based on
@@ -332,7 +329,7 @@ class Model:
     # /how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
         # Only returns the list of agents that actually have that attribute
-        agent_list = filter(lambda a: hasattr(a, variable), list(self.agents))
+        agent_list = filter(lambda a: hasattr(a, variable), self.agents)
         ret_list = sorted(agent_list, key=operator.attrgetter(variable))
         if not increasing:
             ret_list.reverse()
@@ -342,7 +339,7 @@ class Model:
     def reset(self):
         for a in self.agents:
             a.destroy()
-        self.agents.clear()
+        self.agents = []
         for x in range(self.x_tiles):
             for y in range(self.y_tiles):
                 i = y * self.x_tiles + x
@@ -380,10 +377,10 @@ class Model:
                 plot.update_data(dataset)
 
     def remove_destroyed_agents(self):
-        new_agents = set()
+        new_agents = []
         for a in self.__agents:
             if not a.is_destroyed():
-                new_agents.add(a)
+                new_agents.append(a)
             else:
                 a.current_tile().remove_agent(a)
         self.__agents = new_agents
