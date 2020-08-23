@@ -321,17 +321,12 @@ class Model:
         agent.x = random.randint(0, self.width)
         agent.y = random.randint(0, self.height)
         agent.update_current_tile()
-        self.agents.append(agent)
+        self.__agents.append(agent)
         agent.setup(self)
 
     def add_agents(self, agents):
         for a in agents:
             self.add_agent(a)
-
-    # Returns a list of all agents with random order
-    def agents_random(self):
-        random.shuffle(self.agents)
-        return agent_list
 
     # Based on
     # kite.com
@@ -340,17 +335,17 @@ class Model:
     # /how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
         # Only returns the list of agents that actually have that attribute
-        agent_list = filter(lambda a: hasattr(a, variable), self.agents)
+        agent_list = filter(lambda a: hasattr(a, variable), self.__agents)
         ret_list = sorted(agent_list, key=operator.attrgetter(variable))
         if not increasing:
             ret_list.reverse()
-        return ret_list
+        return iter(ret_list)
 
     # Destroys all agents, clears the agent set, and resets all tiles.
     def reset(self):
-        for a in self.agents:
+        for a in self.__agents:
             a.destroy()
-        self.agents = []
+        self.__agents = []
         for x in range(self.x_tiles):
             for y in range(self.y_tiles):
                 i = y * self.x_tiles + x
@@ -379,7 +374,7 @@ class Model:
                 dataset = []
                 for b in plot.spec.bins:
                     bin_count = 0
-                    for a in self.agents:
+                    for a in self.__agents:
                         if hasattr(a, plot.spec.variable):
                             val = getattr(a, plot.spec.variable)
                             if val >= b[0] and val <= b[1]:
@@ -401,7 +396,7 @@ class Model:
             plot.clear()
 
     def mouse_click(self, x, y):
-        for a in self.agents:
+        for a in self.__agents:
             a.selected = False
             if (
                 a.x - a.size / 2 < x
@@ -409,7 +404,7 @@ class Model:
                 and a.y - a.size / 2 < y
                 and a.y + a.size / 2 > y
             ):
-                for b in self.agents:
+                for b in self.__agents:
                     b.selected = False
                 a.selected = True
 
@@ -473,11 +468,11 @@ class Model:
     @property
     def agents(self):
         self.remove_destroyed_agents()
-        return self.__agents
+        return iter(self.__agents)
 
     @agents.setter
     def agents(self, agents):
-        self.__agents = agents
+        self.__agents = list(agents)
 
     def __setitem__(self, key, item):
         self.variables[key] = item
