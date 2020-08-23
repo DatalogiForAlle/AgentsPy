@@ -5,6 +5,7 @@ This tutorial intends to showcase some of the functionalities provided by the ``
 
 We will develop a simulation consisting of miner robots on a remote planet collecting resources and avoiding hostile aliens.
 
+
 Basics
 ------
 Begin by creating a file called ``minerbots.py``. Then, in the top of the file, import the library by writing:
@@ -28,8 +29,18 @@ This line should generally be the last one in your file.
 
 Running the python file, you should see a window with a black square and the name "MinerBots".
 
-.. image:: tutorial_images/minerbots_1.png
-   :width: 500
+
+The first agent
+---------------
+Since we will be doing agent-based modelling, it is only natural that we add some *agents* to our model. For starters, we will add just one agent when we setup the simulation. Add this code somewhere between creating the model and running the model:
+::
+
+   miner_model.add_agent( Agent() )
+
+This creates an agent and adds it to the model.
+
+Starting the simulation, you should see an agent appear in the simulation area.
+
 
 Setup
 -----
@@ -38,25 +49,119 @@ While we add functionality to our model, we will also add a bit of UI that makes
 
    def setup(model):
        model.reset()
+       model.add_agent( Agent() )
 
-``model.reset()`` simply resets the model by removing all existing agents, and resetting all tiles. Add the following line afterwards:
+``model.reset()`` simply resets the model by removing all existing agents, and resetting all tiles.Since we would also like to generate our agents during setup, we have added a call to ``add_agent()`` to generate an agent, which means that you should now remove the line ``miner_model.add_agent( Agent() )`` outside the ``setup`` function.
+
+Add the following line after creating the model, but before running it:
 ::
 
    miner_model.add_button("Setup", setup)
 
 Running the program, the model should now show a button labelled *"Setup"*.
 
-.. image:: tutorial_images/minerbots_2.png
-   :width: 500
 
-Tiles
------
-We will generate the tiles for the model first, which will make up the surface of our "planet". We want to make most tiles empty ground (red-brown), but some tiles should contain mineral deposits (light blue). To decide which tiles should be what, we will use a *random number generator*. Add this code to the top of your file, along with your ``agents`` import:
+Step
+----
+Creating agents is good, but they should also *do* something, like move around or interact with each other. To make the agents do something (and stop them from doing that same thing), we will add a *toggleable* button, which, when active, will constantly run a function that affects our agents.
+
+To start with, create the following **Step** function:
+::
+
+   def step(model):
+       for ag in model.agents:
+           ag.forward()
+
+This function simply takes all agents in our given model (currently there is only one agent in the model, but it doesn't matter) and moves them forward.
+
+We can join it to a toggleable button in the same manner as **Setup** by adding:
+::
+
+   miner_model.add_toggle_button("Go", step)
+
+Running the program and pressing the button, you should now see the agent move around.
+
+
+More and better agents
+----------------------
+Let us add a few more agents to the model, just to see how it is done.
+
+Replace the ``setup`` function with this:
+::
+
+   def setup(model):
+       model.reset()
+       for x in range(10):
+           model.add_agent( Agent() )
+
+This will add 10 agents rather than 1.
+
+We will also make their movement a bit more sophisticated. To start, at the top of the file, add:
 ::
 
    from random import randint
 
-By inserting the following code in the ``setup`` function, we can generate our tiles:
+Then, in the ``step`` function, add
+::
+
+   ag.direction += randint(0, 20) - 10
+
+inside the loop over the agents. This will make their agents randomly adjust their direction with up to 10 degrees each step.
+
+
+From agents to robots
+---------------------
+Right now, the behavior of the agents is specified in the ``step`` function. However, we want to eventually have a few different types of agents with different behaviours, so it would make more sense that each agent iself knew how it behaved.
+
+Rather than having all agents be of the class ``Agent``, we will create *subclasses* for each type of agent, of which all should inherit from the ``Agent`` class.
+
+Start by creating a ``Robot`` class, which looks like this:
+::
+
+   class Robot(Agent):
+       def setup(self, model):
+           self.color = (100, 100, 100)
+           self.direction = random.randint(0, 359)
+
+       def step(self, model):
+           self.direction += randint(0, 20) - 10
+           self.forward()
+
+``Robot.setup`` is run automatically when the agent is added to the model, so we do not need to worry about calling it.  ``Robot.step`` is very similar to ``step``, so we can now replace ``step`` (*not* ``Robot.step``) with:
+::
+
+   step(model):
+       for ag in model.agents:
+           ag.step(model)
+
+Running the model should not show any changes, but now we can make multiple types of agents, each with their own ``setup`` and ``step`` methods, without changing the "main" ``setup`` and ``step`` functions.
+
+
+Adjusting parameters
+--------------------
+Aside from using buttons to control the agents, it is also possible to use *sliders*, which can be used to adjust the value of a given variable in the model. Let us say that we want to be able to speed up the agents by some factor. First, add the following line in ``setup``:
+::
+
+   model["speed_factor"] = 1
+
+The model also works as a *dictionary*, where *keys* (here ``speed_factor``) can be assigned *values* (here ``1``). In ``Robot.step``, add the following line:
+::
+
+   self.speed = model["speed_factor"]
+
+Now, just below the code where you add the buttons to the model, add this line:
+::
+
+   miner_model.add_slider("speed_factor", 1, 5, 1)
+
+This will add an adjustible slider to the model. Starting up the model, you should be able to adjust the speed of the robots by moving the slider back and forth.
+
+
+Tiles
+-----
+A model generally consists of two types of elements: agents and tiles. It might not seem like we have any tiles now, but they are actually already part of the model; they are just all colored black and have no code.
+
+We will use tiles to represent the surface of our "planet". We want to make most tiles empty ground (red-brown), but some tiles should contain mineral deposits (light blue). By inserting the following code in the ``setup`` function, we can generate our tiles:
 ::
 
    for t in model.tiles:
@@ -67,90 +172,21 @@ By inserting the following code in the ``setup`` function, we can generate our t
            t.color = (200, 100, 0)
            t.info["has_mineral"] = False
 
-``randint(a,b)`` is a function from ``random`` which provides a random number between and including ``a`` and ``b``. ``t.info`` is a dictionary; each tile has their own distinct one.
+The ``randint`` function makes it so that each tile has a 1/50 chance of being a mineral deposit. The ``info`` property of the tile is also a dictionary in the same manner as the model, so each tile can have its own set of key-value pairs.
 
-Running the program and clicking the *Setup* button, the window should now display a red-brown background with light-blue squares scattered around.
+The model should now show a red-brown landscape with light blue mineral deposits scattered around it.
 
-.. image:: tutorial_images/minerbots_3.png
-   :width: 500
 
-The first robots
-----------------
-The model is not very interesting without *agents*, so we will add some now.
+Doing some mining
+-----------------
+The robots are supposed to be *mining robots*, so let us give them some code for mining the mineral deposits.
 
-To begin with, create a class ``Minerbot`` which derives from ``Agent``. Give it a method ``Minerbot.setup``, which has the following contents:
-::
-
-   def setup(self, model):
-      self.size = 10
-      self.color = (100, 100, 100)
-
-The ``setup`` function is unique in the way that it is run automatically whenever the agent is added to the model.
-
-We can now add 10 robots to the model, by inserting the following code in the ``setup`` function (*not* the ``Minerbot.setup`` function):
-::
-
-   for x in range(10):
-       miner_model.add_agent(Minerbot())
-
-The simulation should now show 10 grey circles scattered around the landscape.
-
-.. image:: tutorial_images/minerbots_4.png
-   :width: 500
-
-Better robots
--------------
-Right now, the robots are not particularly interesting, as they are just sitting around. We will start by giving them some movement. Start by adding the following line in ``Minerbot.setup``:
-::
-
-   self.direction = randint(0, 359)
-
-This will point the robots in a random direction when they are created.
-
-Like the ``Minerbot.setup`` method, create a ``Minerbot.step`` method, and give it the following contents:
-::
-
-   def step(self, model):
-      self.forward()
-
-This will make the agents move forward by 1 unit whenever ``Minerbot.step`` is called.
-
-Now, create a ``step`` function (as with the ``setup`` function):
-::
-
-   def step(model):
-       for a in model.agents:
-           a.step(model)
-
-Finally, as with the *Setup* button, add a *Go* button, which, when pressed, will continously call the ``setup`` function:
-::
-
-   miner_model.add_toggle_button("Go", step)
-
-Running the simulation and pressing the *Go* button, you should now see the robots moving around.
-
-.. image:: tutorial_images/minerbots_5.png
-   :width: 500
-
-Even better robots
-------------------
-Let us make the robots' movement a bit more interesting. Add this code to the ``Minerbots.step`` method:
-::
-
-   self.direction += randint(0, 20)-10
-
-This will make the robots vary their movement a bit when scuttling around.
-
-Despite their name ``Minerbots``, the robots are not actually doing any mining. Let's fix that by allowing the robots to pick up minerals from a mineral deposit, if they are not already carrying a load.
-
-To ``Minerbots.setup``, add:
+Given that the robots are relatively small, they should only be able to mine one deposit before having a full load and being unable to mine more. We will indicate whether the robots have a full load by giving them a field ``loaded``. Add this code to ``Robot.setup``:
 ::
 
    self.loaded = False
 
-We will use this variable to indicate whether or not the robot is carrying minerals already.
-
-Now, add this code to ``Minerbots.step``:
+And add this code to ``Robot.step``:
 ::
 
    t = self.current_tile()
@@ -162,46 +198,40 @@ Now, add this code to ``Minerbots.step``:
 
 This code inspects the tile that the robot is standing on, and, if the tile contains minerals *and* the robot is not already carrying minerals:
 
-1. Remove the minerals from the tile
-2. Recolor the tile appropriately
+1. Remove the minerals from the tile.
+2. Recolor the tile appropriately.
 3. Update ``self.loaded`` to indicate that the robot is carrying minerals.
-4. Recolor the robot (to show that it is loaded)
+4. Recolor the robot (to show that it is loaded).
 
-The simulation should now show the robots moving around randomly, picking up minerals they come across.
 
-.. image:: tutorial_images/minerbots_6.png
-   :width: 500
+Robot headquarters
+------------------
+Since the robots can only store one mineral load before being fully loaded, we should also give them a place where they can drop off their minerals. To do this, we will have to add another agent type.
 
-More agent types
-----------------
-Since the robots can pick up minerals now, it is only fair to provide a spot where they can drop them off as well.
-
-We will add a new class deriving from ``Agent``, called ``Homebase``. It should be a larger grey circle in the middle of the simulation area, representing the main base of the robots. Give it the following ``Homebase.setup`` method:
+Create a ``Homebase`` class, which inherits from ``Agent``, and looks like this:
 ::
 
-   def setup(self, model):
-       self.size = 20
-       self.color = (200, 200, 200)
-       self.x = model.width/2
-       self.y = model.height/2
+   class Homebase(Agent):
+       def setup(self, model):
+           self.size = 20
+	   self.color = (200, 200, 200)
+	   self.x = model.width/2
+	   self.y = model.height/2
 
-Since the base is supposed to be the robot headquarters, we should make the robots start in the base as well. Add these lines to ``Minerbot.setup``:
+       def step(self, model):
+           for a in self.agents_nearby(self.size+5):
+               if type(a) == Robot and a.loaded:
+                   a.loaded = False
+		   a.color = (100, 100, 100)
+		   self.size += 1
+
+This will make a light-gray circle in the center of the simulation area. In each step, the base will check if there is any loaded ``Robot`` agents nearby, and if there is, take their mineral deposit and grow a bit in size.
+
+Since the base is supposed to be the robot headquarters, we should make the robots start in the base as well. Add these lines to ``Robot.setup``:
 ::
 
    self.x = model.width/2
    self.y = model.height/2
-
-To make it possible for robots to drop off minerals, create a ``Homebase.step`` function with the following properties:
-::
-
-   def step(self, model):
-       for a in self.agents_nearby(self.size+5):
-           if type(a) == Minerbot and a.loaded:
-               a.loaded = False
-               a.color = (100, 100, 100)
-               self.size += 1
-
-The function checks, for each nearby agent, if it is a ``Minerbot`` and has a load of minerals, in which case, it updates the ``Minerbot`` to its default look and setting (no load), and grows a bit in size.
 
 To improve efficiency, we will have the robots return "home" whenever they pick up minerals. In ``Minerbot.step``, replace
 ::
@@ -223,8 +253,6 @@ Finally, add a single ``Homebase`` to the model by inserting:
 
 into the ``step`` function where the robots are also created.
 
-.. image:: tutorial_images/minerbots_7.png
-   :width: 500
 
 Graphs
 ------
@@ -243,7 +271,7 @@ Now, update ``Homebase.step`` such that it correctly updates ``minerals_collecte
 
    def step(self,model):
        for a in self.agents_nearby(self.size/2+5):
-           if type(a) == Minerbot and a.loaded:
+           if type(a) == Robot and a.loaded:
                a.loaded = False
                a.color = (100,100,100)
                self.size += 1
@@ -261,46 +289,41 @@ Finally, add the actual graph by using:
 
    miner_model.graph("minerals_collected",(0,255,255))
 
+
 More agent interaction
 ----------------------
 To add a bit of excitement, we will add some hostile aliens, which will try to catch and destroy the robots.
 
-Start by adding a new ``Alien`` class, inheriting from ``Agent``. Give it the following ``Alien.setup`` method:
+Start by adding a new ``Alien`` class, which inherits from ``Agent`` and has the following contents:
 ::
 
-   def setup(self, model):
-       self.size = 15
-       self.direction = randint(0,359)
-       self.color = (0,255,0)
+   class Alien(Agent):
+       def setup(self, model):
+           self.size = 15
+	   self.direction = randint(0,359)
+	   self.color = (0,255,0)
 
-Add another method, ``Alien.destroy_robots``, with the following contents:
-::
+       def destroy_robots(self):
+           for t in self.neighbor_tiles():
+               for other in t.get_agents():
+	           if type(other) == Robots:
+	               other.destroy()
 
-   def destroy_robots(self):
-       for t in self.neighbor_tiles():
-           for other in t.get_agents():
-	       if type(other) == Minerbot:
-	           other.destroy()
+       def step(self, model):
+           self.speed = 1.5 * model["speed_factor"]
+	   self.direction += randint(0, 20) - 10
+	   self.forward()
+           self.destroy_robots()
 
-This will have the alien destroy any robots located on its own tile or any neighboring tiles.
+The aliens will be larger and greener than the robots. Each step, they will change their direction a little bit, move forward, and then destroy any robots on nearby tiles.
 
-Now, add the method ``Alien.step``:
-::
-
-   def step(self, model):
-       self.destroy_robots()
-       self.forward()
-
-
-Finally, add three aliens in the same manner as with the robots (in the ``setup`` function):
+Now, add three aliens in the same manner as with the robots (in the ``setup`` function):
 ::
 
    for x in range(3):
        miner_model.add_agent(Alien())
 
-Robot control
--------------
-We will now make the model a bit more interactive. It should be possible for the base to produce a new robot, but then in exchange lose a bit of size.
+To make it a bit more fair for the robots, let us make it possible to spend some of the gathered resources, and create a new robot at the homebase.
 
 First, replace this line in ``setup``
 ::
@@ -313,7 +336,7 @@ with this one
    model["Homebase"] = Homebase()
    model.add_agent(model["Homebase"])
 
-By doing this, we can always obtain a reference to the homebase by using ``model["Homebase"]``.
+This might seem a bit arbitrary, but by doing this, we can always obtain a reference to the homebase by using ``model["Homebase"]``.
 
 Now, create a function ``build_bot``:
 ::
@@ -328,21 +351,4 @@ and then add a button which runs the function:
 
    miner_model.add_button("Build new bot", build_bot)
 
-For even more control, we will make it possible to speed up the robots.
-
-In ``setup``, add:
-::
-
-   model["robot_speed"] = 2
-
-In the first line of ``Minerbot.step``, add:
-::
-
-   self.speed = model["robot_speed"]
-
-Finally, add a *slider* which can adjust the value of ``robot_speed``:
-::
-
-   miner_model.add_slider("robot_speed", 1, 5, 2)
-
-with 1 being the minimum speed, 5 the maximum, and 2 the initial.
+If the base is large enough, we can press the button to shrink it a bit and "spend" the materials on building a new robot.
