@@ -33,7 +33,7 @@ class Agent:
         self.x = 0
         self.y = 0
         self.size = 8
-        self.direction = random.randint(0, 359)
+        self.__direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
@@ -115,10 +115,25 @@ class Agent:
             if (self.y - other_y) > 0:
                 self.direction = 360 - self.direction
 
-    def forward(self):
-        self.x += math.cos(math.radians(self.direction)) * self.speed
-        self.y += math.sin(math.radians(self.direction)) * self.speed
+    def forward(self, distance=None):
+        if distance == None:
+            distance = self.speed
+        self.x += math.cos(math.radians(self.direction)) * distance
+        self.y += math.sin(math.radians(self.direction)) * distance
         self.__post_move()
+
+    def backward(self, distance=None):
+        if distance == None:
+            distance = self.speed
+        self.x -= math.cos(math.radians(self.direction)) * distance
+        self.y -= math.sin(math.radians(self.direction)) * distance
+        self.__post_move()
+
+    def agent.left(self, degrees):
+        self.direction += degrees
+
+    def agent.right(self, degrees):
+        self.direction -= degrees
 
     def distance_to(self, other_x, other_y):
         return ((self.x - other_x) ** 2 + (self.y - other_y) ** 2) ** 0.5
@@ -172,6 +187,14 @@ class Agent:
     def color(self, color):
         r, g, b = color
         self.__color = [r, g, b]
+
+    @property
+    def direction(self):
+        return self.__direction % 360
+
+    @direction.setter
+    def direction(self, direction):
+        self.__direction = direction % 360
 
 
 class Tile:
