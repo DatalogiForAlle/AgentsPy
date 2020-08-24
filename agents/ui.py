@@ -14,6 +14,7 @@ from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
+    Variable,
     AgentShape,
     ButtonSpec,
     ToggleSpec,
@@ -160,7 +161,7 @@ class QtGraph(QChartView):
         self.spec = spec
         self.chart = QChart()
         self.chart.createDefaultAxes()
-        self.chart.setTitle(self.spec.variable)
+        self.chart.setTitle(self.spec.label)
         self.chart.legend().hide()
         self.series = QLineSeries()
         self.series.setColor(QColor(spec.color[0],
@@ -187,8 +188,8 @@ class QtGraph(QChartView):
         self.series.clear()
         self._data = []
 
-    def add_data(self, data):
-        self._data.append(data)
+    def update_data(self):
+        self._data.append(self.spec.variable.value)
 
     def redraw(self):
         if len(self._data) > 0:
@@ -212,8 +213,9 @@ class QtBarChart(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setTitle(str(self.spec.variables))
+        self.chart.setTitle(str(self.spec.label))
         self.chart.legend().hide()
+
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
         self.mainset.setColor(QColor(spec.color[0],
@@ -227,7 +229,7 @@ class QtBarChart(QChartView):
 
         self.axis_x = QBarCategoryAxis()
         self.axis_y = QValueAxis()
-        self.axis_x.append(spec.variables)
+        self.axis_x.append([str(var) for var in spec.variables])
         self.chart.addSeries(self.series)
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
@@ -241,10 +243,10 @@ class QtBarChart(QChartView):
     def clear(self):
         self._dataset = []
 
-    def update_data(self, dataset):
+    def update_data(self):
         data = []
-        for d in dataset:
-            data.append(d)
+        for var in self.spec.variables:
+            data.append(var.value)
         self._dataset = data
 
     def redraw(self):
@@ -312,10 +314,10 @@ class ToggleButton(QtWidgets.QPushButton):
 
 # Based on https://stackoverflow.com/a/50300848/
 class Slider(QtWidgets.QHBoxLayout):
-    def __init__(self, variable, minval, maxval, initial):
+    def __init__(self, labelText, minval, maxval, initial):
         super().__init__()
         label = QtWidgets.QLabel()
-        label.setText(variable)
+        label.setText(labelText)
         self.addWidget(label)
         self.sliderBar = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.sliderBar.factor = 1000
@@ -330,21 +332,19 @@ class Slider(QtWidgets.QHBoxLayout):
 
 
 class Monitor(QtWidgets.QLabel):
-    def __init__(self, variable, model):
+    def __init__(self, spec):
         super().__init__()
-        self.variable = variable
-        self.setText(variable + ": -")
-        self.model = model
+        self.spec = spec
+        self.setText(spec.label + ": -")
 
     def update_label(self):
-        if self.variable in self.model.variables:
-            self.setText(self.variable + ": " + str(self.model[self.variable]))
+        self.setText(self.spec.label + ": " + str(self.spec.variable.value))
 
 
 class Checkbox(QtWidgets.QCheckBox):
-    def __init__(self, variable):
-        super().__init__(variable)
-        self.setText(variable)
+    def __init__(self, spec):
+        super().__init__(spec.label)
+        self.setText(spec.label)
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, model):
@@ -436,7 +436,7 @@ class Application:
 
     def add_slider(self, slider_spec, row):
         slider = Slider(
-            slider_spec.variable,
+            slider_spec.label,
             slider_spec.minval,
             slider_spec.maxval,
             slider_spec.initial,
@@ -444,7 +444,7 @@ class Application:
 
         def update_variable(v):
             value = v / slider.sliderBar.factor
-            self.model[slider_spec.variable] = value
+            slider_spec.variable.value = value
             slider.indicator.setText(str(value))
 
         slider.sliderBar.valueChanged.connect(update_variable)
@@ -452,17 +452,17 @@ class Application:
         self.controllers.append(slider)
 
     def add_checkbox(self, checkbox_spec, row):
-        checkbox = Checkbox(checkbox_spec.variable)
+        checkbox = Checkbox(checkbox_spec)
 
         def update_variable(v):
-            self.model[checkbox_spec.variable] = checkbox.isChecked()
+            checkbox_spec.variable.value = checkbox.isChecked()
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
-        self.controllers.append(slider)
+        self.controllers.append(checkbox)
 
     def add_monitor(self, monitor_spec, plots_box):
-        monitor = Monitor(monitor_spec.variable, self.model)
+        monitor = Monitor(monitor_spec)
         plots_box.addWidget(monitor)
         self.controllers.append(monitor)
 
@@ -523,7 +523,7 @@ class Application:
 def run(model):
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)
-    Application(model)
+    app = Application(model)
 
     # Launch the application
     qapp.exec_()

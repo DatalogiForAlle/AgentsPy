@@ -4,6 +4,19 @@ import operator
 import colorsys
 from enum import Enum
 
+
+class Variable:
+    def __init__(self, initial_value):
+        self._value = initial_value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, val):
+        self._value = val
+
 class AgentShape(Enum):
     CIRCLE = 1
     ARROW = 2
@@ -210,7 +223,8 @@ class ToggleSpec(Spec):
 
 
 class SliderSpec(Spec):
-    def __init__(self, variable, minval, maxval, initial):
+    def __init__(self, label, variable, minval, maxval, initial):
+        self.label = label
         self.variable = variable
         self.minval = minval
         self.maxval = maxval
@@ -218,29 +232,34 @@ class SliderSpec(Spec):
 
 
 class CheckboxSpec(Spec):
-    def __init__(self, variable):
+    def __init__(self, label, variable):
+        self.label = label
         self.variable = variable
 
 
 class LineChartSpec(Spec):
-    def __init__(self, variable, color):
+    def __init__(self, label, variable, color):
+        self.label = label
         self.variable = variable
         self.color = color
 
 
 class MonitorSpec(Spec):
-    def __init__(self, variable):
+    def __init__(self, label, variable):
+        self.label = label
         self.variable = variable
 
 
 class BarChartSpec(Spec):
-    def __init__(self, variables, color):
+    def __init__(self, label, variables, color):
+        self.label = label
         self.variables = variables
         self.color = color
 
 
 class HistogramSpec(Spec):
-    def __init__(self, variable, minimum, maximum, intervals, color):
+    def __init__(self, label, variable, minimum, maximum, intervals, color):
+        self.label = label
         self.variable = variable
         self.minimum = minimum
         self.maximum = maximum
@@ -372,12 +391,9 @@ class Model:
     def update_plots(self):
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
-                plot.add_data(self.variables[plot.spec.variable])
+                plot.update_data()
             elif type(plot.spec) is BarChartSpec:
-                dataset = []
-                for d in plot.spec.variables:
-                    dataset.append(self.variables[d])
-                plot.update_data(dataset)
+                plot.update_data()
             elif type(plot.spec) is HistogramSpec:
                 dataset = []
                 for b in plot.spec.bins:
@@ -426,27 +442,26 @@ class Model:
     def add_toggle_button(self, label, func):
         self.current_row.append(ToggleSpec(label, func))
 
-    def add_slider(self, variable, minval, maxval, initial):
-        self.variables[variable] = initial
-        self.current_row.append(SliderSpec(variable, minval, maxval, initial))
+    def add_slider(self, label, variable, minval, maxval, initial):
+        self.current_row.append(SliderSpec(label, variable, minval, maxval, initial))
 
-    def add_checkbox(self, variable):
-        self.variables[variable] = False
-        self.current_row.append(CheckboxSpec(variable))
+    def add_checkbox(self, label, variable):
+        variable.value = False
+        self.current_row.append(CheckboxSpec(label, variable))
 
-    def line_chart(self, variable, color):
-        self.plot_specs.append(LineChartSpec(variable, color))
+    def line_chart(self, label, variable, color):
+        self.plot_specs.append(LineChartSpec(label, variable, color))
 
-    def bar_chart(self, variables, color):
-        self.plot_specs.append(BarChartSpec(variables, color))
+    def bar_chart(self, label, variables, color):
+        self.plot_specs.append(BarChartSpec(label, variables, color))
 
-    def histogram(self, variable, minimum, maximum, bins, color):
+    def histogram(self, label, variable, minimum, maximum, bins, color):
         self.plot_specs.append(
-            HistogramSpec(variable, minimum, maximum, bins, color)
+            HistogramSpec(label, variable, minimum, maximum, bins, color)
         )
 
-    def monitor(self, variable):
-        self.current_row.append(MonitorSpec(variable))
+    def monitor(self, label, variable):
+        self.current_row.append(MonitorSpec(label, variable))
 
     def is_paused(self):
         return self._paused
@@ -481,15 +496,6 @@ class Model:
     @agents.setter
     def agents(self, agents):
         self.__agents = agents
-
-    def __setitem__(self, key, item):
-        self.variables[key] = item
-
-    def __getitem__(self, key):
-        return self.variables[key]
-
-    def __delitem__(self, key):
-        del self.variables[key]
 
 
 class SimpleModel(Model):
