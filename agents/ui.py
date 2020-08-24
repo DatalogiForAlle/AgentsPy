@@ -523,6 +523,10 @@ class Application:
 def run(model):
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)
+
+    # We need to store a reference to the application, even though we are not
+    # using it, as otherwise it will be garbage-collected and the UI will get
+    # some very weird behavior.
     app = Application(model)
 
     # Launch the application
