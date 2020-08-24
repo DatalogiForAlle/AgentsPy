@@ -523,7 +523,7 @@ class Application:
 def run(model):
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)
-    Application(model)
+    app = Application(model)
 
     # Launch the application
     qapp.exec_()
