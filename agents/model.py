@@ -129,10 +129,10 @@ class Agent:
         self.y -= math.sin(math.radians(self.direction)) * distance
         self.__post_move()
 
-    def agent.left(self, degrees):
+    def left(self, degrees):
         self.direction += degrees
 
-    def agent.right(self, degrees):
+    def right(self, degrees):
         self.direction -= degrees
 
     def distance_to(self, other_x, other_y):
