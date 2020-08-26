@@ -76,8 +76,6 @@ def setup(model):
 
 
 def step(model):
-    global f
-
     # Food production
     for tile in model.tiles:
         food_prod = random.uniform(0, model["max_food_prod"])
@@ -105,9 +103,10 @@ def step(model):
     # Update plots
     model.update_plots()
 
+
 def close(model):
-    global f
     f.close()
+
 
 stupid_model = Model("StupidModel w. file output (stupid08)",
                      100, 100, tile_size=5)
