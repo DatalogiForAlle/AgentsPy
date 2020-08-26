@@ -8,7 +8,7 @@ class Bug(Agent):
         self.color = (255, 0, 0)
 
         # Align to center of tile
-        self.align()
+        self.center_in_tile()
 
     def move(self):
         """

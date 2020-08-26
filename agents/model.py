@@ -73,7 +73,7 @@ class Agent:
         self.x = min(max(self.x,0),self.__model.width)
         self.y = min(max(self.y,0),self.__model.height)
 
-    def align(self):
+    def center_in_tile(self):
         w = self.__model.width
         h = self.__model.height
         tx = self.__model.x_tiles
@@ -94,7 +94,7 @@ class Agent:
         y_tiles = self.__model.y_tiles
         self.x = t.x * w / x_tiles
         self.y = t.y * h / y_tiles
-        self.align()
+        self.center_in_tile()
         self.__post_move()
 
     def set_model(self, model):
