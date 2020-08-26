@@ -80,6 +80,7 @@ class Agent:
         ty = self.__model.y_tiles
         self.x = math.floor(self.x * tx / w) * w / tx + (w / tx) / 2
         self.y = math.floor(self.y * ty / h) * h / ty + (h / ty) / 2
+        self.__post_move()
 
     def jump_to(self, x, y):
         self.x = x
