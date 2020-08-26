@@ -119,7 +119,6 @@ def setup(model):
 
 
 def step(model):
-    global f
     if not model["stop"]:
         bug_min = None
         bug_mean = 0
@@ -145,9 +144,10 @@ def step(model):
         model.update_plots()
         model.remove_destroyed_agents()
 
+
 def close(model):
-    global f
     f.close()
+
 
 stupid_model = Model("StupidModel w. multiple agent types (predators)",
                      250, 112, tile_size=5)
