@@ -10,10 +10,6 @@ class Bug(Agent):
         # Align to center of tile
         self.align()
 
-        # Optimization, to allow quick lookup of which agents are on a tile
-        # can we hide this somehow?
-        self.update_current_tile()
-
     def move(self):
         """
         Jump to a random tile in the neighborhood of the agent, which is

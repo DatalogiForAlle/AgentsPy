@@ -14,7 +14,6 @@ class Bug(Agent):
         self.survivalprobability = 95
         self.draw_color()
         self.align()
-        self.update_current_tile()
 
     def step(self, model):
         # Eat from the current tile

@@ -12,7 +12,6 @@ class Bug(Agent):
         self.grow_size = 1
         self.size_to_color()
         self.align()
-        self.update_current_tile()
 
     def move(self):
         """
