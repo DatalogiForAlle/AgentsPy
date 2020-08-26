@@ -14,6 +14,7 @@ from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
+    get_quickstart_model,
     AgentShape,
     ButtonSpec,
     ToggleSpec,
@@ -534,3 +535,6 @@ def run(model):
 
     # Application was closed, clean up and exit
     sys.exit(0)
+
+def quick_run():
+    run(get_quickstart_model())
