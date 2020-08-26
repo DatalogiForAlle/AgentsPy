@@ -8,15 +8,15 @@ class Person(Agent):
     # Inficer agenten
     def infect(self, model):
         self.infection = 1000
-        model.infected.value += 1
-        model.normal.value -= 1
+        infected.value += 1
+        normal.value -= 1
         self.color = (200, 200, 0)
 
     # Gør agenten immun
     def immunize(self, model):
         self.infection = 0
-        model.infected.value -= 1
-        model.immune.value += 1
+        infected.value -= 1
+        immune.value += 1
         self.immune = True
 
     def setup(self, model):
@@ -24,7 +24,7 @@ class Person(Agent):
         self.immune = False
         self.size = 10
         self.infection = 0
-        model.normal.value += 1
+        normal.value += 1
         if random.randint(0, 100) < 5:
             self.infect(model)
 
@@ -43,12 +43,12 @@ class Person(Agent):
             self.direction = average_angle + 180
         else:
             self.direction += random.randint(0, 20) - 10
-        self.speed = model.movespeed.value
+        self.speed = movespeed.value
         self.forward()
 
         if self.infection > 1:
             t = self.current_tile()
-            t.info["infection"] = model.decay.value * 60
+            t.info["infection"] = decay.value * 60
             for b in self.agents_nearby(15):
                 if (not b.immune) and (b.infection == 0):
                     b.infect(model)
@@ -70,11 +70,11 @@ class Person(Agent):
 def setup(model):
     model.reset()
     model.unpause()
-    model.movespeed.value = 0.5
-    model.normal.value = 0
-    model.infected.value = 0
-    model.immune.value = 0
-    model.decay.value = 2
+    movespeed.value = 0.5
+    normal.value = 0
+    infected.value = 0
+    immune.value = 0
+    decay.value = 2
     people = set([Person() for i in range(100)])
     model.add_agents(people)
     for t in model.tiles:
@@ -84,7 +84,7 @@ def setup(model):
 
 
 def step(model):
-    if model.immune.value == 100:
+    if immune.value == 100:
         model.pause()
     for a in model.agents:
         a.step(model)
@@ -93,7 +93,7 @@ def step(model):
             t.color = (100, 100, 0)
             t.info["infection"] -= 1
         else:
-            if model.darkbg.value:
+            if darkbg.value:
                 t.color = (0, 0, 0)
             else:
                 t.color = (0, 50, 0)
@@ -106,28 +106,27 @@ def direction(model):
 
 
 def print_infections(model):
-    print("Total infections are " + str(model.infected.value))
+    print("Total infections are " + str(infected.value))
+
+
+movespeed = Variable(0.5)
+decay = Variable(2)
+normal = Variable(0)
+infected = Variable(0)
+immune = Variable(0)
+darkbg = Variable(False)
 
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
 epidemic_model.add_button("Step", step)
 epidemic_model.add_controller_row()
-epidemic_model.movespeed = Variable(0.5)
-epidemic_model.add_slider("movespeed", epidemic_model.movespeed, 0.1, 2, 0.5)
+epidemic_model.add_slider("movespeed", movespeed, 0.1, 2, 0.5)
 epidemic_model.add_controller_row()
-epidemic_model.decay = Variable(2)
-epidemic_model.add_slider("decay", epidemic_model.decay, 0, 3, 2)
+epidemic_model.add_slider("decay", decay, 0, 3, 2)
 epidemic_model.add_controller_row()
-epidemic_model.normal = Variable(0)
-epidemic_model.infected = Variable(0)
-epidemic_model.immune = Variable(0)
-epidemic_model.monitor("Immune count", epidemic_model.immune)
-epidemic_model.line_chart("Infected", epidemic_model.infected, (200, 200, 0))
-epidemic_model.bar_chart("Disease overview", [epidemic_model.normal,
-                                              epidemic_model.infected,
-                                              epidemic_model.immune],
-                         (200,200,0))
+epidemic_model.monitor("Immune count", immune)
+epidemic_model.line_chart("Infected", infected, (200, 200, 0))
+epidemic_model.bar_chart("Disease overview", [normal, infected, immune], (200,200,0))
 epidemic_model.histogram("Infection progress", "infection", 1, 1001, 5, (200,200,0))
-epidemic_model.darkbg = Variable(False)
-epidemic_model.add_checkbox("Darken background", epidemic_model.darkbg)
+epidemic_model.add_checkbox("Darken background", darkbg)
 epidemic_model.on_close(print_infections)
 run(epidemic_model)
