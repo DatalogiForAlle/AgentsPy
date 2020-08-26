@@ -93,13 +93,13 @@ def step(model):
 
     # Write min, average and max bug size to file
     f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
-    # Flush is necessary as long as we can't call f.close()
-    # when the user exits the program
-    f.flush()
 
     # Update plots
     model.update_plots()
 
+def close(model):
+    global f
+    f.close()
 
 stupid_model = Model("StupidModel w. file output (stupid08)",
                      100, 100, tile_size=5)
@@ -113,4 +113,5 @@ stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
 stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
 stupid_model.histogram("grow_size", 0, 10, 5, (0, 0, 0))
+stupid_model.on_close(close)
 run(stupid_model)

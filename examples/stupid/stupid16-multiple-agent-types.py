@@ -139,9 +139,6 @@ def step(model):
                 a.step(model)
         bug_mean /= model["initial_bugs"]
         f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
-        # Flush is necessary as long as we can't call f.close()
-        # when the user exits the program
-        f.flush()
 
         for t in model.tiles:
             t.info["food"] += t.info["prod"]
@@ -150,6 +147,9 @@ def step(model):
         model.update_plots()
         model.remove_destroyed_agents()
 
+def close(model):
+    global f
+    f.close()
 
 stupid_model = Model("StupidModel w. multiple agent types (predators)",
                      250, 112, tile_size=5)
@@ -164,4 +164,5 @@ stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
 stupid_model.histogram("grow_size", 0, 10, 5, (0, 0, 0))
 stupid_model.line_chart("current_bugs", (0, 0, 0))
+stupid_model.on_close(close)
 run(stupid_model)
