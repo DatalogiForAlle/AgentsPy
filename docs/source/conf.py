@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'AgentsPy'
-copyright = '2020, Jens Kanstrup Larsen'
-author = 'Jens Kanstrup Larsen'
+copyright = '2020, Jens Kanstrup Larsen & Martin Dybdal'
+author = 'Jens Kanstrup Larsen & Martin Dybdal'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.3'
 
 
 # -- General configuration ---------------------------------------------------
