@@ -15,7 +15,7 @@ class Bug(Agent):
         self.survivalprobability = 95
         model["current_bugs"] += 1
         self.draw_color()
-        self.align()
+        self.center_in_tile()
 
     def step(self, model):
         # Eat from the current tile
@@ -37,7 +37,7 @@ class Bug(Agent):
                         model.add_agent(newbug)
                         newbug.x = newbug_t.x * model.width / model.x_tiles
                         newbug.y = newbug_t.y * model.height / model.y_tiles
-                        newbug.align()
+                        newbug.center_in_tile()
                         break
             self.destroy()
             model["current_bugs"] -= 1
@@ -60,7 +60,7 @@ class Bug(Agent):
         if best_t:
             self.jump_to((best_t.x)*model.width/model.x_tiles,
                          (best_t.y)*model.height/model.y_tiles)
-            self.align()
+            self.center_in_tile()
         self.draw_color()
 
         if self.survivalprobability < random.randint(100):
@@ -72,7 +72,7 @@ class Predator(Agent):
     def setup(self, model):
         self.size = 8
         self.color = (0, 0, 255)
-        self.align()
+        self.center_in_tile()
 
     def step(self, model):
         t = self.current_tile()
@@ -84,7 +84,7 @@ class Predator(Agent):
                     new_t.get_agents().add(ag)
                     self.jump_to((new_t.x)*model.width/model.x_tiles,
                                  (new_t.y)*model.height/model.y_tiles)
-                    self.align()
+                    self.center_in_tile()
                     ag.destroy()
                     return
         rand_x = -1 + random.randint(3)
@@ -93,7 +93,7 @@ class Predator(Agent):
                             + (t.x+rand_x) % model.x_tiles]
         self.jump_to((new_t.x)*model.width/model.x_tiles,
                      (new_t.y)*model.height/model.y_tiles)
-        self.align()
+        self.center_in_tile()
 
 
 def setup(model):
