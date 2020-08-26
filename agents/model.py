@@ -12,9 +12,6 @@ class AgentShape(Enum):
 
 class Agent:
     def __init__(self):
-        # Associated simulation area.
-        self.__model = None
-
         # Destroyed agents are not drawn and are removed from their area.
         self.__destroyed = False
 
@@ -38,6 +35,9 @@ class Agent:
         self.__current_tile = None
         self.selected = False
         self.shape = AgentShape.ARROW
+
+        # Associated simulation area.
+        get_quickstart_model().add_agent(self)
 
     # Should be overwritten by a subclass
     def setup(self, model):
@@ -504,3 +504,9 @@ class SimpleModel(Model):
 
         self.add_button("Setup", setup_wrapper)
         self.add_toggle_button("Go", step_wrapper)
+
+def get_quickstart_model():
+    global quickstart_model
+    if not 'quickstart_model' in globals():
+        quickstart_model = Model("AgentsPy model", 50, 50)
+    return quickstart_model
