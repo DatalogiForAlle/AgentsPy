@@ -16,7 +16,6 @@ class Bug(Agent):
         model["current_bugs"] += 1
         self.draw_color()
         self.align()
-        self.update_current_tile()
 
     def step(self, model):
         # Eat from the current tile
@@ -74,7 +73,6 @@ class Predator(Agent):
         self.size = 8
         self.color = (0, 0, 255)
         self.align()
-        self.update_current_tile()
 
     def step(self, model):
         t = self.current_tile()
