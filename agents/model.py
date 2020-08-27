@@ -351,6 +351,10 @@ class Model:
         for a in agents:
             self.add_agent(a)
 
+    def add_agent_to_tile(self, agent, tile):
+        self.add_agent(agent)
+        agent.jump_to_tile(tile)
+
     # Based on
     # kite.com
     # /python
