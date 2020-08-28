@@ -352,7 +352,6 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
     def closeEvent(self, event):
-        self.model.pause()
         self.model.close()
         super().closeEvent(event)
 

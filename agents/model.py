@@ -453,6 +453,7 @@ class Model:
         self._close_func = func
 
     def close(self):
+        self.model.pause()
         if self._close_func:
             self._close_func(self)
 
