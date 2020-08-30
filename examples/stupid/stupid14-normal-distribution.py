@@ -1,115 +1,151 @@
 import random
 import math
-import numpy as np
 from agents import Agent, Model, run
 
 
 class Bug(Agent):
-    def draw_color(self):
+    def size_to_color(self):
         gradient = max(0, 255-255*self.grow_size/10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
         self.size = 8
-        self.grow_size = max(0, np.random.normal(0.1, 0.03))
-        self.survivalprobability = 95
-        model["current_bugs"] += 1
-        self.draw_color()
+        self.grow_size = max(0, random.gauss(model["initialBugSizeMean"],
+                                             model["initialBugSizeSD"]))
+        self.survivalProbability = 95
+        self.size_to_color()
         self.center_in_tile()
+        model["current_bugs"] += 1
 
-    def step(self, model):
-        # Eat from the current tile
-        t = self.current_tile()
-        self.grow_size += min(model["max_food_eat"], t.info["food"])
-        t.info["food"] = max(0, t.info["food"]-model["max_food_eat"])
-
-        # Split into new bugs
-        if self.grow_size > 10:
-            for _ in range(5):
-                for _ in range(5):
-                    newbug_x = 3-random.randint(0, 6)
-                    newbug_y = 3-random.randint(0, 6)
-                    newbug_t = model.tiles[((t.y+newbug_y) % model.y_tiles)
-                                           * model.x_tiles
-                                           + (t.x+newbug_x) % model.x_tiles]
-                    if len(newbug_t.get_agents()) == 0:
-                        newbug = Bug()
-                        model.add_agent(newbug)
-                        newbug.x = newbug_t.x * model.width / model.x_tiles
-                        newbug.y = newbug_t.y * model.height / model.y_tiles
-                        newbug.center_in_tile()
-                        break
-            self.destroy()
-            model["current_bugs"] -= 1
-            return
-
-        # Find all nearby valid tiles
+    def move(self):
+        """
+        Jump to a random tile in the neighborhood of the agent, which is
+        not occupied by other agents
+        """
+        # Find all nearby tiles within distance of 4 tiles
         nearby_tiles = self.nearby_tiles(-4, -4, 4, 4)
         random.shuffle(nearby_tiles)
 
-        def is_valid_tile(t):
-            return len(t.get_agents()) == 0
-        nearby_tiles = list(filter(is_valid_tile, nearby_tiles))
+        # Find all unoccipied tiles
+        unoccupied_tiles = []
+        for tile in nearby_tiles:
+            if len(tile.get_agents()) == 0:
+                unoccupied_tiles.append(tile)
 
-        # Move to the best tile
-        best_t = None
-        for new_t in nearby_tiles:
-            if (not best_t or (best_t.info["food"] < new_t.info["food"])):
-                if len(new_t.get_agents()) == 0:
-                    best_t = new_t
-        if best_t:
-            self.jump_to((best_t.x)*model.width/model.x_tiles,
-                         (best_t.y)*model.height/model.y_tiles)
-            self.center_in_tile()
-        self.draw_color()
+        # Do nothing if all tiles are occupied
+        if len(unoccupied_tiles) == 0:
+            return
+        else:
+            # Remove last element, use as current best
+            best = unoccupied_tiles.pop()
 
-        if self.survivalprobability < random.randint(0, 100):
-            model["current_bugs"] -= 1
+            # Find the best tile
+            for tile in unoccupied_tiles:
+                if best.info["food"] < tile.info["food"]:
+                    best = tile
+
+            # Jump to best
+            self.jump_to_tile(best)
+
+    def eat(self, model):
+        # Eat from the current tile
+        tile = self.current_tile()
+        self.grow_size += min(model["max_food_eat"], tile.info["food"])
+        tile.info["food"] = max(0, tile.info["food"]-model["max_food_eat"])
+        self.size_to_color()
+
+    def reproduce(self, model):
+        # Split into new bugs
+        if self.grow_size > 10:
+            tile = self.current_tile()
+
+            # Reproduce to 5 new bugs
+            for i in range(5):
+                # Try 5 times
+                for j in range(5):
+                    newbug_x = 3-random.randint(0, 6)
+                    newbug_y = 3-random.randint(0, 6)
+
+                    # TODO: the indexing here could perhaps be made simpler
+                    tile = model.tiles[((tile.y+newbug_y) % model.y_tiles)
+                                       * model.x_tiles
+                                       + (tile.x+newbug_x) % model.x_tiles]
+                    if len(tile.get_agents()) == 0:
+                        newbug = Bug()
+                        newbug.grow_size = 0.0
+                        model.add_agent(newbug)
+                        newbug.jump_to_tile(tile)
+                        break
             self.destroy()
+            model["current_bugs"] -= 1
+
+    def step(self, model):
+        self.eat(model)
+        self.move()
+        if self.survivalProbability < random.randint(0, 100):
+            self.destroy()
+            model["current_bugs"] -= 1
+        else:
+            self.reproduce(model)
 
 
 def setup(model):
+    # Open data file for writing
     global f
     f = open("stupid.data", "w")
+
     model.reset()
-    people = set([Bug() for i in range(math.floor(model["initial_bugs"]))])
     model["current_bugs"] = model["initial_bugs"]
-    model["stop"] = False
-    model.add_agents(people)
-    for t in model.tiles:
-        t.info["food"] = 0.0
-        t.color = (0, 0, 0)
+
+    # Add agents
+    for i in range(int(model["initial_bugs"])):
+        model.add_agent(Bug())
+
+    # Initialize tiles
+    for tile in model.tiles:
+        tile.info["food"] = 0.0
+        tile.color = (0, 0, 0)
 
 
 def step(model):
-    if not model["stop"]:
-        bug_min = None
-        bug_mean = 0
-        bug_max = None
-        for a in model.agents_ordered("grow_size"):
-            a.step(model)
-            if not bug_min or bug_min > a.grow_size:
-                bug_min = a.grow_size
-            if not bug_max or bug_max < a.grow_size:
-                bug_max = a.grow_size
-            bug_mean += a.grow_size
-        bug_mean /= model["initial_bugs"]
-        f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+    # Food production
+    for tile in model.tiles:
+        food_prod = random.uniform(0, model["max_food_prod"])
+        tile.info["food"] += food_prod
+        c = min(255, math.floor(tile.info["food"] * 255))
+        tile.color = (c, c, c)
 
-        for t in model.tiles:
-            food_prod = random.random() * model["max_food_prod"]
-            t.info["food"] += food_prod
-            c = min(255, math.floor(t.info["food"] * 255))
-            t.color = (c, c, c)
-        model.update_plots()
-        model.remove_destroyed_agents()
+    # Move all agents
+    for agent in model.agents_ordered("grow_size"):
+        agent.step(model)
+
+    # Calculate min, average and max bug size
+    bug_min = 100
+    bug_sum = 0
+    bug_max = 0
+    for agent in model.agents:
+        bug_min = min(bug_min, agent.grow_size)
+        bug_max = max(bug_max, agent.grow_size)
+        bug_sum += agent.grow_size
+    bug_mean = bug_sum / len(model.agents)
+
+    # Write min, average and max bug size to file
+    f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+
+    # Update plots
+    model.update_plots()
+    model.remove_destroyed_agents()
+
+    # TODO: Stop after 1000 iterations
+    if len(model.agents) == 0:
+        model.pause()
 
 
 def close(model):
     f.close()
 
 
-stupid_model = Model("StupidModel w. gauss distribution of sizes (stupid14)",
+stupid_model = Model("StupidModel w. mortality and reproduction (stupid12)",
                      100, 100, tile_size=5)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
@@ -118,8 +154,10 @@ stupid_model.add_controller_row()
 stupid_model.add_slider("initial_bugs", 10, 300, 100)
 stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
-stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
+stupid_model.add_controller_row()
+stupid_model.add_slider("initialBugSizeMean", 0, 10, 1)
+stupid_model.add_slider("initialBugSizeSD", 0, 10, 5)
 stupid_model.histogram("grow_size", 0, 10, 5, (0, 0, 0))
 stupid_model.line_chart("current_bugs", (0, 0, 0))
 stupid_model.on_close(close)
