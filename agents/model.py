@@ -297,49 +297,35 @@ class Model:
             # Number of tiles on the x/y axis.
             self.x_tiles = x_tiles
             self.y_tiles = y_tiles
-
-            # Pixel sizes
-            self.tile_size = tile_size
-            self.width = x_tiles * tile_size
-            self.height = y_tiles * tile_size
-
-            # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
-                          for x in range(x_tiles)]
         else:
             cell_data = open(cell_data_file, "r")
             cell_data.readline()
             cell_data.readline()
             self.header_info = ( cell_data.readline()[:-1]).split('\t')
-            x_tiles = 0
-            y_tiles = 0
 
             self.load_data = []
             for line in cell_data:
                 cell = line[:-1].split('\t')
                 x = int(cell[0])
                 y = int(cell[1])
-                x_tiles = max(x+1, x_tiles)
-                y_tiles = max(y+1, y_tiles)
+                self.x_tiles = max(x+1, x_tiles)
+                self.y_tiles = max(y+1, y_tiles)
                 self.load_data.append(cell)
 
-            # Pixel sizes
-            self.tile_size = tile_size
-            self.width = x_tiles * tile_size
-            self.height = y_tiles * tile_size
-            self.x_tiles = x_tiles
-            self.y_tiles = y_tiles
-
-            # Internal set of agents.
-            self.__agents = set()
-
-            # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
-                          for x in range(x_tiles)]
-
             cell_data.close()
+
+        # Internal set of agents.
+        self.__agents = set()
+
+        # Initial tileset (empty).
+        self.tiles = [Tile(x, y, self)
+                      for y in range(self.y_tiles)
+                      for x in range(self.x_tiles)]
+
+        # Pixel sizes
+        self.tile_size = tile_size
+        self.width = x_tiles * tile_size
+        self.height = y_tiles * tile_size
 
         self.__agents = []
         self.variables = {}
