@@ -71,13 +71,8 @@ class Bug(Agent):
                                        + (tile.x+newbug_x) % model.x_tiles]
                     if len(tile.get_agents()) == 0:
                         newbug = Bug()
-
-                        # TODO: if we could do tile.add_agent(newbug),
-                        # it would simplify this
                         model.add_agent(newbug)
-                        newbug.x = tile.x * model.width / model.x_tiles
-                        newbug.y = tile.y * model.height / model.y_tiles
-                        newbug.center_in_tile()
+                        newbug.jump_to_tile(tile)
                         break
             self.destroy()
             model["current_bugs"] -= 1
