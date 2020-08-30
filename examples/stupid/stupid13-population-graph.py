@@ -143,7 +143,7 @@ def close(model):
     f.close()
 
 
-stupid_model = Model("StupidModel w. mortality and reproduction (stupid12)",
+stupid_model = Model("StupidModel w. population graph (stupid13)",
                      100, 100, tile_size=5)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
