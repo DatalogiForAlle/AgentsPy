@@ -160,8 +160,7 @@ class Agent:
             math.floor(self.__model.y_tiles * self.y / self.__model.height)
             % self.__model.y_tiles
         )
-        i = y * self.__model.x_tiles + x
-        return self.__model.tiles[i]
+        return self.__model.tiles[x][y]
 
     # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
@@ -170,9 +169,11 @@ class Agent:
     def nearby_tiles(self, x1, y1, x2, y2):
         t = self.__current_tile
         tiles = []
-        for y in range(y1, y2 + 1):
-            row = self.__model.x_tiles * ((t.y + y) % self.__model.y_tiles)
-            tiles += self.__model.tiles[(row + t.x + x1):(row + t.x + x2 + 1)]
+        for x in range(x1,x2+1):
+            for y in range(y1, y2 + 1):
+                tiles += (self.__model.tiles
+                          [(t.x + x) % self.__model.x_tiles]
+                          [(t.y + y) % self.__model.y_tiles])
         return tiles
 
     def is_destroyed(self):
@@ -295,8 +296,8 @@ class Model:
             self.height = y_tiles * tile_size
 
             # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
+            self.tiles = [[Tile(x, y, self)
+                           for y in range(y_tiles)]
                           for x in range(x_tiles)]
         else:
             cell_data = open(cell_data_file, "r")
@@ -327,8 +328,8 @@ class Model:
             self.__agents = set()
 
             # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
+            self.tiles = [[Tile(x, y, self)
+                           for y in range(y_tiles)]
                           for x in range(x_tiles)]
 
             cell_data.close()
@@ -376,9 +377,8 @@ class Model:
         self.__agents = []
         for x in range(self.x_tiles):
             for y in range(self.y_tiles):
-                i = y * self.x_tiles + x
-                self.tiles[i].color = (0, 0, 0)
-                self.tiles[i].info = {}
+                self.tiles[x][y].color = (0, 0, 0)
+                self.tiles[x][y].info = {}
         self.unpause()
 
     def reload(self):
@@ -387,7 +387,7 @@ class Model:
             y = int(tile_data[1])
             for i in range(2, len(tile_data)):
                 variable = self.header_info[i]
-                tile = self.tiles[y*self.x_tiles+x]
+                tile = self.tiles[x][y]
                 tile.info[variable] = float(tile_data[i])
 
     def update_plots(self):
