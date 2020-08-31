@@ -2,6 +2,8 @@ import random
 import math
 from agents import Agent, Model, run
 
+file_handle = None
+
 
 class Bug(Agent):
     def size_to_color(self):
@@ -60,8 +62,8 @@ class Bug(Agent):
 
 def setup(model):
     # Open data file for writing
-    global f
-    f = open("stupid.data", "w")
+    global file_handle
+    file_handle = open("stupid.data", "w")
 
     model.reset()
 
@@ -98,14 +100,15 @@ def step(model):
     bug_mean = bug_sum / len(model.agents)
 
     # Write min, average and max bug size to file
-    f.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+    file_handle.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
 
     # Update plots
     model.update_plots()
 
 
 def close(model):
-    f.close()
+    if file_handle:
+        file_handle.close()
 
 
 stupid_model = Model("StupidModel w. file output (stupid08)",
