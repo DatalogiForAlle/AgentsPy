@@ -170,9 +170,10 @@ class Agent:
     def nearby_tiles(self, x1, y1, x2, y2):
         t = self.__current_tile
         tiles = []
-        for y in range(y1, y2 + 1):
-            row = self.__model.x_tiles * ((t.y + y) % self.__model.y_tiles)
-            tiles += self.__model.tiles[(row + t.x + x1):(row + t.x + x2 + 1)]
+        for x in range(x1, x2 + 1):
+            for y in range(y1, y2 + 1):
+                tiles += self.__model.tile((t.x + x) % self.__model.x_tiles,
+                                           (t.y + y) % self.__model.y_tiles)
         return tiles
 
     def is_destroyed(self):
@@ -355,6 +356,9 @@ class Model:
     def add_agents(self, agents):
         for a in agents:
             self.add_agent(a)
+
+    def tile(self, x, y):
+        return self.tiles[(y % self.y_tiles) * self.x_tiles + (x % self.x_tiles)]
 
     # Based on
     # kite.com
