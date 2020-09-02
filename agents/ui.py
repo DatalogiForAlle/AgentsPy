@@ -27,6 +27,15 @@ from agents.model import (
 )
 
 
+class DisableRenderingButton():
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.pressed = False
+
+
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,6 +49,7 @@ class SimulationArea(QtWidgets.QWidget):
     def model(self, model):
         self.__model = model
         self.setFixedSize(model.width, model.height)
+        self.disable_rendering_button = DisableRenderingButton(self.width()-56, 8, 48, 48)
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
@@ -52,7 +62,7 @@ class SimulationArea(QtWidgets.QWidget):
         painter.drawRect(0, 0,
                          painter.device().width(), painter.device().height())
 
-        if self.model:
+        if self.model and not self.disable_rendering_button.pressed:
             # Draw tiles
             for tile in self.model.tiles:
                 self.paintTile(painter, tile)
@@ -74,6 +84,25 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
+
+        if self.underMouse():
+            x = self.disable_rendering_button.x
+            y = self.disable_rendering_button.y
+            width = self.disable_rendering_button.width
+            height = self.disable_rendering_button.height
+            pressed = self.disable_rendering_button.pressed
+            if not pressed:
+                painter.setBrush(QColor(200, 200, 200))
+                painter.drawRect(x, y, width, height)
+                painter.setBrush(QColor(150, 150, 150))
+                painter.drawEllipse(x + width*0.15, y + height*0.35, width*0.7, height*0.3)
+                painter.setBrush(QColor(100, 100, 100))
+                painter.drawEllipse(x + width*0.35, y + height*0.35, width*0.3, height*0.3)
+            else:
+                painter.setBrush(QColor(200, 200, 200))
+                painter.drawRect(x, y, width, height)
+                painter.setBrush(QColor(150, 150, 150))
+                painter.drawEllipse(x + width*0.15, y + height*0.35, width*0.7, height*0.3)
         painter.end()
 
     def paintAgent(self, painter, agent):
@@ -152,8 +181,19 @@ class SimulationArea(QtWidgets.QWidget):
         painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
 
     def mousePressEvent(self, e):
-        self.model.mouse_click(e.localPos().x(), e.localPos().y())
-
+        x = e.localPos().x()
+        y = e.localPos().y()
+        self.model.mouse_click(x, y)
+        btn_x = self.disable_rendering_button.x
+        btn_y = self.disable_rendering_button.y
+        btn_w = self.disable_rendering_button.width
+        btn_h = self.disable_rendering_button.height
+        state = self.disable_rendering_button.pressed
+        if (x > btn_x and
+            y > btn_y and
+            x < btn_x + btn_w and
+            y < btn_y + btn_h):
+            self.disable_rendering_button.pressed = not state
 
 class QtGraph(QChartView):
     def __init__(self, spec):
@@ -428,8 +468,7 @@ class Application:
                     controller.update_label()
 
     def update_graphics(self):
-        if not self.toggle_render_btn.isChecked():
-            self.simulation_area.update()
+        self.simulation_area.update()
         for p in self.model.plots:
             p.redraw()
 
@@ -491,11 +530,6 @@ class Application:
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
 
-    def add_render_toggle(self, rowbox):
-        self.toggle_render_btn = QtWidgets.QPushButton("Disable rendering")
-        self.toggle_render_btn.setCheckable(True)
-        rowbox.addWidget(self.toggle_render_btn)
-
     def add_controllers(self, rows, controller_box):
         first_row = True
         for row in rows:
@@ -503,7 +537,6 @@ class Application:
             rowbox = QtWidgets.QHBoxLayout()
             controller_box.addLayout(rowbox)
             if first_row:
-                self.add_render_toggle(rowbox)
                 first_row = False
 
             # Add controllers
