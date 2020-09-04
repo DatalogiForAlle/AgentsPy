@@ -594,14 +594,15 @@ def remove_agents_type(agents, agent_type):
     return agents_t
 
 # kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
-def agents_ordered(self, variable, increasing=True):
+def agents_ordered(agents, variable, increasing=True):
     try:
-        agent_list = sorted(agent_list, key=operator.attrgetter(variable))
+        sorted_agents = sorted(list(agents), key=operator.attrgetter(variable))
         if not increasing:
-            ret_list.reverse()
-        return iter(ret_list)
+            sorted_agents.reverse()
+        return iter(sorted_agents)
     except:
         print("Failed to sort agents. Do all agents have the attribute "+variable+" ?")
+        return agents
 
 def destroy_agents(agents):
     for a in agents:
