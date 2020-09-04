@@ -37,7 +37,7 @@ class Agent:
         self.shape = AgentShape.ARROW
 
         # Associated simulation area.
-        get_quickstart_model().add_agent(self)
+        get_quickstart_model().add_agent(self, setup=False)
 
     # Should be overwritten by a subclass
     def setup(self, model):
@@ -340,13 +340,14 @@ class Model:
         self._wrapping = True
         self._close_func = None
 
-    def add_agent(self, agent):
+    def add_agent(self, agent, setup=True):
         agent.set_model(self)
         agent.x = random.randint(0, self.width)
         agent.y = random.randint(0, self.height)
         agent.update_current_tile()
         self.__agents.append(agent)
-        agent.setup(self)
+        if setup:
+            agent.setup(self)
 
     def add_agents(self, agents):
         for a in agents:
