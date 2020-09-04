@@ -572,3 +572,37 @@ def get_quickstart_model():
     if 'quickstart_model' not in globals():
         quickstart_model = Model("AgentsPy model", 50, 50)
     return quickstart_model
+
+def contains_agent_type(agents, agent_type):
+    for a in agents:
+        if type(a) == agent_type:
+            return True
+    return False
+
+def only_agents_type(agents, agent_type):
+    agents_t = []
+    for a in agents:
+        if type(a) == agent_type:
+            agents_t.add(a)
+    return agents_t
+
+def remove_agents_type(agents, agent_type):
+    agents_t = []
+    for a in agents:
+        if not (type(a) == agent_type):
+            agents_t.add(a)
+    return agents_t
+
+# kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
+def agents_ordered(self, variable, increasing=True):
+    try:
+        agent_list = sorted(agent_list, key=operator.attrgetter(variable))
+        if not increasing:
+            ret_list.reverse()
+        return iter(ret_list)
+    except:
+        print("Failed to sort agents. Do all agents have the attribute "+variable+" ?")
+
+def destroy_agents(agents):
+    for a in agents:
+        a.destroy()
