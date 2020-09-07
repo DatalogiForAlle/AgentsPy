@@ -21,6 +21,7 @@ from agents.model import (
     SliderSpec,
     CheckboxSpec,
     LineChartSpec,
+    MultiLineChartSpec,
     BarChartSpec,
     HistogramSpec,
     MonitorSpec,
@@ -206,6 +207,58 @@ class QtGraph(QChartView):
             else:
                 self.axis_y.setRange(self._min-0.5, self._max+0.5)
             self._data = []
+
+
+class QtMultiGraph(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setTitle(str(self.spec.variables))
+        self.chart.legend().hide()
+
+        for color in self.spec.colors:
+            series = QLineSeries()
+            series.setColor(QColor(color[0], color[1], color[2]))
+            self.chart.addSeries(series)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+        self.chart.createDefaultAxes()
+
+        self._updates_per_second = 60
+        self._data = []
+        self._min = 0
+        self._max = 0
+
+    def clear(self):
+        self.chart.series().clear()
+        self._data = []
+
+    def add_data(self, data):
+        self._data.append(data)
+
+    def redraw(self):
+        if len(self._data) > 0:
+            for i in range(len(self.spec.variables)):
+                data = [datapoint[i] for datapoint in self._data]
+                datapoint = sum(data) / len(data)
+                self.chart.series()[i].append(QPointF(self.chart.series()[i].count() /
+                                                    self._updates_per_second,
+                                                    datapoint))
+                self._min = min(self._min, datapoint)
+                self._max = max(self._max, datapoint)
+        self.chart.axes()[0].setRange(0, (self.chart.series()[0].count() - 1) /
+                                      self._updates_per_second)
+        diff = self._max - self._min
+        if diff > 0:
+            self.chart.axes()[1].setRange(self._min,self._max)
+        else:
+            self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+        self._data = []
 
 
 class QtBarChart(QChartView):
@@ -472,6 +525,11 @@ class Application:
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
 
+    def add_multi_line_chart(self, multi_line_chart_spec, plots_box):
+        chart = QtMultiGraph(multi_line_chart_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
+
     def add_bar_chart(self, bar_chart_spec, plots_box):
         chart = QtBarChart(bar_chart_spec)
         plots_box.addWidget(chart)
@@ -515,6 +573,8 @@ class Application:
         for plot_spec in plot_specs:
             if type(plot_spec) is LineChartSpec:
                 self.add_line_chart(plot_spec, plots_box)
+            elif type(plot_spec) is MultiLineChartSpec:
+                self.add_multi_line_chart(plot_spec, plots_box)
             elif type(plot_spec) is BarChartSpec:
                 self.add_bar_chart(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:

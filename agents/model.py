@@ -251,6 +251,10 @@ class LineChartSpec(Spec):
         self.variable = variable
         self.color = color
 
+class MultiLineChartSpec(Spec):
+    def __init__(self, variables, colors):
+        self.variables = variables
+        self.colors = colors
 
 class MonitorSpec(Spec):
     def __init__(self, variable):
@@ -389,6 +393,11 @@ class Model:
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
                 plot.add_data(self.variables[plot.spec.variable])
+            elif type(plot.spec) is MultiLineChartSpec:
+                dataset = []
+                for d in plot.spec.variables:
+                    dataset.append(self.variables[d])
+                plot.add_data(dataset)
             elif type(plot.spec) is BarChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
@@ -452,6 +461,9 @@ class Model:
 
     def line_chart(self, variable, color):
         self.plot_specs.append(LineChartSpec(variable, color))
+
+    def multi_line_chart(self, variables, colors):
+        self.plot_specs.append(MultiLineChartSpec(variables, colors))
 
     def bar_chart(self, variables, color):
         self.plot_specs.append(BarChartSpec(variables, color))
