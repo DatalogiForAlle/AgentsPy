@@ -179,7 +179,7 @@ class QtGraph(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self._updates_per_second = 60
+        self._updates_per_second = 10
         self._data = []
         self._min = 0
         self._max = 0
@@ -236,7 +236,7 @@ class QtBarChart(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self._updates_per_second = 60
+        self._updates_per_second = 10
         self._dataset = []
 
     def clear(self):
@@ -284,7 +284,7 @@ class QtHistogram(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
-        self._updates_per_second = 60
+        self._updates_per_second = 10
         self._dataset = []
 
     def clear(self):
@@ -407,8 +407,8 @@ class Application:
         self.add_plots(self.model.plot_specs, self.plots_box)
 
         # Start timers
-        self.logic_timer.start(1000 / 60)
-        self.graphics_timer.start(1000 / 60)
+        self.logic_timer.start(1000 / 10)
+        self.graphics_timer.start(1000 / 10)
 
     def update_logic(self):
         if not self.model.is_paused():
