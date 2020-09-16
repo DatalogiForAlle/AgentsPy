@@ -144,16 +144,5 @@ class AgentTests(unittest.TestCase):
                     len(nearby_tiles), num_tiles,
                     'Agent.nearby_tiles() did not return the correct number of tiles')
 
-
-class ModelTests(unittest.TestCase):
-    def setUp(self):
-        self.model = Model('Test Model', 20, 20, tile_size=20)
-        self.test_agent = TestAgent()
-
-    def test_model_add_agent(self):
-        self.model.add_agent(self.test_agent)
-        self.assertEqual(len(self.model.agents), 1,
-                         'Model.add_agent() did not add the agent to the model')
-
 if __name__ == '__main__':
     unittest.main()
