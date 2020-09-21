@@ -92,6 +92,16 @@ class AgentTests(unittest.TestCase):
     #     tile_y = tile.y / self.model.tiles_y * self.model.height
     #     self.assertEqual((agent.x, agent.y), (tile_x,tile_y))
 
+    # def test_agent_current_tile(self):
+    #     """
+    #     Test that current_tile actually returns the current tile.
+    #     """
+    #     agent = self.test_agent
+    #     self.model.add_agent(agent)
+    #     agent.jump_to(25, 25)
+
+    #     self.assertEqual(agent.current_tile(), self.model.tile(1, 1))
+
     def test_agent_direction_to(self):
         """
         Test that direction_to(x, y) correctly returns the angle
