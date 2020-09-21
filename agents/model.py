@@ -574,12 +574,18 @@ def get_quickstart_model():
     return quickstart_model
 
 def contains_agent_type(agents, agent_type):
+    """
+    Returns a boolean indicating whether an agent of agent_type is in agents.
+    """
     for a in agents:
         if type(a) == agent_type:
             return True
     return False
 
 def only_agents_type(agents, agent_type):
+    """
+    Returns agents where all agents of type agent_type are removed.
+    """
     agents_t = []
     for a in agents:
         if type(a) == agent_type:
@@ -587,6 +593,9 @@ def only_agents_type(agents, agent_type):
     return agents_t
 
 def remove_agents_type(agents, agent_type):
+    """
+    Returns agents where all agents not of type agent_type are removed.
+    """
     agents_t = []
     for a in agents:
         if not (type(a) == agent_type):
@@ -595,6 +604,11 @@ def remove_agents_type(agents, agent_type):
 
 # kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
 def agents_ordered(agents, variable, increasing=True):
+    """
+    Returns the agents list, sorted by variable in either increasing
+    or decreasing order. Prints an error if not all agents in the list
+    have the attribute.
+    """
     try:
         sorted_agents = sorted(list(agents), key=operator.attrgetter(variable))
         if not increasing:
@@ -605,5 +619,8 @@ def agents_ordered(agents, variable, increasing=True):
         return agents
 
 def destroy_agents(agents):
+    """
+    Destroys all agents in agents.
+    """
     for a in agents:
         a.destroy()
