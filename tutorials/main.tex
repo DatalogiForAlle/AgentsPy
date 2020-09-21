@@ -1,0 +1,452 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+
+\definecolor{commentcolor}{rgb}{0,0.6,0}
+\definecolor{linenumbercolor}{rgb}{0.5,0.5,0.5}
+\definecolor{stringcolor}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+  backgroundcolor=\color{white},
+  basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=n,                    % sets the caption-position to bottom
+  commentstyle=\color{commentcolor},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  firstnumber=1,                % start line enumeration with line 1000
+  frame=none,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{linenumbercolor}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stringstyle=\color{stringcolor},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\title{Opbygning af en epidemi-model\\
+\large ved brug af agent-baseret modellering}
+\author{Jens Kanstrup Larsen\\ \texttt{<jkl@di.ku.dk>}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduktion}
+Tillykke! Du er, i midten af en verdensomspændende pandemi, netop blevet ansat som den nye direktør for sundhedsstyrelsen. Regeringen har givet dig din første opgave: forudsig, hvordan sygdommen spreder sig, og kom med forslag, der kan mindske smittespredningen.\\\\
+Du sidder længe og grubler over, hvordan du skal forudsige spredningen, da en af dine kollegaer pludselig kommer med et godt forslag. De foreslår, at du programmerer en \textit{agent-baseret model}, som kan simulere smittespredningen. På den måde kan du så bruge modellen til at forudse, hvad der kommer til at ske i den virkelige verden. Du tænker, at dette lyder som en fantastisk ide, og går straks i gang med at kode en simpel model.
+
+\subsection{Den første agent}
+Før vi begynder at lave agenter, der kan simulere smittespredning, skal vi først have en \textit{model}, vi kan have dem i. Begynd med at lave en fil, kaldet \texttt{epidemic.py}, og giv den følgende indhold:
+\begin{lstlisting}
+  from agents import *
+
+  epidemic_model = Model("Epidemimodel", 100, 100)
+
+  run(epidemic_model)
+\end{lstlisting}
+Linje 1 gør sådan, at alle funktionaliteterne i biblioteket\texttt{AgentsPy} kan bruges i filen. Det er det bibliotek, der giver adgang til alle de nødvendige funktioner.\\
+Linje 3 laver en model med 100x100 \textit{tiles} (felter), og navnet \textit{Epidemimodel}.\\
+Linje 5 starter modellen.\\
+Prøv at køre programmet, og se, hvad der sker. Der burde vises et vindue af en sort firkant. Dette er en tom model.\\\\
+Tilføj nu, på linje 4, følgende kode:
+\begin{lstlisting}
+  epidemic_model.add_agent(Agent())
+\end{lstlisting}
+Denne linje laver en agent ved at bruge \texttt{Agent()}, og tilføjer den så til modellen ved at bruge \texttt{add\_agent()}. Starter man modellen igen, burde der vises en enkelt lille trekant inde i modellen - dette er agenten.
+
+\subsection{Knapper}
+For at gøre det nemmere at styre vores model undervejs, vil vi gerne tilføje nogle knapper til vinduet, som man kan klikke på for blandt andet at starte og stoppe simulationen. Lad os først tilføje en \textit{setup} knap, som genstarter modellen. Indtil videre skal den bare slette alle eksisterende agenter, og lave en ny.\\\\
+Slet først den linje, du lige har tilføjet ovenfor (altså den, der laver en agent og tilføjer den til modellen). Tilføj så denne funktion, lige efter, at du har importeret \texttt{agents}:
+\begin{lstlisting}
+  def setup(model):
+      model.reset()
+      model.add_agent(Agent())
+\end{lstlisting}
+Funktionen her sletter alle agenter med \texttt{model.reset()} og tilføjer en ny med \texttt{model.add\_agent()}. Det kan virke lidt ligegyldigt nu, men det vil blive brugbart senere.\\\\
+Tilføj så, efter du har lavet \texttt{epidemic\_model}, følgende linje:
+\begin{lstlisting}
+  epidemic_model.add_button("Setup", setup)
+\end{lstlisting}
+Linjen tilføjer en knap til vinduet som, når den klikkes på, kører \texttt{setup}-funktionen.
+
+\subsection{Flere agenter}
+Lad os tilføje lidt flere agenter. Ændr \texttt{setup} funktionen, sådan at den siger følgende:
+\begin{lstlisting}
+  def setup(model):
+      model.reset()
+      for agent in range(100):
+          model.add_agent(Agent())
+\end{lstlisting}
+Nu laver vi 100 agenter og tilføjer dem til modellen.\\\\
+Lige nu laver agenterne ikke særlig meget. Lad os gøre det muligt for agenterne at gå rundt omkring. Tilføj denne \texttt{step} funktion under \texttt{setup} funktionen:
+\begin{lstlisting}
+  def step(model):
+      for agent in model.agents:
+          agent.direction += randint(-10,10)
+          agent.forward()
+\end{lstlisting}
+Vi gennemgår funktionen:
+\begin{itemize}
+\item For hver agent i modellen:
+  \begin{itemize}
+  \item Juster dens retning med en tilfældig vinkel mellem -10 og 10.
+  \item Ryk den et skridt fremad i den retning, den peger.
+  \end{itemize}
+\end{itemize}
+\texttt{randint(a,b)} er en funktion, det vælger et tilfældigt tal mellem \texttt{a} og \texttt{b}. For at bruge den, skal du lige importere den (gør dette i toppen af filen, sammen med at du importerer \texttt{agents}):
+\begin{lstlisting}
+  from random import randint
+\end{lstlisting}
+Slut af med at tilføje denne linje efter at du tilføjer \textit{setup}-knappen:
+\begin{lstlisting}
+  epidemic_model.add_toggle_button("Go", step)
+\end{lstlisting}
+Dette laver en knap, som man kan slå til og fra. Når den er slået til, kører den \texttt{step}-funktionen konstant, hvilket får agenterne til at bevæge sig rundt.
+
+\section{SIR-modellen}
+Du har nu din model, og dine agenter - men hvordan skal du simulere sygdommen? Du grubler meget længe, indtil at en anden kollega fortæller dig om \textit{SIR-modellen}\footnote{https://en.wikipedia.org/wiki/Compartmental\_models\_in\_epidemiology\#The\_SIR\_model}: en matematisk model, som bruges til at modellere sygdomsspredning.\\\\
+Modellen har tre kategorier, som den opdeler folk i:
+\begin{itemize}
+\item[{\color{OliveGreen}\textbf{Susceptible}}]: Folk i denne gruppe er modtagelige, og kan blive smittet, hvis de kommer i kontakt med en, der bærer sygdommen.
+\item[{\color{red}\textbf{Infectious}}]: Folk i denne gruppe er blevet syge, og kan smitte folk, der er modtagelige.
+\item[{\color{blue}\textbf{Recovered}}]: Folk i denne gruppe har haft sygdommen og er blevet raske og immune, og kan derfor ikke længere hverken smitte eller blive smittet.
+\end{itemize}
+En person kan altså kun være i én kategori ad gangen, og deres tilstand vil have mønsteret:
+\begin{center}
+  $\textbf{\color{OliveGreen}Susceptible} \to \textbf{\color{red}Infectious} \to \textbf{\color{blue}Recovered}$
+\end{center}
+Du tænker, at dette er lige den model, du har brug for, og går straks i gang med at kode.
+
+\subsection{Fra agent til person}
+Lige nu er vores agenter "bare" agenter. Vi vil gerne gøre dem lidt mere avancerede, sådan at de blandt andet kan selv kan holde styr på, hvilken kategori af SIR-modellen, de er i.\\\\
+Tilføj, over din \texttt{setup}-funktion (men under dine imports), følgende kode:
+\begin{lstlisting}
+  class Person(Agent):
+      def setup(self,model):
+          self.category = 0
+
+      def step(self,model):
+          self.direction += randint(-10,10)
+          self.forward()
+\end{lstlisting}
+Ovenstående kode definerer en \textit{klasse}, som har noget opførsel beskrevet i sine egne funktioner \texttt{Person.setup} og \texttt{Person.step}.\\\\
+Ændr så \texttt{setup}-funktionen (\textit{ikke} \texttt{Person.setup}) til:
+\begin{lstlisting}
+  def setup(model):
+      model.reset()
+      for person in range(100):
+          model.add_agent(Person())
+\end{lstlisting}
+Nu tilføjer vi altså personer i stedet for "bare" normale agenter.\\\\
+Bemærk, at indholdet i \texttt{Person.step} lidt ligner det, der står i \texttt{step}-funktionen i forvejen. Faktisk kan vi nu også ændre i \texttt{step}-funktionen, sådan at der i stedet står:
+\begin{lstlisting}
+  def step(model):
+      for person in model.agents:
+          person.step(model)
+\end{lstlisting}
+Prøv nu at køre modellen igen. Hvis du har gjort det rigtigt, burde den ikke se anderledes ud end før.
+
+\subsection{Kategorier}
+For ikke at skulle skrive navnene på kategorierne hele tiden, bruger vi i stedet tal, sådan at
+\begin{center}
+  \begin{tabular}{| c c |}
+    \hline
+    \textbf{Kategori} & \textbf{\#} \\ \hline \hline
+    \textit{Susceptible} & 0\\ \hline
+    \textit{Infectious} & 1\\ \hline
+    \textit{Recovered} & 2\\ \hline
+\end{tabular}
+\end{center}
+Tilføj nu en \texttt{infect}-funktion til \texttt{Person}, som har følgende udseende:
+\begin{lstlisting}
+  def infect(self, model):
+      self.color = (200,0,0)
+      self.category = 1
+\end{lstlisting}
+Funktionen giver agenten en rød farve, og sætter den i kategori 1.\\\\
+Omskriv så \texttt{Person.setup} til følgende:
+\begin{lstlisting}
+  def setup(self,model):
+      self.category = 0
+      self.color = (0,200,0)
+      if randint(1,50) == 1:
+          self.infect(model)
+\end{lstlisting}
+Vi gør her sådan, at de fleste agenter starter med at være raske og have en grøn farve, men en lille del (omkring 2\%) starter med at være syge og have en rød farve.
+
+\subsection{Smittespredning}
+Ideen med modellen er, at de syge agenter skal smitte de raske agenter. Vi gør det på den måde, at en syg agent smitter alle raske agenter, som er indenfor en bestemt afstand af den. Tilføj følgende kode i bunden af \texttt{Person.step}-funktionen:
+\begin{lstlisting}
+  if self.category == 1:
+      for agent in self.agents_nearby(12):
+          if agent.category == 0:
+              agent.infect(model)
+\end{lstlisting}
+Koden siger, at hvis agenten er i kategori 1 (altså syg), så smitter den alle agenter indenfor en radius af 12 (agentens egen radius er på 4).
+
+\subsection{Immunitet}
+Lige nu kan vores model vise 2 af de 3 kategorier, altså "susceptible" og "infectious". Som det sidste led i modellen, skal agenter i "infectious" kategorien flyttes til "recovered" kategorien, når der er gået et stykke tid.\\\\
+Tilføj først først denne funktion \texttt{turn\_immune} til \texttt{Person}:
+\begin{lstlisting}
+  def turn_immune(self, model):
+      self.color = (0,0,200)
+      self.category = 2
+\end{lstlisting}
+Denne minder om \texttt{Person.infect}, men i stedet for at personen bliver rød og inficeret, bliver den blå og opnår immunitet.\\\\
+Tilføj så denne linje til \texttt{Person.infect}:
+\begin{lstlisting}
+  self.infection_level = 600
+\end{lstlisting}
+Idéen med \texttt{infection\_level}-variablen er, at den langsomt tæller ned, og, når den rammer 0, bliver den inficerede agent immun. Det gør vi ved at tilføje disse tre linjer i bunden af \texttt{if}-sætningen i \texttt{Person.step}:
+\begin{lstlisting}
+  self.infection_level -= 1
+  if self.infection_level == 0:
+      self.turn_immune(model)
+\end{lstlisting}
+\texttt{if}-sætningen burde til slut gerne se således ud:
+\begin{lstlisting}
+  if self.category == 1:
+      for agent in self.agents_nearby(12):
+          if agent.category == 0:
+              agent.infect(model)
+      self.infection_level -= 1
+      if self.infection_level == 0:
+          self.turn_immune(model)
+\end{lstlisting}
+Når du kører programmet, burde du nu have en færdig implementation af SIR-modellen.
+
+\subsection{Grafer}
+Til slut vil vi gerne se, om vores model forløber på samme måde som SIR-modellen. Det gør vi ved at indsætte en graf, som viser fordelingen af agenter over tid.\\\\
+Ideen med grafen kommer til at være, at vi optæller antallet af agenter i hver kategori, og så får grafen til at vise tre linjer, som viser antallene i hver kategori som funktion af tid.\\\\
+Begynd først med at indsætte disse tre linjer i \texttt{setup}-funktionen, lige efter du har kaldt \texttt{model.reset()}:
+\begin{lstlisting}
+  model["S"] = 0
+  model["I"] = 0
+  model["R"] = 0
+\end{lstlisting}
+Vi får agenterne selv til at tildele sig de forskellige kategorier, så vi lader alle tre starte med at være 0.\\\\
+Tilføj øverst i \texttt{Person.setup}:
+\begin{lstlisting}
+  model["S"] += 1
+\end{lstlisting}
+Tilføj øverst i \texttt{Person.infect}:
+\begin{lstlisting}
+  model["S"] -= 1
+  model["I"] += 1
+\end{lstlisting}
+Tilføj øverst i \texttt{Person.turn\_immune}:
+\begin{lstlisting}
+  model["I"] -= 1
+  model["R"] += 1
+\end{lstlisting}
+Nu har vi styr på dataen til vores model. Programmet skal dog lige vide, at det skal opdatere grafen, imens \textit{Go}-knappen holdes inde. Tilføj denne linje nederst i \texttt{step}-funktionen:
+\begin{lstlisting}
+  model.update_plots()
+\end{lstlisting}
+Det eneste, vi mangler nu, er at tilføje selve grafen. Indsæt denne linje, lige efter der hvor du tilføjer knapperne til modellen:
+\begin{lstlisting}
+  epidemic_model.multi_line_chart(["S","I","R"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
+\end{lstlisting}
+Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og sammenlign så den graf du får med den, der er på \href{https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model}{Wikipedia-siden for SIR-modellen}.
+
+\section{Mindskning af smitte}
+Succes! Regeringen er godt tilfreds med din model, der viser spredningen af smitte, og efterfølgende immunitet, over tid. Nu har de givet dig en ny opgave: kom på tiltag til at begrænse smitten, og simulér dem så i modellen, for at se, om de faktisk virker. Heldigvis har dine kollegaer en masse idéer til, hvordan man kan mindske smittespredning.
+
+\subsection{Hold afstand}
+\textit{Forslag: Agenter prøver på at undvige andre syge agenter.}\\\\
+Vi vil gøre sådan, at alle agenter, der ser en syg agent indenfor en vis afstand, vender sig om og går i den modsatte retning.\\\\
+Erstat denne linje i \texttt{Person.step}:
+\begin{lstlisting}
+  self.direction += randint(-10,10)
+\end{lstlisting}
+med disse:
+\begin{lstlisting}
+  avg_direction = 0
+  nearby_agents = 0
+  for agent in self.agents_nearby(20):
+      if agent.category == 1:
+          avg_direction += self.direction_to(agent.x,agent.y)
+          nearby_agents += 1
+  if nearby_agents > 0:
+      self.direction = (avg_direction / nearby_agents) + 180
+  else:
+      self.direction += randint(-10,10)
+\end{lstlisting}
+Det virker af meget, men ovenstående kode er faktisk ikke så indviklet.\\\\
+Vi laver først to variabler, \texttt{avg\_direction} og \texttt{nearby\_agents}, hvor den første kommer til at indeholde den gennemsnitlige retning til alle de smittede agenter, og \texttt{nearby\_agents} indeholder antallet af smittede agenter tæt på.\\
+Derefter undersøger vi agenter i nærheden, også dem, som er udenfor smitteradius. Hvis der er en smittet agent, lægger vi retningen til agenten til \texttt{avg\_direction}, og 1 til \texttt{nearby\_agents}.\\
+Når alle agenterne er blevet undersøgt, skal vi ændre retning. Hvis der ingen smittede agenter er tæt på, justerer vi bare, som normalt, den nuværende retning med op til 10 grader. Hvis der \textit{er} smittede agenter, finder vi den gennemsnitlige retning med $\frac{\texttt{avg\_direction}}{\texttt{nearby\_agents}}$, og peger så i den modsatte retning (ved at lægge 180 til).\\\\
+Kør det resulterende program, og observer effekten. For at gøre det mere realistisk, kan man f.eks. ændre på programmet sådan, at ikke alle holder lige god afstand (brug \texttt{randint}), eller at folk holder mindre afstand over tid (brug en variabel i stil med \texttt{infection\_level}, der tæller ned).
+
+\subsection{Inddeling i grupper}
+\textit{Forslag: Agenter inddeles i grupper, og holder afstand til andre grupper.}\\\\
+Det er meget effektivt at undgå de syge agenter, men i virkeligheden kan det være svært at se med det samme, om nogen er smittede, specielt da folk kan have varierende grader af symptomer. Derfor prøver vi nu en ny taktik: Folk inddeles i grupper på 5, og må kun have kontakt med dem, der er i samme gruppe.\\\\
+I takt med, at vi indfører forskellige tiltag til at begrænse smitten, kunne det være smart, hvis vi kunne slå disse tiltag til og fra, uden at vi behøvede at ændre i koden hver gang. Vi starter derfor med at tilføje en \textit{checkbox}, så man kan slå grupperne til og fra. Tilføj denne linje efter, at du har tilføjet knapperne til modellen:
+\begin{lstlisting}
+  epidemic_model.add_checkbox("enable_groups")
+\end{lstlisting}
+Nu kan vi gå i gang med faktisk at lave gruppefunktionaliteten.\\
+Tilføj, nederst i \texttt{Person.setup}, denne linje:
+\begin{lstlisting}
+  if model["enable_groups"]:
+      self.group = randint(1,5)
+\end{lstlisting}
+Dette tildeler agenten til en tilfældig gruppe, identificeret med et ID mellem 1 og 5.\\\\
+For at vi kan se forskel på de forskellige grupper, tegner vi en cirkel udenom agenterne, hvor farven på cirklen afhænger af deres gruppe. Agenter i samme gruppe har således samme farvecirkel. Tilføj disse linjer kode til \texttt{if}-sætningen:
+\begin{lstlisting}
+  self.group_indicator = model.add_ellipse(self.x-10,self.y-10,20,20,(0,0,0))
+  if self.group == 1:
+      self.group_indicator.color = (200,200,0)
+  elif self.group == 2:
+      self.group_indicator.color = (0,200,200)
+  elif self.group == 3:
+      self.group_indicator.color = (200,0,200)
+  elif self.group == 4:
+      self.group_indicator.color = (100,100,100)
+  elif self.group == 5:
+      self.group_indicator.color = (250,150,0)
+\end{lstlisting}
+Dette gemmer agentens farvecirkel i variablen \texttt{group\_indicator}, og giver den en farve afhængigt af \texttt{group}-id'et.\\\\
+Ændr så linje i \texttt{Person.step}:
+\begin{lstlisting}
+  if agent.category == 1:
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  if model["enable_groups"] and agent.group != self.group:
+\end{lstlisting}
+Det får agenten til at undgå alle, der ikke er i dens egen gruppe, fremfor dem der er smittede.
+Tilføj til sidst, nederst i \texttt{Person.step}:
+\begin{lstlisting}
+  if model["enable_groups"]:
+      self.group_indicator.x = self.x-10
+      self.group_indicator.y = self.y-10
+\end{lstlisting}
+Dette får agentens "gruppe-indikator" til at følge med den rundt.
+
+\subsection{Mere/mindre afstand}
+\textit{Prøv at variere afstand, agenterne holder, og den afstand, de kan smitte på.}\\\\
+For at afprøve virkningen af forskellige tiltag, gør vi nu sådan, at agenternes fysiske afstand og smitterækkevidde kan justeres, imens simulationen køres.\\\\
+Tilføj to \textit{sliders} til modellen med følgende kode (indsæt dem samme sted, som du laver knapper/checkboxes):
+\begin{lstlisting}
+  epidemic_model.add_controller_row()
+  epidemic_model.add_slider("social_distance", 0, 80, 50)
+  epidemic_model.add_controller_row()
+  epidemic_model.add_slider("infection_distance", 0, 40, 15)
+\end{lstlisting}
+Dette giver to sliders, som kan bruges til at justere variablene \texttt{social\_distance} og \texttt{infection\_distance}. De to første tal er minimums- og maksimumsværdierne, og det sidste tal er startværdien.\\\\
+Ændr nu denne linje i \texttt{Person.step}:
+\begin{lstlisting}
+  for agent in self.agents_nearby(50):
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  for agent in self.agents_nearby(model["social_distance"]):
+\end{lstlisting}
+og ændr denne:
+\begin{lstlisting}
+  for agent in self.agents_nearby(12):
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  for agent in self.agents_nearby(model["infection_distance"]):
+\end{lstlisting}
+Prøv at køre simulationen, og juster på værdierne undervejs. Overvej, hvilken indflydelse forholdet mellem de to værdier har på smittetallene.
+
+\section{Mutationer}
+Gode nyheder! Din model er blevet godt modtaget af regeringen, og de begynder snart at tage den i brug, for at vurdere, hvilke tiltag de skal sætte i værks. Pludselig bliver du dog ringet op af en forsker fra Statens Serum Institut, der fortæller dig, at din model er mangelfuld! De siger, at modellen mangler detaljer om, hvordan sygdommen kan \textit{mutere} sig selv hen ad vejen. Forskeren giver dig en liste over ting, der skal tilføjes, og du skynder dig at gå i gang.
+
+\subsection{Virus-klasse}
+Fordi, at virussens opførsel bliver mere avanceret, er det nu nødvendigt at give den sin egen klasse, ligesom med \texttt{Person} klassen. Tilføj følgende klasse, oven over \texttt{Person} klassen:
+
+\begin{lstlisting}
+  class Virus():
+      def __init__(self,infection_level, mutation):
+          self.infection_level = infection_level
+          self.mutation = mutation
+\end{lstlisting}
+\texttt{infection\_level} skal have samme funktionalitet som før. Vi kommer til at beskrive \texttt{mutation} senere.\\\\
+Erstat nu denne kode i \texttt{Person.setup}:
+\begin{lstlisting}
+  if randint(1,50) == 1:
+      self.infect(model)
+\end{lstlisting}
+med denne:
+\begin{lstlisting}
+  self.virus = None
+  if randint(1,50) == 1:
+      self.infect(model, Virus(600,5))
+\end{lstlisting}
+I stedet for at agenten bare "simulerer" en virus ved at bruge sin \texttt{category} og \texttt{infection\_level}, bærer den nu rundt på et \textit{virus-objekt}, der holder styr på dette.\\\\
+Dette betyder så også, at vi skal ændre alle de steder, der har noget at gøre med agentens infektion, til at bruge denne klasse i stedet. Ændr \texttt{Person.infect} til denne:
+\begin{lstlisting}
+  def infect(self, model):
+      model["S"] -= 1
+      model["I"] += 1
+      self.color = (200,0,0)
+      self.category = 1
+      self.virus = virus
+\end{lstlisting}
+og \texttt{Person.turn\_immune} til denne:
+\begin{lstlisting}
+  def turn_immune(self, model):
+      model["I"] -= 1
+      model["R"] += 1
+      self.color = (0,0,200)
+      self.category = 2
+      self.virus = None
+\end{lstlisting}
+Ændr til sidst dette stykke i \texttt{Person.step}:
+\begin{lstlisting}
+  if self.category == 1:
+      for agent in self.agents_nearby(model["infection_distance"]):
+          if agent.category == 0:
+              agent.infect(model)
+      self.infection_level -= 1
+      if self.infection_level == 0:
+          self.turn_immune(model)
+\end{lstlisting}
+til dette:
+\begin{lstlisting}
+  if self.category == 1:
+      for agent in self.agents_nearby(model["infection_distance"]):
+          if agent.category == 0:
+              agent.infect(model, Virus(600,self.virus.mutation))
+      self.virus.infection_level -= 1
+      if self.virus.infection_level == 0:
+          self.turn_immune(model)
+\end{lstlisting}
+Her inficerer vi altså den anden agent med et nyt virus-objekt, fremfor "bare" at sætte dens \texttt{infection\_level}. Bemærk, at det også er virussens \texttt{infection\_level}, vi justerer, fremfor agentens eget.\\\\
+Prøv at køre modellen, og se, om alt kører som det burde. Der burde der ikke være nogen forskel fra sidst.
+
+\subsection{Mutationsstadier}
+Hovedideen med at lave \texttt{Virus}-klassen er, at vi kan gemme information om dens mutationsstadie i den, fremfor at gemme den i agenten, der bærer den.
+
+\end{document}
+
+
+% viden om virus
+% mutations (smitte / inkubationstid / immunitet)
+% masker
+% inddelinger i grupper
+% vaccine
+% hold afstand
