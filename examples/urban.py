@@ -22,8 +22,7 @@ class Seeker(Agent):
         next_x = round(next_x * model.x_tiles / model.width)
         next_y = self.y + math.sin(math.radians(d)) * self.speed
         next_y = round(next_x * model.x_tiles / model.width)
-        i = next_y * model.x_tiles + next_x
-        return model.tiles[i]
+        return model.tile(next_x, next_y)
 
     def step(self, model):
         if not self.settled:
@@ -81,8 +80,7 @@ def setup(model):
                 avg_value += model.tiles[i].info["value"]
                 neighbors += 1
             if neighbors > 0:
-                i = y * tx + x
-                model.tiles[i].info["value"] = max(
+                model.tile(x,y).info["value"] = max(
                     0, min(255,
                            avg_value // neighbors - 20 + random.randint(0, 40))
                 )

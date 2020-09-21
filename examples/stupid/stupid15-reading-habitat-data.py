@@ -66,10 +66,7 @@ class Bug(Agent):
                     newbug_x = 3-random.randint(0, 6)
                     newbug_y = 3-random.randint(0, 6)
 
-                    # TODO: the indexing here could perhaps be made simpler
-                    tile = model.tiles[((tile.y+newbug_y) % model.y_tiles)
-                                       * model.x_tiles
-                                       + (tile.x+newbug_x) % model.x_tiles]
+                    tile = model.tiles(tile.x+newbug_x, tile.y+newbug_y)
                     if len(tile.get_agents()) == 0:
                         newbug = Bug()
                         newbug.grow_size = 0.0
