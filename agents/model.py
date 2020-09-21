@@ -279,6 +279,21 @@ class HistogramSpec(Spec):
         ]
         self.color = color
 
+class EllipseStruct():
+    def __init__(self,x,y,w,h,color):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.color = color
+
+class RectStruct():
+    def __init__(self,x,y,w,h,color):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.color = color
 
 class Model:
     def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None):
@@ -343,6 +358,7 @@ class Model:
         self._paused = False
         self._wrapping = True
         self._close_func = None
+        self._shapes = []
 
     def add_agent(self, agent):
         agent.set_model(self)
@@ -374,11 +390,13 @@ class Model:
         for a in self.__agents:
             a.destroy()
         self.__agents = []
+        self._shapes = []
         for x in range(self.x_tiles):
             for y in range(self.y_tiles):
                 i = y * self.x_tiles + x
                 self.tiles[i].color = (0, 0, 0)
                 self.tiles[i].info = {}
+        self.clear_plots()
         self.unpause()
 
     def reload(self):
@@ -475,6 +493,22 @@ class Model:
 
     def monitor(self, variable):
         self.current_row.append(MonitorSpec(variable))
+
+    def add_ellipse(self,x,y,w,h,color):
+        new_shape = EllipseStruct(x,y,w,h,color)
+        self._shapes.append(new_shape)
+        return new_shape
+
+    def add_rect(self,x,y,w,h):
+        new_shape = RectStruct(x,y,w,h,color)
+        self._shapes.append(new_shape)
+        return new_shape
+
+    def get_shapes(self):
+        return iter(self._shapes)
+
+    def clear_shapes(self):
+        self._shapes.clear()
 
     def is_paused(self):
         return self._paused

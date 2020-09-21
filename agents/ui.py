@@ -25,6 +25,8 @@ from agents.model import (
     BarChartSpec,
     HistogramSpec,
     MonitorSpec,
+    EllipseStruct,
+    RectStruct,
 )
 
 class SimulationArea(QtWidgets.QWidget):
@@ -57,6 +59,14 @@ class SimulationArea(QtWidgets.QWidget):
             # Draw tiles
             for tile in self.model.tiles:
                 self.paintTile(painter, tile)
+            # Draw shapes
+            for shape in self.model.get_shapes():
+                c = shape.color
+                painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
+                if type(shape) is EllipseStruct:
+                    painter.drawEllipse(shape.x,shape.y,shape.w,shape.h)
+                elif type(shape) is RectStruct:
+                    painter.drawRect(shape.x,shape.y,shape.w,shape.h)
             # Draw agents
             select = None
             for agent in self.model.agents:
@@ -235,7 +245,8 @@ class QtMultiGraph(QChartView):
         self._max = 0
 
     def clear(self):
-        self.chart.series().clear()
+        for chart in self.chart.series():
+            chart.clear()
         self._data = []
 
     def add_data(self, data):
@@ -513,7 +524,7 @@ class Application:
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
-        self.controllers.append(slider)
+        self.controllers.append(checkbox)
 
     def add_monitor(self, monitor_spec, plots_box):
         monitor = Monitor(monitor_spec.variable, self.model)
