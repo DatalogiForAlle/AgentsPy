@@ -131,3 +131,6 @@ dmypy.json
 # Latex
 *.aux
 *.log
+
+# Stupidmodel
+examples/stupid/stupid.data

@@ -49,7 +49,7 @@ class Agent:
     def update_current_tile(self):
         new_tile = self.current_tile()
         if not self.__current_tile:
-            self.__current_tile = self.current_tile()
+            self.__current_tile = new_tile
             self.__current_tile.add_agent(self)
         elif not (self.__current_tile is new_tile):
             self.__current_tile.remove_agent(self)
@@ -76,6 +76,9 @@ class Agent:
         self.y = min(max(self.y, 0), self.__model.height)
 
     def center_in_tile(self):
+        """
+        Move the agent to the center of the tile it is standing on
+        """
         w = self.__model.width
         h = self.__model.height
         tx = self.__model.x_tiles
@@ -85,11 +88,17 @@ class Agent:
         self.__post_move()
 
     def jump_to(self, x, y):
+        """
+        Move the agent to a specified point
+        """
         self.x = x
         self.y = y
         self.__post_move()
 
     def jump_to_tile(self, t):
+        """
+        Move the agent to the center of a specified tile
+        """
         w = self.__model.width
         h = self.__model.height
         x_tiles = self.__model.x_tiles
@@ -100,9 +109,15 @@ class Agent:
         self.__post_move()
 
     def set_model(self, model):
+        """
+        Set the model of the agent
+        """
         self.__model = model
 
     def direction_to(self, other_x, other_y):
+        """
+        Calculate the direction in degrees from the agent to a given point
+        """
         direction = 0
         dist = self.distance_to(other_x, other_y)
         if dist > 0:
@@ -112,6 +127,9 @@ class Agent:
         return direction
 
     def point_towards(self, other_x, other_y):
+        """
+        Make the agent orient itself towards a given point
+        """
         dist = self.distance_to(other_x, other_y)
         if dist > 0:
             self.direction = math.degrees(math.acos((other_x - self.x) / dist))
@@ -119,6 +137,9 @@ class Agent:
                 self.direction = 360 - self.direction
 
     def forward(self, distance=None):
+        """
+        Moves the agent forward in the direction it is currently facing.
+        """
         if distance is None:
             distance = self.speed
         self.x += math.cos(math.radians(self.direction)) * distance
@@ -126,6 +147,9 @@ class Agent:
         self.__post_move()
 
     def backward(self, distance=None):
+        """
+        Moves the agent in the opposite direction of its current orientation
+        """
         if distance is None:
             distance = self.speed
         self.x -= math.cos(math.radians(self.direction)) * distance
@@ -133,17 +157,28 @@ class Agent:
         self.__post_move()
 
     def left(self, degrees):
+        """
+        Make the agent turn left (counter clockwise) the given number of degrees
+        """
         self.direction += degrees
 
     def right(self, degrees):
+        """
+        Make the agent turn right (clockwise) the given number of degrees
+        """
         self.direction -= degrees
 
     def distance_to(self, other_x, other_y):
+        """
+        Returns the distance between the agent and another point.
+        """
         return ((self.x - other_x) ** 2 + (self.y - other_y) ** 2) ** 0.5
 
-    # Returns a list of nearby agents.
-    # May take a type as argument and only return agents of that type.
     def agents_nearby(self, distance, agent_type=None):
+        """
+        Returns a list of nearby agents.
+        May take a type as argument and only return agents of that type.
+        """
         nearby = set()
         for a in self.__model.agents:
             if self.distance_to(a.x, a.y) <= distance and not (a is self):
@@ -152,16 +187,23 @@ class Agent:
         return nearby
 
     def current_tile(self):
+        """
+        Returns the tile that the agent is currently standing on.
+        """
         x = math.floor((self.__model.x_tiles * self.x) / self.__model.width)
         y = math.floor((self.__model.y_tiles * self.y) / self.__model.height)
         return self.__model.tile(x, y)
 
-
-    # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
+        """
+        Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
+        """
         return self.nearby_tiles(-1, -1, 1, 1)
 
     def nearby_tiles(self, x1, y1, x2, y2):
+        """
+        Returns a rectangle of tiles relative to the agent's current position.
+        """
         tile = self.__current_tile
         tiles = []
         for x in range(x1, x2 + 1):
@@ -170,9 +212,15 @@ class Agent:
         return tiles
 
     def is_destroyed(self):
+        """
+        Returns True or false whether or not the agent is destroyed
+        """
         return self.__destroyed
 
     def destroy(self):
+        """
+        Marks the agent for destruction, removing it from the set of agents in the model.
+        """
         if not self.__destroyed:
             self.__destroyed = True
 
@@ -283,49 +331,33 @@ class Model:
             self.x_tiles = x_tiles
             self.y_tiles = y_tiles
 
-            # Pixel sizes
-            self.tile_size = tile_size
-            self.width = x_tiles * tile_size
-            self.height = y_tiles * tile_size
-
-            # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
-                          for x in range(x_tiles)]
         else:
             cell_data = open(cell_data_file, "r")
             cell_data.readline()
             cell_data.readline()
             header_line = cell_data.readline()[:-1]
             self.header_info = header_line.split('\t')
-            x_tiles = 0
-            y_tiles = 0
 
             self.load_data = []
             for line in cell_data:
                 cell = line[:-1].split('\t')
                 x = int(cell[0])
                 y = int(cell[1])
-                x_tiles = max(x+1, x_tiles)
-                y_tiles = max(y+1, y_tiles)
+                self.x_tiles = max(x+1, x_tiles)
+                self.y_tiles = max(y+1, y_tiles)
                 self.load_data.append(cell)
 
-            # Pixel sizes
-            self.tile_size = tile_size
-            self.width = x_tiles * tile_size
-            self.height = y_tiles * tile_size
-            self.x_tiles = x_tiles
-            self.y_tiles = y_tiles
-
-            # Internal set of agents.
-            self.__agents = set()
-
-            # Initial tileset (empty).
-            self.tiles = [Tile(x, y, self)
-                          for y in range(y_tiles)
-                          for x in range(x_tiles)]
-
             cell_data.close()
+
+        # Initial tileset (empty).
+        self.tiles = [Tile(x, y, self)
+                      for y in range(y_tiles)
+                      for x in range(x_tiles)]
+
+        # Pixel sizes
+        self.tile_size = tile_size
+        self.width = x_tiles * tile_size
+        self.height = y_tiles * tile_size
 
         self.__agents = []
         self.variables = {}
@@ -481,7 +513,7 @@ class Model:
         self._close_func = func
 
     def close(self):
-        self.model.pause()
+        self.pause()
         if self._close_func:
             self._close_func(self)
 
