@@ -27,15 +27,6 @@ from agents.model import (
 )
 
 
-class DisableRenderingButton():
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.pressed = False
-
-
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,20 +40,20 @@ class SimulationArea(QtWidgets.QWidget):
     def model(self, model):
         self.__model = model
         self.setFixedSize(model.width, model.height)
-        self.disable_rendering_button = DisableRenderingButton(self.width()-56, 8, 48, 48)
+        self.enable_rendering = True
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        # Default to a white background
-        white = QtGui.QColor("white")
+        # Default to a black background
+        white = QtGui.QColor("black")
         painter.setBrush(white)
         painter.drawRect(0, 0,
                          painter.device().width(), painter.device().height())
 
-        if self.model and not self.disable_rendering_button.pressed:
+        if self.model:
             # Draw tiles
             for tile in self.model.tiles:
                 self.paintTile(painter, tile)
@@ -84,25 +75,6 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
-
-        if self.underMouse():
-            x = self.disable_rendering_button.x
-            y = self.disable_rendering_button.y
-            width = self.disable_rendering_button.width
-            height = self.disable_rendering_button.height
-            pressed = self.disable_rendering_button.pressed
-            if not pressed:
-                painter.setBrush(QColor(200, 200, 200))
-                painter.drawRect(x, y, width, height)
-                painter.setBrush(QColor(150, 150, 150))
-                painter.drawEllipse(x + width*0.15, y + height*0.35, width*0.7, height*0.3)
-                painter.setBrush(QColor(100, 100, 100))
-                painter.drawEllipse(x + width*0.35, y + height*0.35, width*0.3, height*0.3)
-            else:
-                painter.setBrush(QColor(200, 200, 200))
-                painter.drawRect(x, y, width, height)
-                painter.setBrush(QColor(150, 150, 150))
-                painter.drawEllipse(x + width*0.15, y + height*0.35, width*0.7, height*0.3)
         painter.end()
 
     def paintAgent(self, painter, agent):
@@ -184,16 +156,19 @@ class SimulationArea(QtWidgets.QWidget):
         x = e.localPos().x()
         y = e.localPos().y()
         self.model.mouse_click(x, y)
-        btn_x = self.disable_rendering_button.x
-        btn_y = self.disable_rendering_button.y
-        btn_w = self.disable_rendering_button.width
-        btn_h = self.disable_rendering_button.height
-        state = self.disable_rendering_button.pressed
-        if (x > btn_x and
-            y > btn_y and
-            x < btn_x + btn_w and
-            y < btn_y + btn_h):
-            self.disable_rendering_button.pressed = not state
+
+    def contextMenuEvent(self, event):
+        # Create menu
+        menu = QtWidgets.QMenu(self)
+        if self.enable_rendering:
+            pause_action = menu.addAction("Pause rendering")
+        else:
+            pause_action = menu.addAction("Start rendering")
+        # Open menu
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        # Handle user choice
+        if action == pause_action:
+            self.enable_rendering = not self.enable_rendering
 
 class QtGraph(QChartView):
     def __init__(self, spec):
@@ -468,7 +443,8 @@ class Application:
                     controller.update_label()
 
     def update_graphics(self):
-        self.simulation_area.update()
+        if self.simulation_area.enable_rendering:
+            self.simulation_area.update()
         for p in self.model.plots:
             p.redraw()
 
