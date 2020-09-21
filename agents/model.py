@@ -152,28 +152,21 @@ class Agent:
         return nearby
 
     def current_tile(self):
-        x = (
-            math.floor(self.__model.x_tiles * self.x / self.__model.width)
-            % self.__model.x_tiles
-        )
-        y = (
-            math.floor(self.__model.y_tiles * self.y / self.__model.height)
-            % self.__model.y_tiles
-        )
-        i = y * self.__model.x_tiles + x
-        return self.__model.tiles[i]
+        x = math.floor((self.__model.x_tiles * self.x) / self.__model.width)
+        y = math.floor((self.__model.y_tiles * self.y) / self.__model.height)
+        return self.__model.tile(x, y)
+
 
     # Returns the surrounding tiles as a 3x3 grid. Includes the current tile.
     def neighbor_tiles(self):
         return self.nearby_tiles(-1, -1, 1, 1)
 
     def nearby_tiles(self, x1, y1, x2, y2):
-        t = self.__current_tile
+        tile = self.__current_tile
         tiles = []
         for x in range(x1, x2 + 1):
             for y in range(y1, y2 + 1):
-                tiles += self.__model.tile((t.x + x) % self.__model.x_tiles,
-                                           (t.y + y) % self.__model.y_tiles)
+                tiles.append(self.__model.tile((tile.x + x), (tile.y + y)))
         return tiles
 
     def is_destroyed(self):
@@ -358,7 +351,9 @@ class Model:
             self.add_agent(a)
 
     def tile(self, x, y):
-        return self.tiles[(y % self.y_tiles) * self.x_tiles + (x % self.x_tiles)]
+        row = y % self.y_tiles
+        column = x % self.x_tiles
+        return self.tiles[row * self.x_tiles + column]
 
     # Based on
     # kite.com

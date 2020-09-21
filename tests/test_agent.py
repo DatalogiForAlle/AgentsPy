@@ -75,32 +75,32 @@ class AgentTests(unittest.TestCase):
         agent.jump_to(42, -1)
         self.assertEqual((agent.x, agent.y), (42, 399))
 
-    # def test_agent_jump_to_tile(self):
-    #     """
-    #     Check that jump_to_tile moves the agent correctly
-    #     """
-    #     agent = self.test_agent
-    #     tile = self.model.tile(7, 13)
+    def test_agent_jump_to_tile(self):
+        """
+        Check that jump_to_tile moves the agent correctly
+        """
+        agent = self.test_agent
+        tile = self.model.tile(7, 13)
 
-    #     # Check using current_tile
-    #     self.model.add_agent(agent)
-    #     agent.jump_to_tile(tile)
-    #     self.assertEqual(agent.current_tile(), tile)
+        # Check using current_tile
+        self.model.add_agent(agent)
+        agent.jump_to_tile(tile)
+        self.assertEqual(agent.current_tile(), tile)
 
-    #     # Check agents coordinates directly
-    #     tile_x = tile.x / self.model.tiles_x * self.model.width
-    #     tile_y = tile.y / self.model.tiles_y * self.model.height
-    #     self.assertEqual((agent.x, agent.y), (tile_x,tile_y))
+        # Check agents coordinates directly
+        agent_x = 10 + tile.x / self.model.x_tiles * self.model.width
+        agent_y = 10 + tile.y / self.model.y_tiles * self.model.height
+        self.assertEqual((agent.x, agent.y), (agent_x, agent_y))
 
-    # def test_agent_current_tile(self):
-    #     """
-    #     Test that current_tile actually returns the current tile.
-    #     """
-    #     agent = self.test_agent
-    #     self.model.add_agent(agent)
-    #     agent.jump_to(25, 25)
+    def test_agent_current_tile(self):
+        """
+        Test that current_tile actually returns the current tile.
+        """
+        agent = self.test_agent
+        self.model.add_agent(agent)
+        agent.jump_to(25, 25)
 
-    #     self.assertEqual(agent.current_tile(), self.model.tile(1, 1))
+        self.assertEqual(agent.current_tile(), self.model.tile(1, 1))
 
     def test_agent_direction_to(self):
         """
