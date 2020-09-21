@@ -26,6 +26,7 @@ from agents.model import (
     MonitorSpec,
 )
 
+
 class SimulationArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,8 +50,7 @@ class SimulationArea(QtWidgets.QWidget):
         white = QtGui.QColor("white")
         painter.setBrush(white)
         painter.drawRect(0, 0,
-                         painter.device().width(),
-                         painter.device().height())
+                         painter.device().width(), painter.device().height())
 
         if self.model:
             # Draw tiles
@@ -96,7 +96,7 @@ class SimulationArea(QtWidgets.QWidget):
                 QPointF(x + math.cos(d + 2.3) * s, y + math.sin(d + 2.3) * s),
                 QPointF(
                     x + math.cos(d + math.pi) * s / 2,
-                    y + math.sin(d + math.pi) * s / 2
+                    y + math.sin(d + math.pi) * s / 2,
                 ),
                 QPointF(x + math.cos(d - 2.3) * s, y + math.sin(d - 2.3) * s),
             ]
@@ -106,40 +106,40 @@ class SimulationArea(QtWidgets.QWidget):
             y = agent.y - agent.size / 2
             size = agent.size
             point_list = [
-                QPointF(x + 0.4*size, y + 0.4*size),
-                QPointF(x + 0.2*size, y + 0.5*size),
-                QPointF(x + 0.2*size, y + 0.6*size),
-                QPointF(x + 0.4*size, y + 0.5*size),
-                QPointF(x + 0.4*size, y + 0.8*size),
-                QPointF(x + 0.2*size, y + size),
-                QPointF(x + 0.3*size, y + size),
-                QPointF(x + 0.5*size, y + 0.85*size),
-                QPointF(x + 0.7*size, y + size),
-                QPointF(x + 0.8*size, y + size),
-                QPointF(x + 0.6*size, y + 0.8*size),
-                QPointF(x + 0.6*size, y + 0.5*size),
-                QPointF(x + 0.8*size, y + 0.6*size),
-                QPointF(x + 0.8*size, y + 0.5*size),
-                QPointF(x + 0.6*size, y + 0.4*size),
+                QPointF(x + 0.4 * size, y + 0.4 * size),
+                QPointF(x + 0.2 * size, y + 0.5 * size),
+                QPointF(x + 0.2 * size, y + 0.6 * size),
+                QPointF(x + 0.4 * size, y + 0.5 * size),
+                QPointF(x + 0.4 * size, y + 0.8 * size),
+                QPointF(x + 0.2 * size, y + size),
+                QPointF(x + 0.3 * size, y + size),
+                QPointF(x + 0.5 * size, y + 0.85 * size),
+                QPointF(x + 0.7 * size, y + size),
+                QPointF(x + 0.8 * size, y + size),
+                QPointF(x + 0.6 * size, y + 0.8 * size),
+                QPointF(x + 0.6 * size, y + 0.5 * size),
+                QPointF(x + 0.8 * size, y + 0.6 * size),
+                QPointF(x + 0.8 * size, y + 0.5 * size),
+                QPointF(x + 0.6 * size, y + 0.4 * size),
             ]
             painter.drawPolygon(QPolygonF(point_list))
-            painter.drawEllipse(x + 0.3*size, y, 0.4*size, 0.4*size)
+            painter.drawEllipse(x + 0.3 * size, y, 0.4 * size, 0.4 * size)
         elif agent.shape == AgentShape.HOUSE:
             x = agent.x - agent.size / 2
             y = agent.y - agent.size / 2
             size = agent.size
             point_list = [
-                QPointF(x + 0.5*size, y),
-                QPointF(x, y + 0.5*size),
-                QPointF(x + 0.2*size, y + 0.5*size),
-                QPointF(x + 0.2*size, y + size),
-                QPointF(x + 0.40*size, y + size),
-                QPointF(x + 0.40*size, y + 0.7*size),
-                QPointF(x + 0.60*size, y + 0.7*size),
-                QPointF(x + 0.60*size, y + size),
-                QPointF(x + 0.8*size, y + size),
-                QPointF(x + 0.8*size, y + 0.5*size),
-                QPointF(x + size, y + 0.5*size)
+                QPointF(x + 0.5 * size, y),
+                QPointF(x, y + 0.5 * size),
+                QPointF(x + 0.2 * size, y + 0.5 * size),
+                QPointF(x + 0.2 * size, y + size),
+                QPointF(x + 0.40 * size, y + size),
+                QPointF(x + 0.40 * size, y + 0.7 * size),
+                QPointF(x + 0.60 * size, y + 0.7 * size),
+                QPointF(x + 0.60 * size, y + size),
+                QPointF(x + 0.8 * size, y + size),
+                QPointF(x + 0.8 * size, y + 0.5 * size),
+                QPointF(x + size, y + 0.5 * size),
             ]
             painter.drawPolygon(QPolygonF(point_list))
 
@@ -164,9 +164,9 @@ class QtGraph(QChartView):
         self.chart.setTitle(self.spec.variable)
         self.chart.legend().hide()
         self.series = QLineSeries()
-        self.series.setColor(QColor(spec.color[0],
-                                    spec.color[1],
-                                    spec.color[2]))
+        self.series.setColor(
+            QColor(spec.color[0], spec.color[1], spec.color[2])
+        )
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
 
@@ -194,17 +194,21 @@ class QtGraph(QChartView):
     def redraw(self):
         if len(self._data) > 0:
             datapoint = sum(self._data) / len(self._data)
-            self.series.append(QPointF(self.series.count() /
-                                       self._updates_per_second, datapoint))
-            self.axis_x.setRange(0, (self.series.count() - 1)
-                                 / self._updates_per_second)
+            self.series.append(
+                QPointF(
+                    self.series.count() / self._updates_per_second, datapoint
+                )
+            )
+            self.axis_x.setRange(
+                0, (self.series.count() - 1) / self._updates_per_second
+            )
             self._min = min(self._min, datapoint)
             self._max = max(self._max, datapoint)
             diff = self._max - self._min
             if diff > 0:
                 self.axis_y.setRange(self._min, self._max)
             else:
-                self.axis_y.setRange(self._min-0.5, self._max+0.5)
+                self.axis_y.setRange(self._min - 0.5, self._max + 0.5)
             self._data = []
 
 
@@ -217,9 +221,9 @@ class QtBarChart(QChartView):
         self.chart.legend().hide()
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
-        self.mainset.setColor(QColor(spec.color[0],
-                                     spec.color[1],
-                                     spec.color[2]))
+        self.mainset.setColor(
+            QColor(spec.color[0], spec.color[1], spec.color[2])
+        )
         self.series = QBarSeries()
         self.series.append(self.mainset)
 
@@ -265,9 +269,9 @@ class QtHistogram(QChartView):
 
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.bins))])
-        self.mainset.setColor(QColor(spec.color[0],
-                                     spec.color[1],
-                                     spec.color[2]))
+        self.mainset.setColor(
+            QColor(spec.color[0], spec.color[1], spec.color[2])
+        )
         self.series = QBarSeries()
         self.series.append(self.mainset)
 
@@ -347,6 +351,7 @@ class Checkbox(QtWidgets.QCheckBox):
         super().__init__(variable)
         self.setText(variable)
 
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, model):
         self.model = model
@@ -355,6 +360,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.model.close()
         super().closeEvent(event)
+
 
 class Application:
     def __init__(self, model):
@@ -413,7 +419,10 @@ class Application:
     def update_logic(self):
         if not self.model.is_paused():
             for controller in self.controllers:
-                if isinstance(controller, ToggleButton) and controller.isChecked():
+                if (
+                    isinstance(controller, ToggleButton)
+                    and controller.isChecked()
+                ):
                     controller.func(controller.model)
                 elif isinstance(controller, Monitor):
                     controller.update_label()
@@ -460,7 +469,7 @@ class Application:
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
-        self.controllers.append(slider)
+        self.controllers.append(checkbox)
 
     def add_monitor(self, monitor_spec, plots_box):
         monitor = Monitor(monitor_spec.variable, self.model)
@@ -528,13 +537,14 @@ def run(model):
     # We need to store a reference to the application, even though we are not
     # using it, as otherwise it will be garbage-collected and the UI will get
     # some very weird behavior.
-    app = Application(model)
+    app = Application(model)  # noqa: F841
 
     # Launch the application
     qapp.exec_()
 
     # Application was closed, clean up and exit
     sys.exit(0)
+
 
 def quick_run():
     run(get_quickstart_model())

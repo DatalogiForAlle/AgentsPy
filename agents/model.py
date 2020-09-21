@@ -4,11 +4,13 @@ import operator
 import colorsys
 from enum import Enum
 
+
 class AgentShape(Enum):
     CIRCLE = 1
     ARROW = 2
     PERSON = 3
     HOUSE = 4
+
 
 class Agent:
     def __init__(self):
@@ -24,7 +26,7 @@ class Agent:
         hue = random.random()
         saturation = random.uniform(0.8, 1.0)
         lightness = random.uniform(0.25, 1.0)
-        r,g,b = colorsys.hls_to_rgb(hue, lightness, saturation)
+        r, g, b = colorsys.hls_to_rgb(hue, lightness, saturation)
         self.__color = (int(r*255), int(g*255), int(b*255))
 
         self.x = 0
@@ -70,8 +72,8 @@ class Agent:
     # If the agent is outside the simulation area,
     # return it to the closest point inside
     def __stay_inside(self):
-        self.x = min(max(self.x,0),self.__model.width)
-        self.y = min(max(self.y,0),self.__model.height)
+        self.x = min(max(self.x, 0), self.__model.width)
+        self.y = min(max(self.y, 0), self.__model.height)
 
     def center_in_tile(self):
         w = self.__model.width
@@ -117,14 +119,14 @@ class Agent:
                 self.direction = 360 - self.direction
 
     def forward(self, distance=None):
-        if distance == None:
+        if distance is None:
             distance = self.speed
         self.x += math.cos(math.radians(self.direction)) * distance
         self.y += math.sin(math.radians(self.direction)) * distance
         self.__post_move()
 
     def backward(self, distance=None):
-        if distance == None:
+        if distance is None:
             distance = self.speed
         self.x -= math.cos(math.radians(self.direction)) * distance
         self.y -= math.sin(math.radians(self.direction)) * distance
@@ -277,7 +279,8 @@ class HistogramSpec(Spec):
 
 
 class Model:
-    def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None):
+    def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8,
+                 cell_data_file=None):
         # Title of model, shown in window title
         self.title = title
 
@@ -299,7 +302,8 @@ class Model:
             cell_data = open(cell_data_file, "r")
             cell_data.readline()
             cell_data.readline()
-            self.header_info = ( cell_data.readline()[:-1]).split('\t')
+            header_line = cell_data.readline()[:-1]
+            self.header_info = header_line.split('\t')
             x_tiles = 0
             y_tiles = 0
 
@@ -381,9 +385,10 @@ class Model:
         for tile_data in self.load_data:
             x = int(tile_data[0])
             y = int(tile_data[1])
-            for i in range(2,len(tile_data)):
+            for i in range(2, len(tile_data)):
                 variable = self.header_info[i]
-                self.tiles[y*self.x_tiles+x].info[variable] = float(tile_data[i])
+                tile = self.tiles[y*self.x_tiles+x]
+                tile.info[variable] = float(tile_data[i])
 
     def update_plots(self):
         for plot in self.plots:
@@ -530,8 +535,9 @@ class SimpleModel(Model):
         self.add_button("Setup", setup_wrapper)
         self.add_toggle_button("Go", step_wrapper)
 
+
 def get_quickstart_model():
     global quickstart_model
-    if not 'quickstart_model' in globals():
+    if 'quickstart_model' not in globals():
         quickstart_model = Model("AgentsPy model", 50, 50)
     return quickstart_model
