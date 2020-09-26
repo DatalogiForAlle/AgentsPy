@@ -2,18 +2,31 @@ from agents import *
 from random import randint
 
 class Virus():
-    def __init__(self, mutation):
-        self.infection_level = 600
+    def __init__(self, mutation, duration, radius):
         self.mutation = mutation
+        self.duration = duration
+        self.radius = radius
+        self.infection_level = self.duration
+
+    def mutate(self):
+        if randint(1,4) < 4:
+            return Virus(self.mutation,
+                         self.duration,
+                         self.radius)
+        else:
+            return Virus(self.mutation-1,
+                         self.duration + randint(-100,100),
+                         self.radius + randint(-5,5))
 
 class Person(Agent):
     def setup(self,model):
         model["S"] += 1
         self.category = 0
-        self.color = (0,200,0)
+        self.color = (200,200,200)
         self.virus = None
+        self.immunities = []
         if randint(1,50) == 1:
-            self.infect(model, Virus(600,5))
+            self.infect(model, Virus(5, 600, model["infection_distance"]))
 
         if model["enable_groups"]:
             self.group = randint(1,5)
@@ -45,25 +58,27 @@ class Person(Agent):
             self.direction += randint(-10,10)
         self.forward()
         if self.category == 1:
-            for agent in self.agents_nearby(model["infection_distance"]):
-                if agent.category == 0:
-                    agent.infect(model, Virus(self.virus.mutation))
+            for agent in self.agents_nearby(self.virus.radius):
+                if agent.category == 0 and self.virus.mutation > 0:
+                    agent.infect(model, self.virus.mutate())
             self.virus.infection_level -= 1
             if self.virus.infection_level == 0:
                 self.turn_immune(model)
 
     def infect(self, model, virus):
-        model["S"] -= 1
-        model["I"] += 1
-        self.color = (200,0,0)
-        self.category = 1
-        self.virus = virus
+        if not virus.mutation in self.immunities:
+            model["S"] -= 1
+            model["I"] += 1
+            self.color = (200,150-30*virus.mutation,150-30*virus.mutation)
+            self.category = 1
+            self.virus = virus
 
     def turn_immune(self, model):
         model["I"] -= 1
-        model["R"] += 1
-        self.color = (0,0,200)
-        self.category = 2
+        model["S"] += 1
+        self.color = (200-30*len(self.immunities),200,200-30*len(self.immunities))
+        self.category = 0
+        self.immunities.append(self.virus.mutation)
         self.virus = None
 
 def setup(model):
