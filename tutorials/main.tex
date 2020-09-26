@@ -15,7 +15,7 @@
 \definecolor{linenumbercolor}{rgb}{0.5,0.5,0.5}
 \definecolor{stringcolor}{rgb}{0.58,0,0.82}
 
-\lstset{ 
+\lstset{
   backgroundcolor=\color{white},
   basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
   breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
@@ -380,9 +380,12 @@ Fordi, at virussens opførsel bliver mere avanceret, er det nu nødvendigt at gi
 
 \begin{lstlisting}
   class Virus():
-      def __init__(self,infection_level, mutation):
-          self.infection_level = infection_level
+      def __init__(self, mutation):
+          self.infection_level = 600
           self.mutation = mutation
+
+      def mutate(self):
+          return Virus(self.mutation)
 \end{lstlisting}
 \texttt{infection\_level} skal have samme funktionalitet som før. Vi kommer til at beskrive \texttt{mutation} senere.\\\\
 Erstat nu denne kode i \texttt{Person.setup}:
@@ -394,7 +397,7 @@ med denne:
 \begin{lstlisting}
   self.virus = None
   if randint(1,50) == 1:
-      self.infect(model, Virus(600,5))
+      self.infect(model, Virus(5))
 \end{lstlisting}
 I stedet for at agenten bare "simulerer" en virus ved at bruge sin \texttt{category} og \texttt{infection\_level}, bærer den nu rundt på et \textit{virus-objekt}, der holder styr på dette.\\\\
 Dette betyder så også, at vi skal ændre alle de steder, der har noget at gøre med agentens infektion, til at bruge denne klasse i stedet. Ændr \texttt{Person.infect} til denne:
@@ -430,23 +433,130 @@ til dette:
   if self.category == 1:
       for agent in self.agents_nearby(model["infection_distance"]):
           if agent.category == 0:
-              agent.infect(model, Virus(600,self.virus.mutation))
+              agent.infect(model, self.virus.mutate())
       self.virus.infection_level -= 1
       if self.virus.infection_level == 0:
           self.turn_immune(model)
 \end{lstlisting}
-Her inficerer vi altså den anden agent med et nyt virus-objekt, fremfor "bare" at sætte dens \texttt{infection\_level}. Bemærk, at det også er virussens \texttt{infection\_level}, vi justerer, fremfor agentens eget.\\\\
+Her inficerer vi altså den anden agent med et nyt virus-objekt lavet med \ textt{Virus.mutate}, fremfor "bare" at sætte dens \texttt{infection\_level}.\\\\
 Prøv at køre modellen, og se, om alt kører som det burde. Der burde der ikke være nogen forskel fra sidst.
 
 \subsection{Mutationsstadier}
-Hovedideen med at lave \texttt{Virus}-klassen er, at vi kan gemme information om dens mutationsstadie i den, fremfor at gemme den i agenten, der bærer den.
+Hovedideen med at lave \texttt{Virus}-klassen er, at vi kan gemme information om dens \textit{mutationsstadie} i den, fremfor at gemme den i agenten, der bærer den.\\\\
+Vi vil nu ændre en smule i modellens opsætning. I stedet for, at der kun findes én variant af sygdommen, gør vi nu sådan, at sygdommen kan findes i \textit{flere} varianter, og at man, hvis man har været smittet, kun bliver immun over for den variant, man har været smittet med.\\\\
+Vi starter med at give agenten en liste over immuniteter. Tilføj denne linje til \texttt{Person.setup} inden, at agenten bliver tilfældigt inficeret:
+\begin{lstlisting}
+  self.immunities = []
+\end{lstlisting}
+Denne liste skal så indeholde alle de \textit{mutations}-ID'er for de virusser, den har været smittet med. I den sammenhæng skal vi også checke, at agenten ikke bliver smittet med en immun virus, når den inficeres. I \texttt{Person.infect}, sæt alt koden ind i følgende \texttt{if}-sætning:
+\begin{lstlisting}
+  if not virus.mutation in self.immunities:
+\end{lstlisting}
+Så køres resten af koden ikke, hvis agenten allerede har været smittet med denne variation af virus.\\\\
+Vi vil gerne have mulighed for at se med et øjekast, hvilken slags mutation, en agent er inficeret med. Ændr derfor denne linje i \texttt{Person.infect}:
+\begin{lstlisting}
+  self.color(200,0,0)
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  self.color = (200,150-30*virus.mutation,150-30*virus.mutation)
+\end{lstlisting}
+Jo højere \texttt{Virus.mutation} er, jo mere rød farves agenten.\\\\
+Samtidig ændrer vi nu lidt på \texttt{Person.turn\_immune}, da agenterne i stedet bliver gradvist immune, fremfor at blive komplet immune efter første gang med sygdommen.\\
+Erstat \texttt{Person.turn\_immune} med nedenstående:
+\begin{lstlisting}
+  def turn_immune(self, model):
+      model["I"] -= 1
+      model["S"] += 1
+      self.color = (200-30*len(self.immunities),200,200-30*len(self.immunities))
+      self.category = 0
+      self.immunities.append(self.virus.mutation)
+      self.virus = None
+\end{lstlisting}
+Der er nogle ændringer i forhold til den nuværende:
+\begin{itemize}
+\item I stedet for at sætte agentens kategori til 2, sætter vi den tilbage til 0, da agenten egentlig ikke bliver immun, men går tilbage til at være modtagelig. Af samme årsag lægger vi 1 til \texttt{model["S"]} i stedet for \texttt{model["R"]}.
+\item Agentens farve bliver nu mere grøn, jo mere resistent den er (altså jo flere sygdomme den har haft).
+\item Vi tilføjer virussens "\textit{mutation-ID}" til agentens liste over immuniteter. Den kan altså ikke smittes med denne mutation fremover.
+\end{itemize}
+Ændr i samme omgang også denne linje i \texttt{Person.setup}:
+\begin{lstlisting}
+  self.color = (0,200,0)
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  self.color = (200,200,200)
+\end{lstlisting}
+Vi gør også sådan, at hvis en virus har muteret nok gange, kan den ikke længere smitte. Opdater \texttt{if}-sætningen i smittetrinet i \texttt{Person.step}, sådan at der i stedet for
+\begin{lstlisting}
+  if agent.category == 0:
+      agent.infect(model, self.virus.mutate())
+\end{lstlisting}
+står
+\begin{lstlisting}
+  if agent.category == 0 and self.virus.mutation > 0:
+      agent.infect(model, self.virus.mutate())
+\end{lstlisting}
+Til sidst gør vi sådan, at der er en 25\% chance for, at virussen muterer, når den spredes til en anden agent. Erstat \texttt{Virus.mutate} med:
+\begin{lstlisting}
+  def mutate(self):
+      if randint(1,4) < 4:
+          return Virus(self.mutation)
+      else:
+          return Virus(self.mutation-1)
+\end{lstlisting}
+Prøv at køre modellen nu, og observer grafen. Kan du se, hvordan de forskellige "bølger" af mutationer optræder?
+
+\subsection{Mutationseffekter}
+Lige nu har de forskellige mutationer ikke nogen egentlig forskel, ud over deres farve. Vi laver nu om på det, sådan at deres sygdomsperiode og infektionsradius ændres, når de muterer.\\
+Vi gør dette ved at ændre på den måde, \texttt{Virus}-objektet oprettes på. Erstat \texttt{Virus.\_\_init\_\_} med følgende:
+\begin{lstlisting}
+  def __init__(self, mutation, duration, radius):
+      self.mutation = mutation
+      self.duration = duration
+      self.radius = radius
+      self.infection_level = self.duration
+\end{lstlisting}
+Dette gør, at vi kan specificere varigheden og rækkevidden for et virus-objekt, når vi laver det.\\
+Ændr på samme måde \texttt{Virus.mutate} til følgende:
+\begin{lstlisting}
+  def mutate(self):
+      if randint(1,4) < 4:
+          return Virus(self.mutation,
+                       self.duration,
+                       self.radius)
+      else:
+          return Virus(self.mutation-1,
+                       self.duration + randint(-100,100),
+                       self.radius + randint(-5,5))
+\end{lstlisting}
+Her gør vi sådan, at virussens varighed og rækkevidde justeres en smule, når den muterer.\\\\
+Når vi opretter en ny \texttt{Virus}, bliver vi så nødt til også at give en oprindelig værdi for varighed og rækkevidde. Ændr denne linje i \texttt{Person.setup}:
+\begin{lstlisting}
+  self.infect(model, Virus(5))
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  self.infect(model, Virus(5, 600, model["infection_distance"]))
+\end{lstlisting}
+Til sidst, ændr denne linje i \texttt{Person.step}:
+\begin{lstlisting}
+  for agent in self.agents_nearby(model["infection_distance"]):
+\end{lstlisting}
+til denne:
+\begin{lstlisting}
+  for agent in self.agents_nearby(self.virus.distance):
+\end{lstlisting}
+Prøv at køre modellen og se, om du ser en mærkbar forskel.
+
+\section{Konklusion}
+Godt gået! Du har opbygget en model, der kan simulere smittespredning, forskellige initiativer til at stoppe smitten, og variationer i den virus, der forårsager sygdommen. Regeringen takker dig for din indsats, og trakterer med flybilletter til Mallorca... så snart at grænserne er åbnet igen.
 
 \end{document}
-
-
 % viden om virus
 % mutations (smitte / inkubationstid / immunitet)
 % masker
 % inddelinger i grupper
 % vaccine
 % hold afstand
+
