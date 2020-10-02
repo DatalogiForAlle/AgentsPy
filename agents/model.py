@@ -278,7 +278,7 @@ class ToggleSpec(Spec):
 
 
 class SliderSpec(Spec):
-    def __init__(self, variable, minval, maxval, initial):
+    def __init__(self, variable, initial, minval, maxval):
         self.variable = variable
         self.minval = minval
         self.maxval = maxval
@@ -291,14 +291,12 @@ class CheckboxSpec(Spec):
 
 
 class LineChartSpec(Spec):
-    def __init__(self, variable, color):
-        self.variable = variable
-        self.color = color
-
-class MultiLineChartSpec(Spec):
-    def __init__(self, variables, colors):
+    def __init__(self, variables, colors, min_y, max_y):
         self.variables = variables
         self.colors = colors
+        self.min_y = min_y
+        self.max_y = max_y
+
 
 class MonitorSpec(Spec):
     def __init__(self, variable):
@@ -447,16 +445,14 @@ class Model:
     def update_plots(self):
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
-                plot.add_data(self.variables[plot.spec.variable])
-            elif type(plot.spec) is MultiLineChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(self.variables[d])
+                    dataset.append(getattr(self,d))
                 plot.add_data(dataset)
             elif type(plot.spec) is BarChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(self.variables[d])
+                    dataset.append(getattr(self,d))
                 plot.update_data(dataset)
             elif type(plot.spec) is HistogramSpec:
                 dataset = []
@@ -506,19 +502,26 @@ class Model:
     def add_toggle_button(self, label, func):
         self.current_row.append(ToggleSpec(label, func))
 
-    def add_slider(self, variable, minval, maxval, initial):
+    def add_slider(self, variable, initial, minval=0, maxval=100):
+        if len(self.current_row) > 0:
+            self.add_controller_row()
+        setattr(self, variable, initial)
         self.variables[variable] = initial
-        self.current_row.append(SliderSpec(variable, minval, maxval, initial))
+        self.current_row.append(SliderSpec(variable, initial, minval, maxval))
 
     def add_checkbox(self, variable):
-        self.variables[variable] = False
+        if len(self.current_row) > 0:
+            self.add_controller_row()
+        setattr(self, variable, False)
         self.current_row.append(CheckboxSpec(variable))
 
-    def line_chart(self, variable, color):
-        self.plot_specs.append(LineChartSpec(variable, color))
+    def monitor(self, variable):
+        if len(self.current_row) > 0:
+            self.add_controller_row()
+        self.current_row.append(MonitorSpec(variable))
 
-    def multi_line_chart(self, variables, colors):
-        self.plot_specs.append(MultiLineChartSpec(variables, colors))
+    def line_chart(self, variables, colors, min_y=None, max_y=None):
+        self.plot_specs.append(LineChartSpec(variables, colors, min_y, max_y))
 
     def bar_chart(self, variables, color):
         self.plot_specs.append(BarChartSpec(variables, color))
@@ -527,9 +530,6 @@ class Model:
         self.plot_specs.append(
             HistogramSpec(variable, minimum, maximum, bins, color)
         )
-
-    def monitor(self, variable):
-        self.current_row.append(MonitorSpec(variable))
 
     def add_ellipse(self,x,y,w,h,color):
         new_shape = EllipseStruct(x,y,w,h,color)
