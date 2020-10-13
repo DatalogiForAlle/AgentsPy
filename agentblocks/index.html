@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Test</title>
+  <script src="../blockly/blockly_compressed.js"></script>
+  <script src="../blockly/javascript_compressed.js"></script>
+  <script src="../blockly/blocks_compressed.js"></script>
+  <script src="../blockly/msg/js/en.js"></script>
+  <script src="agentspy.js"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+  </style>
+</head>
+<body>
+  <h1>demo!!</h1>
+
+  <p>this is a blockly demo</p>
+
+  <canvas id="simulationArea" width="800px" height="800px" style="border:1px solid #000000;display:inline-block;"></canvas>
+
+  <div id="blocklyDiv" style="height: 800px; width: 50%; display:inline-block;"></div>
+
+  <xml id="toolbox" style="display: none">
+    <block type="controls_if"></block>
+    <block type="logic_compare"></block>
+    <block type="controls_repeat_ext"></block>
+    <block type="math_number"></block>
+    <block type="math_arithmetic"></block>
+    <block type="text"></block>
+    <block type="text_print"></block>
+	<block type="agentspy_addagent"></block>
+	<block type="agentspy_forall"></block>
+	<block type="agentspy_forward"></block>
+	<block type="agentspy_randint"></block>
+	<block type="agentspy_nearbyagents"></block>
+	<block type="agentspy_variable"></block>
+	<block type="agentspy_assign"></block>
+	<block type="agentspy_distanceto"></block>
+	<block type="agentspy_directionto"></block>
+  </xml>
+
+  <button onclick="setup()" id="setupButton" >Setup</button>
+  <button onclick="toggleGo()" id="goButton" >Go</button>
+  <button onclick="printcode()" id="printButton" >Print code</button>
+
+  <script src="index.js"></script>
+</body>
+</html>
