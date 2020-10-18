@@ -7,7 +7,8 @@
   <script src="../blockly/javascript_compressed.js"></script>
   <script src="../blockly/blocks_compressed.js"></script>
   <script src="../blockly/msg/js/en.js"></script>
-  <script src="agentspy.js"></script>
+  <script src="agentspy_def.js"></script>
+  <script src="agentspy_gen.js"></script>
   <style>
     body {
       background-color: #fff;
@@ -29,22 +30,35 @@
   <div id="blocklyDiv" style="height: 800px; width: 50%; display:inline-block;"></div>
 
   <xml id="toolbox" style="display: none">
-    <block type="controls_if"></block>
-    <block type="logic_compare"></block>
-    <block type="controls_repeat_ext"></block>
-    <block type="math_number"></block>
-    <block type="math_arithmetic"></block>
-    <block type="text"></block>
-    <block type="text_print"></block>
-	<block type="agentspy_addagent"></block>
-	<block type="agentspy_forall"></block>
-	<block type="agentspy_forward"></block>
-	<block type="agentspy_randint"></block>
-	<block type="agentspy_nearbyagents"></block>
-	<block type="agentspy_variable"></block>
-	<block type="agentspy_assign"></block>
-	<block type="agentspy_distanceto"></block>
-	<block type="agentspy_directionto"></block>
+	<category name="Control">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="controls_repeat_ext"></block>
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+	  <block type="text"></block>
+	</category>
+	<category name="Agents">
+	  <block type="agentspy_allagents"></block>
+	  <block type="agentspy_randint"></block>
+	  <block type="agentspy_nearbyagents"></block>
+	  <block type="agentspy_variable"></block>
+	  <block type="agentspy_assign"></block>
+	  <block type="agentspy_distanceto"></block>
+	  <block type="agentspy_addagent"></block>
+	  <block type="agentspy_foreach"></block>
+	  <block type="agentspy_currenttile"></block>
+	  <block type="agentspy_centerintile"></block>
+	  <block type="agentspy_jumpto"></block>
+	  <block type="agentspy_jumptotile"></block>
+	  <block type="agentspy_getagent"></block>
+	  <block type="agentspy_gettile"></block>
+	  <block type="agentspy_pointtowards"></block>
+	  <block type="agentspy_forward"></block>
+	  <block type="agentspy_turnleft"></block>
+	  <block type="agentspy_nearbytiles"></block>
+	  <block type="agentspy_neighbortiles"></block>
+	</category>
   </xml>
 
   <button onclick="setup()" id="setupButton" >Setup</button>
