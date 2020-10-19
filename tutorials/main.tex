@@ -63,7 +63,7 @@ Før vi begynder at lave agenter, der kan simulere smittespredning, skal vi før
 
   run(epidemic_model)
 \end{lstlisting}
-Linje 1 gør sådan, at alle funktionaliteterne i biblioteket\texttt{AgentsPy} kan bruges i filen. Det er det bibliotek, der giver adgang til alle de nødvendige funktioner.\\
+Linje 1 gør sådan, at alle funktionaliteterne i biblioteket \texttt{AgentsPy} kan bruges i filen. Det er det bibliotek, der giver adgang til alle de nødvendige funktioner.\\
 Linje 3 laver en model med 100x100 \textit{tiles} (felter), og navnet \textit{Epidemimodel}.\\
 Linje 5 starter modellen.\\
 Prøv at køre programmet, og se, hvad der sker. Der burde vises et vindue af en sort firkant. Dette er en tom model.\\\\
@@ -299,7 +299,7 @@ Kør det resulterende program, og observer effekten. For at gøre det mere reali
 
 \subsection{Inddeling i grupper}
 \textit{Forslag: Agenter inddeles i grupper, og holder afstand til andre grupper.}\\\\
-Det er meget effektivt at undgå de syge agenter, men i virkeligheden kan det være svært at se med det samme, om nogen er smittede, specielt da folk kan have varierende grader af symptomer. Derfor prøver vi nu en ny taktik: Folk inddeles i grupper på 5, og må kun have kontakt med dem, der er i samme gruppe.\\\\
+Det er meget effektivt at undgå de syge agenter, men i virkeligheden kan det være svært at se med det samme, om nogen er smittede, specielt da folk kan have varierende grader af symptomer. Derfor prøver vi nu en ny taktik: Folk inddeles i 5 grupper, og må kun have kontakt med dem, der er i samme gruppe.\\\\
 I takt med, at vi indfører forskellige tiltag til at begrænse smitten, kunne det være smart, hvis vi kunne slå disse tiltag til og fra, uden at vi behøvede at ændre i koden hver gang. Vi starter derfor med at tilføje en \textit{checkbox}, så man kan slå grupperne til og fra. Tilføj denne linje efter, at du har tilføjet knapperne til modellen:
 \begin{lstlisting}
   epidemic_model.add_checkbox("enable_groups")
@@ -548,9 +548,6 @@ til denne:
   for agent in self.agents_nearby(self.virus.distance):
 \end{lstlisting}
 Prøv at køre modellen og se, om du ser en mærkbar forskel.
-
-\section{Konklusion}
-Godt gået! Du har opbygget en model, der kan simulere smittespredning, forskellige initiativer til at stoppe smitten, og variationer i den virus, der forårsager sygdommen. Regeringen takker dig for din indsats, og trakterer med flybilletter til Mallorca... så snart at grænserne er åbnet igen.
 
 \end{document}
 % viden om virus
