@@ -3,21 +3,8 @@
 Model
 =====
 
-Description
------------
-Models contain the agents and tiles that make up the simulation. They also provide some functionality for manipulating said simulation, such as buttons, and ways to visualize simulation data, such as graphs.
-
-To run a model, use
-::
-
-    agents.run(model)
-
-where ``model`` is a reference to your model.
-
-The model class itself also acts as a dictionary, so key-value pairs may be stored in a specific model. For example:
-::
-
-    model["foo"] = 42
+.. autoclass:: agents.Model
+   :members:
 
 Fields
 ------
