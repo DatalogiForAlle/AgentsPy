@@ -13,7 +13,13 @@ class AgentShape(Enum):
 
 
 class Agent:
+    """
+    Agents are the units that make up the "active" portion of the model. They generally move around the model area, interacting with each other.
+    """
     def __init__(self):
+        """
+        Creates an agent with a random position, direction and color. Has no initial model; this must be provided by ``Agent.set_model``.
+        """
         # Destroyed agents are not drawn and are removed from their area.
         self.__destroyed = False
 
@@ -30,10 +36,14 @@ class Agent:
         self.__color = (int(r*255), int(g*255), int(b*255))
 
         self.x = 0
+        """The x-coordinate of the agent."""
         self.y = 0
+        """The y-coordinate of the agent."""
         self.size = 8
+        """The size of the agent. If the agent is drawn as a circle, this is equivalent to its diameter."""
         self.__direction = random.randint(0, 359)
         self.speed = 1
+        """The speed of the agent. This is the default distance it will move when calling forward or backward."""
         self.__current_tile = None
         self.selected = False
         self.shape = AgentShape.ARROW
@@ -43,10 +53,23 @@ class Agent:
 
     # Should be overwritten by a subclass
     def setup(self, model):
+        """
+        This method is run when the agent is added to a model. The method is empty by default, and is intented to be overwritten by a subclass.
+
+        Parameters
+        ----------
+        model
+            The model object that the agent has been added to.
+        """
         pass
 
     # Update current tile
     def update_current_tile(self):
+        """
+        Updates the tile that the agent is currently standing on.
+
+        Effectively, this removes the agent from the set of agents standing on the previous tile, and adds it to the set of agents standing on the current tile.
+        """
         new_tile = self.current_tile()
         if not self.__current_tile:
             self.__current_tile = new_tile
@@ -77,7 +100,7 @@ class Agent:
 
     def center_in_tile(self):
         """
-        Move the agent to the center of the tile it is standing on
+        Move the agent to the center of the tile it is standing on.
         """
         w = self.__model.width
         h = self.__model.height
@@ -89,7 +112,14 @@ class Agent:
 
     def jump_to(self, x, y):
         """
-        Move the agent to a specified point
+        Move the agent to a specified point.
+
+        Parameters
+        ----------
+        x
+            Destination x-coordinate.
+        y
+            Destination y-coordinate.
         """
         self.x = x
         self.y = y
@@ -97,7 +127,12 @@ class Agent:
 
     def jump_to_tile(self, t):
         """
-        Move the agent to the center of a specified tile
+        Move the agent to the center of a specified tile.
+
+        Parameters
+        ----------
+        t
+            Destination tile.
         """
         w = self.__model.width
         h = self.__model.height
@@ -110,13 +145,27 @@ class Agent:
 
     def set_model(self, model):
         """
-        Set the model of the agent
+        Provides the Model object that the agents belongs to.
+
+        The stored model is used in other methods such as ``Agent.agents_nearby`` and ``Agent.current_tile``, which rely on information about other objects in the model.
+
+        Parameters
+        ----------
+        model
+            The model to assign the agent to.
         """
         self.__model = model
 
     def direction_to(self, other_x, other_y):
         """
-        Calculate the direction in degrees from the agent to a given point
+        Calculate the direction in degrees from the agent to a given point.
+
+        Parameters
+        ----------
+        other_x
+            The x-coordinate of the target point.
+        other_y
+            The y-coordinate of the target point.
         """
         direction = 0
         dist = self.distance_to(other_x, other_y)
@@ -128,7 +177,14 @@ class Agent:
 
     def point_towards(self, other_x, other_y):
         """
-        Make the agent orient itself towards a given point
+        Make the agent orient itself towards a given point.
+
+        Parameters
+        ----------
+        other_x
+            The x-coordinate of the target point.
+        other_y
+            The y-coordinate of the target point.
         """
         dist = self.distance_to(other_x, other_y)
         if dist > 0:
@@ -139,6 +195,11 @@ class Agent:
     def forward(self, distance=None):
         """
         Moves the agent forward in the direction it is currently facing.
+
+        Parameters
+        ----------
+        Distance
+            The distance to move the agent. If none is specified, it moves a distance equal to its speed-attribute.
         """
         if distance is None:
             distance = self.speed
@@ -148,7 +209,12 @@ class Agent:
 
     def backward(self, distance=None):
         """
-        Moves the agent in the opposite direction of its current orientation
+        Moves the agent in the opposite direction of its current orientation.
+
+        Parameters
+        ----------
+        Distance
+            The distance to move the agent. If none is specified, it moves a distance equal to its speed-attribute.
         """
         if distance is None:
             distance = self.speed
@@ -158,19 +224,36 @@ class Agent:
 
     def left(self, degrees):
         """
-        Make the agent turn left (counter clockwise) the given number of degrees
+        Make the agent turn left (counter clockwise) the given number of degrees.
+
+        Parameters
+        ----------
+        degrees
+            The amount of degrees to turn.
         """
         self.direction += degrees
 
     def right(self, degrees):
         """
-        Make the agent turn right (clockwise) the given number of degrees
+        Make the agent turn right (clockwise) the given number of degrees.
+
+        Parameters
+        ----------
+        degrees
+            The amount of degrees to turn.
         """
         self.direction -= degrees
 
     def distance_to(self, other_x, other_y):
         """
         Returns the distance between the agent and another point.
+
+        Parameters
+        ----------
+        other_x
+            The x-coordinate of the target point.
+        other_y
+            The y-coordinate of the target point.
         """
         return ((self.x - other_x) ** 2 + (self.y - other_y) ** 2) ** 0.5
 
@@ -178,6 +261,13 @@ class Agent:
         """
         Returns a list of nearby agents.
         May take a type as argument and only return agents of that type.
+
+        Parameters
+        ----------
+        distance
+            The radius around the agent to search in.
+        agent_type
+            If provided, only returns agents of this type.
         """
         nearby = set()
         for a in self.__model.agents:
@@ -188,7 +278,9 @@ class Agent:
 
     def current_tile(self):
         """
-        Returns the tile that the agent is currently standing on.
+        Returns the tile that the agent is currently standing on, based on its coordinates.
+
+        The tile returned is the one that overlaps with the exact center of the agent, so even if the agent visually covers multiple tiles due to its size, only one tile is returned.
         """
         x = math.floor((self.__model.x_tiles * self.x) / self.__model.width)
         y = math.floor((self.__model.y_tiles * self.y) / self.__model.height)
@@ -203,6 +295,17 @@ class Agent:
     def nearby_tiles(self, x1, y1, x2, y2):
         """
         Returns a rectangle of tiles relative to the agent's current position.
+
+        Parameters
+        ----------
+        x1
+            The x-coordinate of the top-left tile (relative to the current tile).
+        y1
+            The y-coordinate of the top-left tile (relative to the current tile).
+        x2
+            The x-coordinate of the bottom-right tile (relative to the current tile).
+        y2
+            The y-coordinate of the bottom-right tile (relative to the current tile).
         """
         tile = self.__current_tile
         tiles = []
@@ -213,7 +316,7 @@ class Agent:
 
     def is_destroyed(self):
         """
-        Returns True or false whether or not the agent is destroyed
+        Returns True or False whether or not the agent is destroyed.
         """
         return self.__destroyed
 
@@ -226,6 +329,7 @@ class Agent:
 
     @property
     def color(self):
+        """The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255, 255, 255) to color the agent white."""
         return self.__color
 
     @color.setter
@@ -235,6 +339,7 @@ class Agent:
 
     @property
     def direction(self):
+        """The direction of the agent, measured in degrees."""
         return self.__direction % 360
 
     @direction.setter
@@ -243,21 +348,47 @@ class Agent:
 
 
 class Tile:
+    """
+    A square, of which many make up the "floor" of the model.
+    """
     def __init__(self, x, y, model):
         self.x = x
+        """The x-coordinate of the tile."""
         self.y = y
+        """The y-coordinate of the tile."""
         self.info = {}
+        """A dictionary, which may be used to store key-value pairs in the tile."""
         self.color = (0, 0, 0)
+        """The color of the tile. Must be provided as an RGB 3-tuple, e.g. (255, 255, 255) to color the tile white."""
         self.__agents = set()
         self.__model = model
 
     def add_agent(self, agent):
+        """
+        Adds an Agent to the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
+
+        Parameters
+        ----------
+        agent
+            The agent to add.
+        """
         self.__agents.add(agent)
 
     def remove_agent(self, agent):
+        """
+        Removes an Agent ``agent`` from the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
+
+        Parameters
+        ----------
+        agent
+            The agent to remove.
+        """
         self.__agents.discard(agent)
 
     def get_agents(self):
+        """
+        Gets the set of agents currently on the tile.
+        """
         return self.__agents
 
 
@@ -340,6 +471,14 @@ class RectStruct():
         self.color = color
 
 class Model:
+    """
+    Models contain the agents and tiles that make up the simulation. They also provide some functionality for manipulating said simulation, such as buttons, and ways to visualize simulation data, such as graphs.
+
+    To run a model, use
+    ::
+
+        agents.run(model)
+    """
     def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8,
                  cell_data_file=None):
         # Title of model, shown in window title
