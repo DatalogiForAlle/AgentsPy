@@ -82,8 +82,16 @@ class Agent:
 
     # Makes the agent wrap around the simulation area
     def __wraparound(self):
-        self.x = self.x % self.__model.width
-        self.y = self.y % self.__model.height
+        # We've found need to introduce this hack, where we do modulus
+        # twice, as there's some problems with the built-in Python
+        # modulus operator
+        # Example where it's necessary:
+        #   >>> -1.8369701987210297e-16 % 400
+        #   400.0
+        #
+        # This should've returned 0.
+        self.x = self.x % self.__model.width % self.__model.width
+        self.y = self.y % self.__model.height % self.__model.height
 
     # If the agent is outside the simulation area,
     # return it to the closest point inside
