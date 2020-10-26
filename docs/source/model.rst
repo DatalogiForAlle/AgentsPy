@@ -3,6 +3,13 @@
 Model
 =====
 
+Models contain the agents and tiles that make up the simulation. They also provide some functionality for manipulating said simulation, such as buttons, and ways to visualize simulation data, such as graphs.
+
+To run a model, use
+::
+
+   agents.run(model)
+
 .. autoclass:: agents.Model
    :members:
 
@@ -52,21 +59,6 @@ Methods
     If no ``cell_data_file`` is specified, creates a model with the given title, number of tiles on the x and y axis, and size of each tile may also be defined.
 
     If a string is given for ``cell_data_file``, tile-data is stored in the model based on the specifications in the file.
-
-    *Cell-data file format:*
-
-    The two initial are not parsed, and may contain information about the cell-data or other comments. The third line must contain a set of column names, seperated by tabs. The column names specify the names of variables stored by each tile. The first and second column cannot be used for variables, but must instead contain x and y coordinates, respectively.
-
-    The remaining lines of the file should then contain the coordinates and variable data. The start of a cell-data file might look like this:
-    ::
-
-       This file contains cell data for a model where each cell/tile has some resource.
-       The data specifies the rate of resource production and max resource content for each cell.
-       x	y	prod	max_res
-       0	0	0.15	10.0
-       1	0	0.20	20.0
-       2	0	0.05	30.0
-       3	0	0.35	5.0
        ...
 
     Note that the values specified in the file are not immediately applied to the tiles, but must
@@ -148,3 +140,19 @@ Methods
 
 * ``wrapping()``
     Returns a bool signaling whether or not the model has wrapping enabled.
+
+Cell-data file format
+---------------------
+The two initial are not parsed, and may contain information about the cell-data or other comments. The third line must contain a set of column names, seperated by tabs. The column names specify the names of variables stored by each tile. The first and second column cannot be used for variables, but must instead contain x and y coordinates, respectively.
+
+The remaining lines of the file should then contain the coordinates and variable data. The start of a cell-data file might look like this:
+::
+
+   This file contains cell data for a model where each cell/tile has some resource.
+   The data specifies the rate of resource production and max resource content for each cell.
+   x	y	prod	max_res
+   0	0	0.15	10.0
+   1	0	0.20	20.0
+   2	0	0.05	30.0
+   3	0	0.35	5.0
+   ...

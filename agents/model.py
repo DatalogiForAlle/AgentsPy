@@ -14,12 +14,9 @@ class AgentShape(Enum):
 
 class Agent:
     """
-    Agents are the units that make up the "active" portion of the model. They generally move around the model area, interacting with each other.
+    Creates an agent with a random position, direction and color. Has no initial model; this must be provided by ``Agent.set_model``.
     """
     def __init__(self):
-        """
-        Creates an agent with a random position, direction and color. Has no initial model; this must be provided by ``Agent.set_model``.
-        """
         # Destroyed agents are not drawn and are removed from their area.
         self.__destroyed = False
 
@@ -36,14 +33,10 @@ class Agent:
         self.__color = (int(r*255), int(g*255), int(b*255))
 
         self.x = 0
-        """The x-coordinate of the agent."""
         self.y = 0
-        """The y-coordinate of the agent."""
         self.size = 8
-        """The size of the agent. If the agent is drawn as a circle, this is equivalent to its diameter."""
         self.__direction = random.randint(0, 359)
         self.speed = 1
-        """The speed of the agent. This is the default distance it will move when calling forward or backward."""
         self.__current_tile = None
         self.selected = False
         self.shape = AgentShape.ARROW
@@ -349,17 +342,22 @@ class Agent:
 
 class Tile:
     """
-    A square, of which many make up the "floor" of the model.
+    Creates a tile. *x* and *y* is the tile's position in the *tile grid*, not absolute coordinates for the model.
+
+    Parameters
+    ----------
+    x
+        The tile's x-coordinate in the tile grid.
+    y
+        The tile's y-cooridnate in the tile grid.
+    model
+        The model that the tile is a part of.
     """
     def __init__(self, x, y, model):
         self.x = x
-        """The x-coordinate of the tile."""
         self.y = y
-        """The y-coordinate of the tile."""
         self.info = {}
-        """A dictionary, which may be used to store key-value pairs in the tile."""
         self.color = (0, 0, 0)
-        """The color of the tile. Must be provided as an RGB 3-tuple, e.g. (255, 255, 255) to color the tile white."""
         self.__agents = set()
         self.__model = model
 
@@ -472,12 +470,20 @@ class RectStruct():
 
 class Model:
     """
-    Models contain the agents and tiles that make up the simulation. They also provide some functionality for manipulating said simulation, such as buttons, and ways to visualize simulation data, such as graphs.
+    Creates a model with the given title. There are two ways of creating a model; creating a blank model of size *x_tiles* times *y_tiles* with no predetermined data, or creating a model with predetermined data from a *cell_data_fille*.
 
-    To run a model, use
-    ::
-
-        agents.run(model)
+    Parameters
+    ----------
+    title
+        The title of the model (to show in the simulation window).
+    x_tiles
+        The number of tiles on the x-axis. Ignored if a *cell_data_file* is provided.
+    y_tiles
+        The number of tiles on the y-axis. Ignored if a *cell_data_file* is provided.
+    tile_size
+        The width/height of each tile in pixels.
+    cell_data_file
+        If provided, generates a model from the data file instead.
     """
     def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8,
                  cell_data_file=None):
