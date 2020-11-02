@@ -407,7 +407,7 @@ class ToggleSpec(Spec):
 
 
 class SliderSpec(Spec):
-    def __init__(self, variable, minval, maxval, initial):
+    def __init__(self, variable, initial, minval, maxval):
         self.variable = variable
         self.minval = minval
         self.maxval = maxval
@@ -420,14 +420,12 @@ class CheckboxSpec(Spec):
 
 
 class LineChartSpec(Spec):
-    def __init__(self, variable, color):
-        self.variable = variable
-        self.color = color
-
-class MultiLineChartSpec(Spec):
-    def __init__(self, variables, colors):
+    def __init__(self, variables, colors, min_y, max_y):
         self.variables = variables
         self.colors = colors
+        self.min_y = min_y
+        self.max_y = max_y
+
 
 class MonitorSpec(Spec):
     def __init__(self, variable):
@@ -645,16 +643,14 @@ class Model:
         """
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
-                plot.add_data(self.variables[plot.spec.variable])
-            elif type(plot.spec) is MultiLineChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(self.variables[d])
+                    dataset.append(getattr(self,d))
                 plot.add_data(dataset)
             elif type(plot.spec) is BarChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(self.variables[d])
+                    dataset.append(getattr(self,d))
                 plot.update_data(dataset)
             elif type(plot.spec) is HistogramSpec:
                 dataset = []
@@ -730,7 +726,8 @@ class Model:
         """
         self.current_row.append(ToggleSpec(label, func))
 
-    def add_slider(self, variable, minval, maxval, initial):
+
+    def add_slider(self, variable, initial, minval=0, maxval=100):
         """
         Adds a slider that can be used to adjust the value of a variable in the model.
 
@@ -745,8 +742,11 @@ class Model:
         initial
             The initial value of the variable.
         """
+        if len(self.current_row) > 0:
+            self.add_controller_row()
+        setattr(self, variable, initial)
         self.variables[variable] = initial
-        self.current_row.append(SliderSpec(variable, minval, maxval, initial))
+        self.current_row.append(SliderSpec(variable, initial, minval, maxval))
 
     def add_checkbox(self, variable):
         """
@@ -757,23 +757,12 @@ class Model:
         variable
             The name of the variable to adjust. Must be provided as a string.
         """
-        self.variables[variable] = False
+        if len(self.current_row) > 0:
+            self.add_controller_row()
+        setattr(self, variable, False)
         self.current_row.append(CheckboxSpec(variable))
 
-    def line_chart(self, variable, color):
-        """
-        Adds a line chart to the simulation window that shows the trend of a given variable over time.
-
-        Parameters
-        ----------
-        variable
-            The name of the variable. Must be provided as a string.
-        color
-            The color of the line.
-        """
-        self.plot_specs.append(LineChartSpec(variable, color))
-
-    def multi_line_chart(self, variables, colors):
+    def line_chart(self, variables, colors, min_y=None, max_y=None):
         """
         Adds a line chart to the simulation window that shows the trend of multiple variables over time.
 
@@ -783,8 +772,12 @@ class Model:
             The names of the variables. Must be provided as a list of strings.
         colors
             The color of each line.
+        min_y
+            The minimum value on the y-axis.
+        max_y
+            The maximum value on the y-axis.
         """
-        self.plot_specs.append(MultiLineChartSpec(variables, colors))
+        self.plot_specs.append(LineChartSpec(variables, colors, min_y, max_y))
 
     def bar_chart(self, variables, color):
         """
@@ -829,6 +822,8 @@ class Model:
         variable
             The variable to monitor.
         """
+        if len(self.current_row) > 0:
+            self.add_controller_row()
         self.current_row.append(MonitorSpec(variable))
 
     def add_ellipse(self,x,y,w,h,color):

@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
   name='AgentsPy',
   packages=['agents'],
-  version='0.2',
+  version='0.5',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
   long_description=long_description,

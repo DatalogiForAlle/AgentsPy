@@ -21,7 +21,6 @@ from agents.model import (
     SliderSpec,
     CheckboxSpec,
     LineChartSpec,
-    MultiLineChartSpec,
     BarChartSpec,
     HistogramSpec,
     MonitorSpec,
@@ -186,63 +185,6 @@ class QtGraph(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.createDefaultAxes()
-        self.chart.setTitle(self.spec.variable)
-        self.chart.legend().hide()
-        self.series = QLineSeries()
-        self.series.setColor(
-            QColor(spec.color[0], spec.color[1], spec.color[2])
-        )
-        self.setMinimumWidth(400)
-        self.setMinimumHeight(230)
-
-        self.axis_x = QValueAxis()
-        self.axis_y = QValueAxis()
-        self.chart.addSeries(self.series)
-        self.chart.setAxisX(self.axis_x, self.series)
-        self.chart.setAxisY(self.axis_y, self.series)
-
-        self.setChart(self.chart)
-        self.setRenderHint(QPainter.Antialiasing)
-
-        self._updates_per_second = 10
-        self._data = []
-        self._min = 0
-        self._max = 0
-
-    def clear(self):
-        self.series.clear()
-        self._data = []
-
-    def add_data(self, data):
-        self._data.append(data)
-
-    def redraw(self):
-        if len(self._data) > 0:
-            datapoint = sum(self._data) / len(self._data)
-            self.series.append(
-                QPointF(
-                    self.series.count() / self._updates_per_second, datapoint
-                )
-            )
-            self.axis_x.setRange(
-                0, (self.series.count() - 1) / self._updates_per_second
-            )
-            self._min = min(self._min, datapoint)
-            self._max = max(self._max, datapoint)
-            diff = self._max - self._min
-            if diff > 0:
-                self.axis_y.setRange(self._min, self._max)
-            else:
-                self.axis_y.setRange(self._min - 0.5, self._max + 0.5)
-            self._data = []
-
-
-class QtMultiGraph(QChartView):
-    def __init__(self, spec):
-        super().__init__(None)
-        self.spec = spec
-        self.chart = QChart()
         self.chart.setTitle(str(self.spec.variables))
         self.chart.legend().hide()
 
@@ -257,6 +199,10 @@ class QtMultiGraph(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
         self.chart.createDefaultAxes()
+        self.autoscale_y_axis = True
+        if self.spec.min_y and self.spec.max_y:
+            self.autoscale_y_axis = False
+            self.chart.axes()[1].setRange(self.spec.min_y,self.spec.max_y)
 
         self._updates_per_second = 60
         self._data = []
@@ -284,10 +230,11 @@ class QtMultiGraph(QChartView):
         self.chart.axes()[0].setRange(0, (self.chart.series()[0].count() - 1) /
                                       self._updates_per_second)
         diff = self._max - self._min
-        if diff > 0:
-            self.chart.axes()[1].setRange(self._min,self._max)
-        else:
-            self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+        if self.autoscale_y_axis:
+            if diff > 0:
+                self.chart.axes()[1].setRange(self._min,self._max)
+            else:
+                self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
         self._data = []
 
 
@@ -533,7 +480,7 @@ class Application:
 
         def update_variable(v):
             value = v / slider.sliderBar.factor
-            self.model[slider_spec.variable] = value
+            setattr(self.model, slider_spec.variable, value)
             slider.indicator.setText(str(value))
 
         slider.sliderBar.valueChanged.connect(update_variable)
@@ -557,11 +504,6 @@ class Application:
 
     def add_line_chart(self, line_chart_spec, plots_box):
         chart = QtGraph(line_chart_spec)
-        plots_box.addWidget(chart)
-        self.model.plots.add(chart)
-
-    def add_multi_line_chart(self, multi_line_chart_spec, plots_box):
-        chart = QtMultiGraph(multi_line_chart_spec)
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
 
@@ -602,8 +544,6 @@ class Application:
         for plot_spec in plot_specs:
             if type(plot_spec) is LineChartSpec:
                 self.add_line_chart(plot_spec, plots_box)
-            elif type(plot_spec) is MultiLineChartSpec:
-                self.add_multi_line_chart(plot_spec, plots_box)
             elif type(plot_spec) is BarChartSpec:
                 self.add_bar_chart(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:
