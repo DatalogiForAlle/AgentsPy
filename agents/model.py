@@ -483,7 +483,7 @@ class Model:
     tile_size
         The width/height of each tile in pixels.
     cell_data_file
-        If provided, generates a model from the data file instead.
+        If provided, generates a model from the data file instead. The data is not immediately to the tiles, but must be applied with ``Model.reload()``.
     """
     def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8,
                  cell_data_file=None):
@@ -536,6 +536,16 @@ class Model:
         self._shapes = []
 
     def add_agent(self, agent, setup=True):
+        """
+        Adds an agent to the model.
+
+        Parameters
+        ----------
+        agent
+            The agent to add to the model.
+        setup
+            Whether or not to run the agent's ``setup`` function (default ``True``).
+        """
         agent.set_model(self)
         agent.x = random.randint(0, self.width)
         agent.y = random.randint(0, self.height)
@@ -545,10 +555,28 @@ class Model:
             agent.setup(self)
 
     def add_agents(self, agents):
+        """
+        Adds a collection of agents.
+
+        Parameters
+        ----------
+        agents
+            The agents to add.
+        """
         for a in agents:
             self.add_agent(a)
 
     def tile(self, x, y):
+        """
+        Returns the tile at the (x,y) position in the tile-grid (*not* the (x,y) position of the simulation area).
+
+        Parameters
+        ----------
+        x
+            The x-coordinate of the tile.
+        y
+            The y-coordinate of the tile.
+        """
         row = y % self.y_tiles
         column = x % self.x_tiles
         return self.tiles[row * self.x_tiles + column]
@@ -559,6 +587,16 @@ class Model:
     # /answers
     # /how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
+        """
+        Returns a list of agents in the model, ordered based on one of their attributes. Agents who do not have the attribute are not included in the list.
+
+        Parameters
+        ----------
+        variable
+            The attribute to order by.
+        increasing
+            Whether or not to order the agents in increasing or decreasing order (default ``True``).
+        """
         # Only returns the list of agents that actually have that attribute
         agent_list = filter(lambda a: hasattr(a, variable), self.__agents)
         ret_list = sorted(agent_list, key=operator.attrgetter(variable))
@@ -568,6 +606,15 @@ class Model:
 
     # Destroys all agents, clears the agent set, and resets all tiles.
     def reset(self):
+        """
+        Resets the model by doing the following:
+        * Destroys all agents.
+        * Clears the set of agents.
+        * Clears the set of shapes.
+        * Clears all tiles (removes all of their ``info`` and colors them black).
+        * Clears all plots.
+        * Unpauses the model.
+        """
         for a in self.__agents:
             a.destroy()
         self.__agents = []
@@ -581,6 +628,9 @@ class Model:
         self.unpause()
 
     def reload(self):
+        """
+        Applies the data from the cell-data-file to the tiles in the model. Only usable if the model was created with a ``cell_data_file`` in the constructor.
+        """
         for tile_data in self.load_data:
             x = int(tile_data[0])
             y = int(tile_data[1])
@@ -590,6 +640,9 @@ class Model:
                 tile.info[variable] = float(tile_data[i])
 
     def update_plots(self):
+        """
+        Updates all plots with the relevant data. Usually called in each iteration of the simulation (i.e. in a ``step`` function or similar).
+        """
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
                 plot.add_data(self.variables[plot.spec.variable])
@@ -625,6 +678,9 @@ class Model:
         self.__agents = new_agents
 
     def clear_plots(self):
+        """
+        Clears the data from all plots.
+        """
         for plot in self.plots:
             plot.clear()
 
@@ -642,80 +698,242 @@ class Model:
                 a.selected = True
 
     def add_controller_row(self):
+        """
+        Creates a new row to place controller widgets on (buttons, sliders, etc.).
+        """
         self.current_row = []
         self.controller_rows.append(self.current_row)
 
     def add_button(self, label, func):
+        """
+        Adds a button that runs a provided function when pressed.
+
+        Parameters
+        ----------
+        label
+            The label on the button.
+        func
+            The function to run when the button is pressed.
+        """
         self.current_row.append(ButtonSpec(label, func))
 
     def add_toggle_button(self, label, func):
+        """
+        Adds a button that runs a provided function while toggled on. Initially off.
+
+        Parameters
+        ----------
+        label
+            The label on the button.
+        func
+            The function to run while the button is toggled on.
+        """
         self.current_row.append(ToggleSpec(label, func))
 
     def add_slider(self, variable, minval, maxval, initial):
+        """
+        Adds a slider that can be used to adjust the value of a variable in the model.
+
+        Parameters
+        ----------
+        variable
+            The name of the variable to adjust. Must be privded as a string.
+        minval
+            The minimum value of the variable.
+        maxval
+            The maximum value of the variable.
+        initial
+            The initial value of the variable.
+        """
         self.variables[variable] = initial
         self.current_row.append(SliderSpec(variable, minval, maxval, initial))
 
     def add_checkbox(self, variable):
+        """
+        Adds a checkbox that can be used to change the value of a variable between true and false.
+
+        Parameters
+        ----------
+        variable
+            The name of the variable to adjust. Must be provided as a string.
+        """
         self.variables[variable] = False
         self.current_row.append(CheckboxSpec(variable))
 
     def line_chart(self, variable, color):
+        """
+        Adds a line chart to the simulation window that shows the trend of a given variable over time.
+
+        Parameters
+        ----------
+        variable
+            The name of the variable. Must be provided as a string.
+        color
+            The color of the line.
+        """
         self.plot_specs.append(LineChartSpec(variable, color))
 
     def multi_line_chart(self, variables, colors):
+        """
+        Adds a line chart to the simulation window that shows the trend of multiple variables over time.
+
+        Parameters
+        ----------
+        variables
+            The names of the variables. Must be provided as a list of strings.
+        colors
+            The color of each line.
+        """
         self.plot_specs.append(MultiLineChartSpec(variables, colors))
 
     def bar_chart(self, variables, color):
+        """
+        Adds a bar chart to the simulation window that shows the relation between multiple variables.
+
+        Parameters
+        ----------
+        variables
+            The list of the variables. Must be provided as a list of strings.
+        color
+            The color of all the bars.
+        """
         self.plot_specs.append(BarChartSpec(variables, color))
 
     def histogram(self, variable, minimum, maximum, bins, color):
+        """
+        Adds a histogram to the simulation window that shows how the agents in the model are distributed based on a specific attribute.
+
+        Parameters
+        ----------
+        variable
+            The name of the attribute to base the distribution on. Must be provided as a string.
+        minimum
+            The minimum value of the distribution.
+        maximum
+            The maximum value of the distribution.
+        bins
+            The number of bins in the histogram.
+        color
+            The color of all the bars.
+        """
         self.plot_specs.append(
             HistogramSpec(variable, minimum, maximum, bins, color)
         )
 
     def monitor(self, variable):
+        """
+        Adds a single line that shows the value of the given variable.
+
+        Parameters
+        ----------
+        variable
+            The variable to monitor.
+        """
         self.current_row.append(MonitorSpec(variable))
 
     def add_ellipse(self,x,y,w,h,color):
+        """
+        Draws an ellipse on the simulation area. Returns a shape object that can be used to refer to the ellipse.
+
+        Parameters
+        ----------
+        x
+            The top-left x-coordinate of the ellipse.
+        y
+            The top-left y-coordinate of the ellipse.
+        w
+            The width of the ellipse.
+        h
+            The height of the ellipse.
+        color
+            The color of the ellipse.
+        """
         new_shape = EllipseStruct(x,y,w,h,color)
         self._shapes.append(new_shape)
         return new_shape
 
-    def add_rect(self,x,y,w,h):
+    def add_rect(self,x,y,w,h,color):
+        """
+        Draws a square on the simulation area. Returns a shape object that can be used to refer to the square.
+
+        Parameters
+        ----------
+        x
+            The top-left x-coordinate of the square.
+        y
+            The top-left y-coordinate of the square.
+        w
+            The width of the square.
+        h
+            The height of the square.
+        color
+            The color of the square.
+        """
         new_shape = RectStruct(x,y,w,h,color)
         self._shapes.append(new_shape)
         return new_shape
 
     def get_shapes(self):
+        """
+        Returns an iterator containing all the shapes in the model.
+        """
         return iter(self._shapes)
 
     def clear_shapes(self):
+        """
+        Clears all shapes in the model.
+        """
         self._shapes.clear()
 
     def is_paused(self):
+        """
+        Returns whether the model is paused or not.
+        """
         return self._paused
 
     def pause(self):
+        """
+        Pauses the model. The main effect of this is to ignore the "on" status of any toggled buttons, meaning that `step` functions and similar are not run.
+        """
         self._paused = True
 
     def unpause(self):
+        """
+        Unpauses the model. See `Model.pause()`.
+        """
         self._paused = False
 
     def on_close(self, func):
+        """
+        Defines a function to be run when the simulation window is closed. This is generally used to close any open file pointers.
+        """
         self._close_func = func
+
+        '''
+        What is this even used for?
 
     def close(self):
         self.pause()
         if self._close_func:
             self._close_func(self)
+        '''
 
     def enable_wrapping(self):
+        """
+        Enables wrapping, i.e. turns the simulation area *toroidal*. Agents exiting the simulation area on one side will enter on the other side.
+        """
         self._wrapping = True
 
     def disable_wrapping(self):
+        """
+        Disables wrapping. Agents attempting to move outside the simulation area will collide with the border and be moved back to the closest point inside.
+        """
         self._wrapping = False
 
     def wrapping(self):
+        """
+        Returns whether wrapping is enabled or not.
+        """
         return self._wrapping
 
     @property
@@ -797,9 +1015,7 @@ def remove_agents_type(agents, agent_type):
 # kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
 def agents_ordered(agents, variable, increasing=True):
     """
-    Returns the agents list, sorted by variable in either increasing
-    or decreasing order. Prints an error if not all agents in the list
-    have the attribute.
+    Returns the agents list, sorted by variable in either increasing or decreasing order. Prints an error if not all agents in the list have the attribute.
     """
     try:
         sorted_agents = sorted(list(agents), key=operator.attrgetter(variable))
