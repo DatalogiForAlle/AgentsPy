@@ -1,10 +1,33 @@
-.. AgentsPy documentation master file, created by
-   sphinx-quickstart on Thu Jul 30 15:11:24 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+AgentsPy: Agent-based simulation in Python
+==========================================
+AgentsPy is a library for Python for doing Agent-based simulation in
+education. It allows students to understand phenomenons from
+e.g. biology, economics, physics, chemistry, through programming small
+simulations.
 
-Welcome to AgentsPy's documentation!
-====================================
+AgentsPy is influenced by *NetLogo*, the Python *turtle* library, and
+is currently still under development at DIKU, University of Copenhagen.
+
+As an example, here's an epidemic simulation, that show-cases some of
+the features of AgentsPy:
+
+.. image:: images/epidemic.gif
+
+Guides
+------
+
+ * Getting started with AgentsPy and the Mu-editor
+ * Tutorial - Simple epidemic model
+ * Tutorial - Current in a wire
+ * Tutorial - Predator-prey model
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorial
+
+API documentation
+-----------------
 
 .. toctree::
    :maxdepth: 1
@@ -14,17 +37,19 @@ Welcome to AgentsPy's documentation!
    model
    simplemodel
 
-Guides
-==================
+Can't find what you are looking for?
+------------------------------------
+* :ref:`Search <search>` the entire documentation
 
-.. toctree::
-   :maxdepth: 1
+* :ref:`genindex` of all methods and classes
 
-   tutorial
+.. * :ref:`modindex`
 
 
 License
-==================
+-------
+AgentsPy is implemented using PyQt5, and thus we have to release
+AgentsPy under the same GPL license.
 
 .. toctree::
    :maxdepth: 1

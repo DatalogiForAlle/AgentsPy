@@ -1,3 +1,5 @@
+from datetime import datetime
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -18,7 +20,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'AgentsPy'
-copyright = '2020, Jens Kanstrup Larsen & Martin Dybdal'
+year = datetime.now().year
+_period = "2020-{}".format(year) if year > 2020 else "2020"
+copyright = '{}, DIKU, University of Copenhagen'.format(_period)
 author = 'Jens Kanstrup Larsen & Martin Dybdal'
 
 # The full version, including alpha/beta/rc tags
@@ -34,13 +38,15 @@ extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon'
 ]
 
+autodoc_mock_imports = ["PyQtChart"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 master_doc = 'index'
 
@@ -56,3 +62,10 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_theme_options = {
+    "description": "Agent-based simulation in Python",
+    "fixed_sidebar": True,
+    "show_relbar_bottom": True,
+    "show_powered_by": False,
+}
