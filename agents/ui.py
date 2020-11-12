@@ -491,7 +491,7 @@ class Application:
         checkbox = Checkbox(checkbox_spec.variable)
 
         def update_variable(v):
-            self.model[checkbox_spec.variable] = checkbox.isChecked()
+            setattr(self.model, checkbox_spec.variable, checkbox.isChecked())
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
