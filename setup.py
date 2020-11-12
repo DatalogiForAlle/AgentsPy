@@ -1,7 +1,17 @@
+import os
 from setuptools import setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
+# Don't install PyQt dependencies on ReadTheDocs documentation builds
+if os.getenv('READTHEDOCS'):
+    install_requires = []
+else:
+    install_requires = [
+      'PyQt5',
+      'PyQtChart'
+    ]
 
 setup(
   name='AgentsPy',
@@ -15,10 +25,7 @@ setup(
   url='https://github.com/DatalogiForAlle/pyagents',
   download_url='https://github.com/DatalogiForAlle/AgentsPy/releases/tag/v0.1',
   keywords=['AGENT', 'MODELING', 'SIMULATION'],
-  install_requires=[
-      'PyQt5',
-      'PyQtChart'
-  ],
+  install_requires=install_requires,
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
