@@ -1,5 +1,5 @@
-Agent-baseret epidemi-model
-===========================
+Tutorial: Epidemi-model
+=======================
 
 Tillykke! Du er, i midten af en verdensomspændende pandemi, netop
 blevet ansat som den nye direktør for sundhedsstyrelsen. Regeringen
