@@ -21,6 +21,7 @@ Den første agent
 Før vi begynder at lave agenter, der kan simulere smittespredning,
 skal vi først have en *model*, vi kan have dem i. Begynd med at lave
 en fil, kaldet ``epidemic.py``, og giv den følgende indhold::
+
   from agents import *
 
   epidemic_model = Model("Epidemi-model", 100, 100)
