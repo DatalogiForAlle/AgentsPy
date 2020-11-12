@@ -19,23 +19,29 @@ vil prøve kræfter med modellen, så se epidemi-tutorialen nedenfor.
 Første skridt
 ---------------
 
- * Kom godt i gang med AgentsPy og Mu-editoren (TODO)
- * Tutorial - Simpel epidemimodel
- * Tutorial - Elektroner og strøm i en ledning
- * Tutorial - Simpelt økosystem med rovdyr og byttedyr
+ ..
+    * Kom godt i gang med AgentsPy og Mu-editoren (TODO)
+    * Tutorial - Simpel epidemimodel
+    * Tutorial - Elektroner og strøm i en ledning
+    * Tutorial - Simpelt økosystem med rovdyr og byttedyr
 
 .. toctree::
    :maxdepth: 1
 
+   godtigang
    epidemic
-   minerbots
    
 
 Brugerguide
 -----------
-Brugerguide rundt om de forskellige ting man kan, inspireret af stupidmodel, måske?
+TODO: Brugerguide rundt om de forskellige ting man kan. Måske inspireret af
+NetLogo tutorial om predator-prey
 
- *
+ * Hvad er en agent-baseret model?
+ * Hvordan beskrives en agents opførsel?
+ * Hvordan beskrives miljøet agenterne bevæger sig i?
+ * Hvordan tilføjes sliders og ekstra knapper?
+ * Hvordan tilføjes forskellige typer af grafer og histogrammer?
 
    
 API Dokumentation
@@ -49,13 +55,13 @@ API Dokumentation
    model
    simplemodel
 
-Er der noget du ikke kan finde?
--------------------------------
+Kan du ikke finde det du leder efter?
+-------------------------------------
 Prøv at slå op i registeret eller søg i dokumentationen:
 
-* :ref:`Search <search>` the entire documentation
+* :ref:`Søg <search>` i dokumentationen
 
-* :ref:`genindex` of all methods and classes
+* :ref:`genindex` over alle funktioner og klasser i AgentsPy
 
 .. * :ref:`modindex`
 

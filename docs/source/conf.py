@@ -64,7 +64,7 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 html_theme_options = {
-    "description": "Agent-based simulation in Python",
+    "description": "Agent-baseret simulering i Python",
     "fixed_sidebar": True,
     "show_relbar_bottom": True,
     "show_powered_by": False,

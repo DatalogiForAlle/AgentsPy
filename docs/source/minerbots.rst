@@ -1,4 +1,4 @@
-Tutorial - Miner Bots
+Tutorial: Miner Bots
 =====================
 
 This tutorial intends to showcase some of the functionalities provided by the ``AgentsPy`` library.
