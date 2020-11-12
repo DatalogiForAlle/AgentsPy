@@ -30,6 +30,8 @@ Første skridt
 
    godtigang
    epidemic
+   minerbots
+
    
 
 Brugerguide
