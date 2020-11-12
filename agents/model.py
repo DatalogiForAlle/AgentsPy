@@ -931,6 +931,9 @@ class Model:
         """
         return self._wrapping
 
+    def agent_count(self):
+        return len(self.__agents)
+
     @property
     def agents(self):
         self.remove_destroyed_agents()
