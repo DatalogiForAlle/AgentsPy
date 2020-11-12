@@ -22,12 +22,12 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'AgentsPy'
 year = datetime.now().year
 _period = "2020-{}".format(year) if year > 2020 else "2020"
-copyright = '{}, DIKU, University of Copenhagen'.format(_period)
+copyright = '{}, DIKU, Københavns Universitet'.format(_period)
 author = 'Jens Kanstrup Larsen & Martin Dybdal'
 
 # The full version, including alpha/beta/rc tags
 release = '0.3'
-
+language = 'da'
 
 # -- General configuration ---------------------------------------------------
 
