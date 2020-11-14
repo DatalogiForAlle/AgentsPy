@@ -82,6 +82,8 @@ class Person(Agent):
         self.butter = random.randint(0, 9) + 1.0
         self.update_visual()
         self.trade_cooldown = 0
+        self.util = self.utility()
+        self.shape = AgentShape.CIRCLE
 
     def step(self, model):
         self.direction += random.randint(0, 20) - 10
@@ -118,6 +120,7 @@ class Person(Agent):
             other.trade_cooldown = 60
             self.update_visual()
             other.update_visual()
+        self.util = self.utility()
 
 
 def setup(model):
@@ -144,4 +147,5 @@ bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
 bnb_model.add_slider("movespeed", 0.1, 0.1, 1)
 bnb_model.line_chart(["total_util"], [(0, 0, 0)])
+bnb_model.agent_line_chart("util")
 run(bnb_model)
