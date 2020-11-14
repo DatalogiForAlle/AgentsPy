@@ -458,6 +458,13 @@ class HistogramSpec(Spec):
         ]
         self.color = color
 
+class AgentGraphSpec(Spec):
+    def __init__(self, agents, variable, min_y, max_y):
+        self.agents = agents
+        self.variable = variable
+        self.min_y = min_y
+        self.max_y = max_y
+
 class EllipseStruct():
     def __init__(self,x,y,w,h,color):
         self.x = x
@@ -559,6 +566,9 @@ class Model:
         self.__agents.append(agent)
         if setup:
             agent.setup(self)
+        for plot in self.plots:
+            if type(plot.spec) is AgentGraphSpec:
+                plot.spec.agents.append(agent)
 
     def add_agents(self, agents):
         """
@@ -671,6 +681,8 @@ class Model:
                                 bin_count += 1
                     dataset.append(bin_count)
                 plot.update_data(dataset)
+            elif type(plot.spec) is AgentGraphSpec:
+                plot.update_data()
 
     def remove_destroyed_agents(self):
         new_agents = []
@@ -821,6 +833,23 @@ class Model:
             HistogramSpec(variable, minimum, maximum, bins, color)
         )
 
+    def agent_line_chart(self, variable, min_y=None, max_y=None):
+        """
+        Adds a line chart to the simulation window that shows the trend of multiple variables over time.
+
+        Parameters
+        ----------
+        variables
+            The names of the variables. Must be provided as a list of strings.
+        colors
+            The color of each line.
+        min_y
+            The minimum value on the y-axis.
+        max_y
+            The maximum value on the y-axis.
+        """
+        self.plot_specs.append(AgentGraphSpec([], variable, min_y, max_y))
+
     def monitor(self, variable):
         """
         Adds a single line that shows the value of the given variable.
@@ -910,16 +939,12 @@ class Model:
         """
         Defines a function to be run when the simulation window is closed. This is generally used to close any open file pointers.
         """
-        self._close_func = func
-
-        '''
-        What is this even used for?
+        self._on_close = func
 
     def close(self):
         self.pause()
         if self._close_func:
             self._close_func(self)
-        '''
 
     def enable_wrapping(self):
         """
