@@ -10,7 +10,7 @@ from PyQt5.QtChart import (
     QBarSeries,
     QBarCategoryAxis,
 )
-from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPointF, Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
@@ -23,6 +23,7 @@ from agents.model import (
     LineChartSpec,
     BarChartSpec,
     HistogramSpec,
+    AgentGraphSpec,
     MonitorSpec,
     EllipseStruct,
     RectStruct,
@@ -340,6 +341,76 @@ class QtHistogram(QChartView):
             self.axis_y.setRange(0, max(self._dataset))
 
 
+class QtAgentGraph(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setTitle(str(self.spec.variable))
+        self.chart.legend().hide()
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+        self.chart.createDefaultAxes()
+        self.autoscale_y_axis = True
+        if self.spec.min_y and self.spec.max_y:
+            self.autoscale_y_axis = False
+            self.chart.axes()[1].setRange(self.spec.min_y,self.spec.max_y)
+
+        self.axis_x = QValueAxis()
+        self.axis_y = QValueAxis()
+        self.chart.addAxis(self.axis_x, Qt.AlignBottom)
+        self.chart.addAxis(self.axis_y, Qt.AlignLeft)
+
+        self._updates_per_second = 60
+        self._data = []
+        self._min = 0
+        self._max = 0
+
+    def clear(self):
+        for chart in self.chart.series():
+            chart.clear()
+        self._data = []
+
+    def update_data(self):
+        for a in self.spec.agents:
+            if not hasattr(a, "_agent_series"):
+                a._agent_series = QLineSeries()
+                a._agent_series.setColor(QColor(a.color[0], a.color[1], a.color[2]))
+                a._agent_series_data = [getattr(a, self.spec.variable)]
+                self.chart.addSeries(a._agent_series)
+                a._agent_series.attachAxis(self.chart.axisX())
+                a._agent_series.attachAxis(self.chart.axisY())
+            else:
+                a._agent_series_data.append(getattr(a, self.spec.variable))
+
+    def redraw(self):
+        for a in self.spec.agents:
+            if hasattr(a, "_agent_series") and len(a._agent_series_data) > 0:
+                datapoint = sum(a._agent_series_data) / len(a._agent_series_data)
+                a._agent_series.append(QPointF(a._agent_series.count() /
+                                               self._updates_per_second,
+                                               datapoint))
+                self._min = min(self._min, datapoint)
+                self._max = max(self._max, datapoint)
+                a._agent_series.setColor(QColor(a.color[0], a.color[1], a.color[2]))
+            a._agent_series_data = []
+        if len(self.spec.agents) > 0:
+            first_agent = self.spec.agents[0]
+            if hasattr(first_agent, "_agent_series"):
+                first_series = first_agent._agent_series
+                self.chart.axes()[0].setRange(0, (first_series.count() - 1) /
+                                              self._updates_per_second)
+                diff = self._max - self._min
+                if self.autoscale_y_axis:
+                    if diff > 0:
+                        self.chart.axes()[1].setRange(self._min,self._max)
+                    else:
+                        self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
         super().__init__(text)
@@ -524,6 +595,11 @@ class Application:
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
 
+    def add_agent_graph(self, agent_graph_spec, plots_box):
+        chart = QtAgentGraph(agent_graph_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
+
     def add_controllers(self, rows, controller_box):
         first_row = True
         for row in rows:
@@ -555,6 +631,8 @@ class Application:
                 self.add_bar_chart(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:
                 self.add_histogram(plot_spec, plots_box)
+            elif type(plot_spec) is AgentGraphSpec:
+                self.add_agent_graph(plot_spec, plots_box)
 
 
 def run(model):
