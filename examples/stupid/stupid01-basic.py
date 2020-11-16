@@ -1,9 +1,10 @@
 import random
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 
 class Bug(Agent):
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.size = 8
         self.color = (255, 0, 0)
 
@@ -37,10 +38,10 @@ class Bug(Agent):
 
 def setup(model):
     model.reset()
-    model["initial_bugs"] = 100
+    model.initial_bugs = 100
 
     # Create and add agents
-    for i in range(int(model["initial_bugs"])):
+    for i in range(int(model.initial_bugs)):
         model.add_agent(Bug())
 
 
