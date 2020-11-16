@@ -508,26 +508,28 @@ class Model:
             header_line = cell_data.readline()[:-1]
             self.header_info = header_line.split('\t')
 
+            self.x_tiles = 0
+            self.y_tiles = 0
             self.load_data = []
             for line in cell_data:
                 cell = line[:-1].split('\t')
                 x = int(cell[0])
                 y = int(cell[1])
-                self.x_tiles = max(x+1, x_tiles)
-                self.y_tiles = max(y+1, y_tiles)
+                self.x_tiles = max(x+1, self.x_tiles)
+                self.y_tiles = max(y+1, self.y_tiles)
                 self.load_data.append(cell)
 
             cell_data.close()
 
         # Initial tileset (empty).
         self.tiles = [Tile(x, y, self)
-                      for y in range(y_tiles)
-                      for x in range(x_tiles)]
+                      for y in range(self.y_tiles)
+                      for x in range(self.x_tiles)]
 
         # Pixel sizes
         self.tile_size = tile_size
-        self.width = x_tiles * tile_size
-        self.height = y_tiles * tile_size
+        self.width = self.x_tiles * tile_size
+        self.height = self.y_tiles * tile_size
 
         self.__agents = []
         self.variables = {}
@@ -1031,6 +1033,11 @@ def agents_ordered(agents, variable, increasing=True):
     except:
         print("Failed to sort agents. Do all agents have the attribute "+variable+" ?")
         return agents
+
+def agents_random(agents):
+    l_agents = list(agents)
+    random.shuffle(l_agents)
+    return l_agents
 
 def destroy_agents(agents):
     """
