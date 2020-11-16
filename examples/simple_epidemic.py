@@ -26,7 +26,7 @@ class Person(Agent):
 
     def step(self, model):
         self.direction += random.randint(0, 20) - 10
-        self.speed = model["movespeed"]
+        self.speed = model.movespeed
         self.forward()
 
         if self.infection > 1:
@@ -40,7 +40,7 @@ class Person(Agent):
 
 def setup(model):
     model.reset()
-    model["movespeed"] = 0.5
+    model.movespeed = 0.5
     people = set([Person() for i in range(100)])
     model.add_agents(people)
     for t in model.tiles:
@@ -54,5 +54,4 @@ def step(model):
 
 
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step)
-epidemic_model.add_toggle_button("Go", step)
 run(epidemic_model)

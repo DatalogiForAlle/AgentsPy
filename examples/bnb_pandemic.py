@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import math
 import random
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 """
   Forklaring af model:
@@ -25,6 +25,7 @@ class Person(Agent):
         return math.sqrt(self.bread) * math.sqrt(self.butter)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.bread = random.randint(0, 9) + 1.0
         self.butter = random.randint(0, 9) + 1.0
         self.update_visual()
@@ -124,8 +125,8 @@ bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
-bnb_model.add_slider("movespeed", 0.1, 1, 0.5)
+bnb_model.add_slider("movespeed", 0.5, 0.1, 1)
 bnb_model.add_checkbox("Decay")
-bnb_model.line_chart(["BNP"], (0, 0, 0))
+bnb_model.line_chart(["BNP"], [(0, 0, 0)])
 bnb_model.show_direction = False
 run(bnb_model)

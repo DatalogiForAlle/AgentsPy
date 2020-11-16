@@ -61,7 +61,7 @@ class Seeker(Agent):
 
 def setup(model):
     model.reset()
-    model["invisible"] = False
+    model.invisible = False
     tx = model.x_tiles
     ty = model.y_tiles
 
@@ -101,8 +101,8 @@ def step(model):
 
 
 def invisible(model):
-    model["invisible"] = not model["invisible"]
-    if model["invisible"]:
+    model.invisible = not model.invisible
+    if model.invisible:
         for a in model.agents:
             a.size = 0
     else:

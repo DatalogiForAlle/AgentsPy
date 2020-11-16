@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import random
 import math
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 """
   Forklaring af model:
@@ -77,6 +77,7 @@ class Person(Agent):
         return math.sqrt(self.bread) * math.sqrt(self.butter)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.bread = random.randint(0, 9) + 1.0
         self.butter = random.randint(0, 9) + 1.0
         self.update_visual()
@@ -84,9 +85,9 @@ class Person(Agent):
 
     def step(self, model):
         self.direction += random.randint(0, 20) - 10
-        self.speed = model["movespeed"]
+        self.speed = model.movespeed
         self.forward()
-        model["total_util"] += self.utility()
+        model.total_util += self.utility()
 
         self.trade_cooldown -= 1
         if self.trade_cooldown > 0:
@@ -121,14 +122,14 @@ class Person(Agent):
 def setup(model):
     model.reset()
     model.clear_plots()
-    model["total_util"] = 0
-    model["movespeed"] = 0.2
+    model.total_util = 0
+    model.movespeed = 0.2
     people = set([Person() for i in range(20)])
     model.add_agents(people)
 
 
 def step(model):
-    model["total_util"] = 0
+    model.total_util = 0
     for a in model.agents:
         a.step(model)
     model.update_plots()
@@ -140,6 +141,6 @@ bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
-bnb_model.add_slider("movespeed", 0.1, 1, 0.1)
-bnb_model.line_chart("total_util", (0, 0, 0))
+bnb_model.add_slider("movespeed",  0.1, 0.1, 1)
+bnb_model.line_chart(["total_util"], [(0, 0, 0)])
 run(bnb_model)
