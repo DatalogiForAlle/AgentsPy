@@ -1,9 +1,3 @@
-sdist:
-	python setup.py sdist
-
-clean:
-	rm -rf dist/
-
 check: flake8 test
 
 tidy:
@@ -14,6 +8,15 @@ flake8:
 
 test:
 	python -m unittest discover -s tests
+
+install:
+	pip install .
+
+sdist:
+	python setup.py sdist
+
+clean:
+	rm -rf dist/
 
 livedocs:
 	sphinx-autobuild docs/source docs/build/html
