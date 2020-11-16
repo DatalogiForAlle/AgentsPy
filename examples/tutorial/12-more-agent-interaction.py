@@ -17,7 +17,7 @@ class Robot(Agent):
         else:
             self.direction += randint(0, 20)-10
         self.forward()
-        self.speed = model["speed_factor"]
+        self.speed = model.speed_factor
         t = self.current_tile()
         if t.info["has_mineral"] and not self.loaded:
             t.info["has_mineral"] = False
@@ -39,7 +39,7 @@ class Homebase(Agent):
                 a.loaded = False
                 a.color = (100, 100, 100)
                 self.size += 1
-                model["minerals_collected"] += 1
+                model.minerals_collected += 1
 
 class Alien(Agent):
     def setup(self, model):
@@ -54,7 +54,7 @@ class Alien(Agent):
                     other.destroy()
 
     def step(self, model):
-        self.speed = 1.5 * model["speed_factor"]
+        self.speed = 1.5 * model.speed_factor
         self.direction += randint(0, 20) - 10
         self.forward()
         self.destroy_robots()
@@ -63,7 +63,7 @@ def setup(model):
     model.reset()
     for x in range(10):
         model.add_agent(Robot())
-    model["speed_factor"] = 1
+    model.speed_factor = 1
     for t in model.tiles:
         if randint(0, 50) == 50:
             t.color = (0, 255, 255)
@@ -71,10 +71,10 @@ def setup(model):
         else:
             t.color = (200, 100, 0)
             t.info["has_mineral"] = False
-    model["Homebase"] = Homebase()
-    model.add_agent(model["Homebase"])
+    model.Homebase = Homebase()
+    model.add_agent(model.Homebase)
     model.clear_plots()
-    model["minerals_collected"] = 0
+    model.minerals_collected = 0
     for x in range(3):
         miner_model.add_agent(Alien())
 
@@ -84,9 +84,9 @@ def step(model):
     model.update_plots()
 
 def build_bot(model):
-    if model["Homebase"].size > 22:
-        model["Homebase"].size -= 2
-        model["minerals_collected"] -= 2
+    if model.Homebase.size > 22:
+        model.Homebase.size -= 2
+        model.minerals_collected -= 2
         model.add_agent(Robot())
 
 miner_model.add_button("Setup", setup)
@@ -95,8 +95,8 @@ miner_model.add_toggle_button("Go", step)
 
 miner_model.add_button("Build new bot", build_bot)
 
-miner_model.add_slider("speed_factor", 1, 5, 1)
+miner_model.add_slider("speed_factor", 1, 1, 5)
 
-miner_model.line_chart("minerals_collected",(0,200,200))
+miner_model.line_chart(["minerals_collected"],[(0,200,200)])
 
 run(miner_model)
