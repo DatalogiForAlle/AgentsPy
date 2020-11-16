@@ -10,7 +10,7 @@ test:
 	python -m unittest discover -s tests
 
 install:
-	pip install .
+	pip install .[dev]
 
 sdist:
 	python setup.py sdist
