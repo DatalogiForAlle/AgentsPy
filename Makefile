@@ -4,7 +4,7 @@ tidy:
 	black -l 79 agents
 
 flake8:
-	flake8
+	black --check -l 79 agents
 
 test:
 	python -m unittest discover -s tests

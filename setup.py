@@ -15,8 +15,7 @@ else:
 
 extras_require = {
     "tests": [
-        "pycodestyle",
-        "flake8",
+        "black",
     ],
     "docs": [
         "sphinx",
