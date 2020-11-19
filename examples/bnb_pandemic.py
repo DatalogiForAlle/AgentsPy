@@ -78,8 +78,9 @@ class Person(Agent):
             if other.trade_cooldown > 0:
                 return
             total_bread = self.bread + other.bread
-            price_bread = (self.butter / total_bread
-                           + other.butter / total_bread)
+            price_bread = (
+                self.butter / total_bread + other.butter / total_bread
+            )
 
             self.bread = self.bread / 2 + self.butter / (2 * price_bread)
             self.butter = self.bread * price_bread

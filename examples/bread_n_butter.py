@@ -107,8 +107,9 @@ class Person(Agent):
             butter_2 = bread_2*P_bread
             """
             total_bread = self.bread + other.bread
-            price_bread = (self.butter / total_bread
-                           + other.butter / total_bread)
+            price_bread = (
+                self.butter / total_bread + other.butter / total_bread
+            )
             self.bread = self.bread / 2 + self.butter / (2 * price_bread)
             self.butter = self.bread * price_bread
             other.bread = other.bread / 2 + other.butter / (2 * price_bread)
@@ -141,6 +142,6 @@ bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
-bnb_model.add_slider("movespeed",  0.1, 0.1, 1)
+bnb_model.add_slider("movespeed", 0.1, 0.1, 1)
 bnb_model.line_chart(["total_util"], [(0, 0, 0)])
 run(bnb_model)

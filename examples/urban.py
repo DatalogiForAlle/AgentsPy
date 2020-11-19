@@ -29,14 +29,16 @@ class Seeker(Agent):
             t = self.current_tile()
             t.info["value"] += 0.1
             fwd_tile = self.get_next_tile(model, self.direction)
-            l_tile = self.get_next_tile(model,
-                                        self.direction + self.search_angle)
-            r_tile = self.get_next_tile(model,
-                                        self.direction - self.search_angle)
+            l_tile = self.get_next_tile(
+                model, self.direction + self.search_angle
+            )
+            r_tile = self.get_next_tile(
+                model, self.direction - self.search_angle
+            )
             best_tile = max(
                 fwd_tile.info["value"],
                 l_tile.info["value"],
-                r_tile.info["value"]
+                r_tile.info["value"],
             )
             if best_tile == l_tile.info["value"]:
                 self.direction += random.randint(0, self.search_angle)
@@ -80,9 +82,12 @@ def setup(model):
                 avg_value += model.tiles[i].info["value"]
                 neighbors += 1
             if neighbors > 0:
-                model.tile(x,y).info["value"] = max(
-                    0, min(255,
-                           avg_value // neighbors - 20 + random.randint(0, 40))
+                model.tile(x, y).info["value"] = max(
+                    0,
+                    min(
+                        255,
+                        avg_value // neighbors - 20 + random.randint(0, 40),
+                    ),
                 )
 
     for tile in model.tiles:
