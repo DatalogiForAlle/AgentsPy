@@ -1,17 +1,19 @@
 from random import randint
-from agents import *
+from agents import Model, Agent, run
 
 miner_model = Model("MinerBots", 100, 100)
+
 
 class Robot(Agent):
     def setup(self, model):
         self.color = (100, 100, 100)
-        self.direction = random.randint(0, 359)
+        self.direction = randint(0, 359)
 
     def step(self, model):
         self.direction += randint(0, 20) - 10
         self.forward()
         self.speed = model.speed_factor
+
 
 def setup(model):
     model.reset()
@@ -26,9 +28,11 @@ def setup(model):
             t.color = (200, 100, 0)
             t.info["has_mineral"] = False
 
+
 def step(model):
     for ag in model.agents:
         ag.step(model)
+
 
 miner_model.add_button("Setup", setup)
 

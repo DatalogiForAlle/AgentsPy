@@ -1,21 +1,22 @@
 from random import randint
-from agents import *
+from agents import Model, Agent, AgentShape, run
 
 miner_model = Model("MinerBots", 100, 100)
+
 
 class Robot(Agent):
     def setup(self, model):
         self.color = (100, 100, 100)
-        self.direction = random.randint(0, 359)
+        self.direction = randint(0, 359)
         self.loaded = False
-        self.x = model.width/2
-        self.y = model.height/2
+        self.x = model.width / 2
+        self.y = model.height / 2
 
     def step(self, model):
         if self.loaded:
-            self.point_towards(model.width/2, model.height/2)
+            self.point_towards(model.width / 2, model.height / 2)
         else:
-            self.direction += randint(0, 20)-10
+            self.direction += randint(0, 20) - 10
         self.forward()
         self.speed = model.speed_factor
         t = self.current_tile()
@@ -25,21 +26,23 @@ class Robot(Agent):
             self.color = (100, 100, 255)
             self.loaded = True
 
+
 class Homebase(Agent):
     def setup(self, model):
         self.size = 20
         self.shape = AgentShape.HOUSE
         self.color = (200, 200, 200)
-        self.x = model.width/2
-        self.y = model.height/2
+        self.x = model.width / 2
+        self.y = model.height / 2
 
     def step(self, model):
-        for a in self.agents_nearby(self.size/2+5):
+        for a in self.agents_nearby(self.size / 2 + 5):
             if type(a) == Robot and a.loaded:
                 a.loaded = False
                 a.color = (100, 100, 100)
                 self.size += 1
                 model.minerals_collected += 1
+
 
 def setup(model):
     model.reset()
@@ -57,10 +60,12 @@ def setup(model):
     model.clear_plots()
     model.minerals_collected = 0
 
+
 def step(model):
     for ag in model.agents:
         ag.step(model)
     model.update_plots()
+
 
 miner_model.add_button("Setup", setup)
 
@@ -68,6 +73,6 @@ miner_model.add_toggle_button("Go", step)
 
 miner_model.add_slider("speed_factor", 1, 1, 5)
 
-miner_model.line_chart(["minerals_collected"],[(0,200,200)])
+miner_model.line_chart(["minerals_collected"], [(0, 200, 200)])
 
 run(miner_model)

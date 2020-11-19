@@ -1,4 +1,4 @@
-from agents import *
+from agents import Model, run
 
 miner_model = Model("MinerBots", 100, 100)
 
