@@ -4,7 +4,7 @@ from agents import Agent, Model, run, AgentShape
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
@@ -59,8 +59,9 @@ def step(model):
         agent.step(model)
 
 
-stupid_model = Model("StupidModel w. Bug Growth (stupid02)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. Bug Growth (stupid02)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)

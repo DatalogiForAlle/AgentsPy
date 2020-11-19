@@ -7,7 +7,7 @@ file_handle = None
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
@@ -53,7 +53,7 @@ class Bug(Agent):
         # Eat from the current tile
         tile = self.current_tile()
         self.grow_size += min(model.max_food_eat, tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model.max_food_eat)
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def reproduce(self, model):
@@ -65,10 +65,10 @@ class Bug(Agent):
             for i in range(5):
                 # Try 5 times
                 for j in range(5):
-                    newbug_x = 3-random.randint(0, 6)
-                    newbug_y = 3-random.randint(0, 6)
+                    newbug_x = 3 - random.randint(0, 6)
+                    newbug_y = 3 - random.randint(0, 6)
 
-                    tile = model.tile(tile.x+newbug_x, tile.y+newbug_y)
+                    tile = model.tile(tile.x + newbug_x, tile.y + newbug_y)
                     if len(tile.get_agents()) == 0:
                         newbug = Bug()
                         model.add_agent(newbug)
@@ -128,7 +128,9 @@ def step(model):
     bug_mean = bug_sum / model.agent_count()
 
     # Write min, average and max bug size to file
-    file_handle.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+    file_handle.write(
+        str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n"
+    )
 
     # Update plots
     model.update_plots()
@@ -144,8 +146,9 @@ def close(model):
         file_handle.close()
 
 
-stupid_model = Model("StupidModel w. population graph (stupid13)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. population graph (stupid13)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)

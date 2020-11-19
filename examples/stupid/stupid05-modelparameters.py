@@ -5,7 +5,7 @@ from agents import Agent, Model, run, AgentShape
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
@@ -40,7 +40,7 @@ class Bug(Agent):
         # Eat from the current tile
         tile = self.current_tile()
         self.grow_size += min(model.max_food_eat, tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model.max_food_eat)
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def step(self, model):
@@ -74,13 +74,16 @@ def step(model):
         agent.step(model)
 
 
-stupid_model = Model("StupidModel w. parameters and displays (stupid05)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. parameters and displays (stupid05)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
 stupid_model.add_controller_row()
-stupid_model.add_slider("initial_bugs", 100, 10, 300,)
+stupid_model.add_slider(
+    "initial_bugs", 100, 10, 300,
+)
 stupid_model.add_controller_row()
 stupid_model.add_slider("max_food_eat", 1.0, 0.1, 1.0)
 stupid_model.add_controller_row()

@@ -5,14 +5,15 @@ from agents import Agent, Model, run, AgentShape
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
         self.shape = AgentShape.CIRCLE
         self.size = 8
-        self.grow_size = max(0, random.gauss(model.initialBugSizeMean,
-                                             model.initialBugSizeSD))
+        self.grow_size = max(
+            0, random.gauss(model.initialBugSizeMean, model.initialBugSizeSD)
+        )
         self.survivalProbability = 95
         self.size_to_color()
         self.center_in_tile()
@@ -52,7 +53,7 @@ class Bug(Agent):
         # Eat from the current tile
         tile = self.current_tile()
         self.grow_size += min(model.max_food_eat, tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model.max_food_eat)
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def reproduce(self, model):
@@ -64,10 +65,10 @@ class Bug(Agent):
             for i in range(5):
                 # Try 5 times
                 for j in range(5):
-                    newbug_x = 3-random.randint(0, 6)
-                    newbug_y = 3-random.randint(0, 6)
+                    newbug_x = 3 - random.randint(0, 6)
+                    newbug_y = 3 - random.randint(0, 6)
 
-                    tile = model.tile(tile.x+newbug_x, tile.y+newbug_y)
+                    tile = model.tile(tile.x + newbug_x, tile.y + newbug_y)
                     if len(tile.get_agents()) == 0:
                         newbug = Bug()
                         newbug.grow_size = 0.0
@@ -144,9 +145,13 @@ def close(model):
         file_handle.close()
 
 
-stupid_model = Model("StupidModel - reading habitat data from file (stupid15)",
-                     100, 100, tile_size=3,
-                     cell_data_file="stupid.cell")
+stupid_model = Model(
+    "StupidModel - reading habitat data from file (stupid15)",
+    100,
+    100,
+    tile_size=3,
+    cell_data_file="stupid.cell",
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)

@@ -7,7 +7,7 @@ file_handle = None
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
@@ -51,7 +51,7 @@ class Bug(Agent):
         # Eat from the current tile
         tile = self.current_tile()
         self.grow_size += min(model.max_food_eat, tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model.max_food_eat)
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def step(self, model):
@@ -101,7 +101,9 @@ def step(model):
     bug_mean = bug_sum / model.agent_count()
 
     # Write min, average and max bug size to file
-    file_handle.write(str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n")
+    file_handle.write(
+        str(bug_min) + " " + str(bug_mean) + " " + str(bug_max) + "\n"
+    )
 
     # Update plots
     model.update_plots()
@@ -112,8 +114,9 @@ def close(model):
         file_handle.close()
 
 
-stupid_model = Model("StupidModel w. file output (stupid08)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. file output (stupid08)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)

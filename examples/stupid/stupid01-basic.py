@@ -51,8 +51,7 @@ def step(model):
         agent.step(model)
 
 
-stupid_model = Model("Basic StupidModel (stupid01)",
-                     100, 100, tile_size=5)
+stupid_model = Model("Basic StupidModel (stupid01)", 100, 100, tile_size=5)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
