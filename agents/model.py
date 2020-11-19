@@ -14,7 +14,8 @@ class AgentShape(Enum):
 
 class Agent:
     """
-    Creates an agent with a random position, direction and color. Has no initial model; this must be provided by ``Agent.set_model``.
+    Creates an agent with a random position, direction and color. Has no
+    initial model; this must be provided by ``Agent.set_model``.
     """
 
     def __init__(self):
@@ -48,7 +49,8 @@ class Agent:
     # Should be overwritten by a subclass
     def setup(self, model):
         """
-        This method is run when the agent is added to a model. The method is empty by default, and is intented to be overwritten by a subclass.
+        This method is run when the agent is added to a model. The method is
+        empty by default, and is intented to be overwritten by a subclass.
 
         Parameters
         ----------
@@ -62,7 +64,9 @@ class Agent:
         """
         Updates the tile that the agent is currently standing on.
 
-        Effectively, this removes the agent from the set of agents standing on the previous tile, and adds it to the set of agents standing on the current tile.
+        Effectively, this removes the agent from the set of agents standing on
+        the previous tile, and adds it to the set of agents standing on the
+        current tile.
         """
         new_tile = self.current_tile()
         if not self.__current_tile:
@@ -149,7 +153,9 @@ class Agent:
         """
         Provides the Model object that the agents belongs to.
 
-        The stored model is used in other methods such as ``Agent.agents_nearby`` and ``Agent.current_tile``, which rely on information about other objects in the model.
+        The stored model is used in other methods such as
+        ``Agent.agents_nearby`` and ``Agent.current_tile``, which rely on
+        information about other objects in the model.
 
         Parameters
         ----------
@@ -201,7 +207,8 @@ class Agent:
         Parameters
         ----------
         Distance
-            The distance to move the agent. If none is specified, it moves a distance equal to its speed-attribute.
+            The distance to move the agent. If none is specified, it moves a
+            distance equal to its speed-attribute.
         """
         if distance is None:
             distance = self.speed
@@ -216,7 +223,8 @@ class Agent:
         Parameters
         ----------
         Distance
-            The distance to move the agent. If none is specified, it moves a distance equal to its speed-attribute.
+            The distance to move the agent. If none is specified, it moves a
+            distance equal to its speed-attribute.
         """
         if distance is None:
             distance = self.speed
@@ -226,7 +234,8 @@ class Agent:
 
     def left(self, degrees):
         """
-        Make the agent turn left (counter clockwise) the given number of degrees.
+        Make the agent turn left (counter clockwise) the given number of
+        degrees.
 
         Parameters
         ----------
@@ -280,9 +289,12 @@ class Agent:
 
     def current_tile(self):
         """
-        Returns the tile that the agent is currently standing on, based on its coordinates.
+        Returns the tile that the agent is currently standing on, based on its
+        coordinates.
 
-        The tile returned is the one that overlaps with the exact center of the agent, so even if the agent visually covers multiple tiles due to its size, only one tile is returned.
+        The tile returned is the one that overlaps with the exact center of the
+        agent, so even if the agent visually covers multiple tiles due to its
+        size, only one tile is returned.
         """
         x = math.floor((self.__model.x_tiles * self.x) / self.__model.width)
         y = math.floor((self.__model.y_tiles * self.y) / self.__model.height)
@@ -301,13 +313,17 @@ class Agent:
         Parameters
         ----------
         x1
-            The x-coordinate of the top-left tile (relative to the current tile).
+            The x-coordinate of the top-left tile
+            (relative to the current tile).
         y1
-            The y-coordinate of the top-left tile (relative to the current tile).
+            The y-coordinate of the top-left tile
+            (relative to the current tile).
         x2
-            The x-coordinate of the bottom-right tile (relative to the current tile).
+            The x-coordinate of the bottom-right tile
+            (relative to the current tile).
         y2
-            The y-coordinate of the bottom-right tile (relative to the current tile).
+            The y-coordinate of the bottom-right tile
+            (relative to the current tile).
         """
         tile = self.__current_tile
         tiles = []
@@ -324,14 +340,18 @@ class Agent:
 
     def destroy(self):
         """
-        Marks the agent for destruction, removing it from the set of agents in the model.
+        Marks the agent for destruction, removing it from the set of agents in
+        the model.
         """
         if not self.__destroyed:
             self.__destroyed = True
 
     @property
     def color(self):
-        """The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255, 255, 255) to color the agent white."""
+        """
+        The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255,
+        255, 255) to color the agent white.
+        """
         return self.__color
 
     @color.setter
@@ -341,7 +361,9 @@ class Agent:
 
     @property
     def direction(self):
-        """The direction of the agent, measured in degrees."""
+        """
+        The direction of the agent, measured in degrees.
+        """
         return self.__direction % 360
 
     @direction.setter
@@ -351,7 +373,8 @@ class Agent:
 
 class Tile:
     """
-    Creates a tile. *x* and *y* is the tile's position in the *tile grid*, not absolute coordinates for the model.
+    Creates a tile. *x* and *y* is the tile's position in the *tile grid*, not
+    absolute coordinates for the model.
 
     Parameters
     ----------
@@ -373,7 +396,8 @@ class Tile:
 
     def add_agent(self, agent):
         """
-        Adds an Agent to the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
+        Adds an Agent to the set of agents standing on the tile. Usually called
+        by the method ``Agent.update_current_tile``.
 
         Parameters
         ----------
@@ -384,7 +408,8 @@ class Tile:
 
     def remove_agent(self, agent):
         """
-        Removes an Agent ``agent`` from the set of agents standing on the tile. Usually called by the method ``Agent.update_current_tile``.
+        Removes an Agent ``agent`` from the set of agents standing on the tile.
+        Usually called by the method ``Agent.update_current_tile``.
 
         Parameters
         ----------
@@ -481,20 +506,27 @@ class RectStruct:
 
 class Model:
     """
-    Creates a model with the given title. There are two ways of creating a model; creating a blank model of size *x_tiles* times *y_tiles* with no predetermined data, or creating a model with predetermined data from a *cell_data_fille*.
+    Creates a model with the given title. There are two ways of creating a
+    model; creating a blank model of size *x_tiles* times *y_tiles* with no
+    predetermined data, or creating a model with predetermined data from a
+    *cell_data_fille*.
 
     Parameters
     ----------
     title
         The title of the model (to show in the simulation window).
     x_tiles
-        The number of tiles on the x-axis. Ignored if a *cell_data_file* is provided.
+        The number of tiles on the x-axis. Ignored if a *cell_data_file* is
+        provided.
     y_tiles
-        The number of tiles on the y-axis. Ignored if a *cell_data_file* is provided.
+        The number of tiles on the y-axis. Ignored if a *cell_data_file* is
+        provided.
     tile_size
         The width/height of each tile in pixels.
     cell_data_file
-        If provided, generates a model from the data file instead. The data is not immediately to the tiles, but must be applied with ``Model.reload()``.
+        If provided, generates a model from the data file instead. The data is
+        not immediately to the tiles, but must be applied with
+        ``Model.reload()``.
     """
 
     def __init__(
@@ -561,7 +593,8 @@ class Model:
         agent
             The agent to add to the model.
         setup
-            Whether or not to run the agent's ``setup`` function (default ``True``).
+            Whether or not to run the agent's ``setup`` function (default
+            ``True``).
         """
         agent.set_model(self)
         agent.x = random.randint(0, self.width)
@@ -585,7 +618,8 @@ class Model:
 
     def tile(self, x, y):
         """
-        Returns the tile at the (x,y) position in the tile-grid (*not* the (x,y) position of the simulation area).
+        Returns the tile at the (x,y) position in the tile-grid (*not* the
+        (x,y) position of the simulation area).
 
         Parameters
         ----------
@@ -605,14 +639,17 @@ class Model:
     # /how-to-sort-a-list-of-objects-by-attribute-in-python
     def agents_ordered(self, variable, increasing=True):
         """
-        Returns a list of agents in the model, ordered based on one of their attributes. Agents who do not have the attribute are not included in the list.
+        Returns a list of agents in the model, ordered based on one of their
+        attributes. Agents who do not have the attribute are not included in
+        the list.
 
         Parameters
         ----------
         variable
             The attribute to order by.
         increasing
-            Whether or not to order the agents in increasing or decreasing order (default ``True``).
+            Whether or not to order the agents in increasing or decreasing
+            order (default ``True``).
         """
         # Only returns the list of agents that actually have that attribute
         agent_list = filter(lambda a: hasattr(a, variable), self.__agents)
@@ -628,7 +665,8 @@ class Model:
         * Destroys all agents.
         * Clears the set of agents.
         * Clears the set of shapes.
-        * Clears all tiles (removes all of their ``info`` and colors them black).
+        * Clears all tiles (removes all of their ``info`` and colors them
+          black).
         * Clears all plots.
         * Unpauses the model.
         """
@@ -646,7 +684,9 @@ class Model:
 
     def reload(self):
         """
-        Applies the data from the cell-data-file to the tiles in the model. Only usable if the model was created with a ``cell_data_file`` in the constructor.
+        Applies the data from the cell-data-file to the tiles in the model.
+        Only usable if the model was created with a ``cell_data_file`` in the
+        constructor.
         """
         for tile_data in self.load_data:
             x = int(tile_data[0])
@@ -658,7 +698,8 @@ class Model:
 
     def update_plots(self):
         """
-        Updates all plots with the relevant data. Usually called in each iteration of the simulation (i.e. in a ``step`` function or similar).
+        Updates all plots with the relevant data. Usually called in each
+        iteration of the simulation (i.e. in a ``step`` function or similar).
         """
         for plot in self.plots:
             if type(plot.spec) is LineChartSpec:
@@ -714,7 +755,8 @@ class Model:
 
     def add_controller_row(self):
         """
-        Creates a new row to place controller widgets on (buttons, sliders, etc.).
+        Creates a new row to place controller widgets on (buttons, sliders,
+        etc.).
         """
         self.current_row = []
         self.controller_rows.append(self.current_row)
@@ -734,7 +776,8 @@ class Model:
 
     def add_toggle_button(self, label, func):
         """
-        Adds a button that runs a provided function while toggled on. Initially off.
+        Adds a button that runs a provided function while toggled on. Initially
+        off.
 
         Parameters
         ----------
@@ -747,7 +790,8 @@ class Model:
 
     def add_slider(self, variable, initial, minval=0, maxval=100):
         """
-        Adds a slider that can be used to adjust the value of a variable in the model.
+        Adds a slider that can be used to adjust the value of a variable in the
+        model.
 
         Parameters
         ----------
@@ -768,7 +812,8 @@ class Model:
 
     def add_checkbox(self, variable):
         """
-        Adds a checkbox that can be used to change the value of a variable between true and false.
+        Adds a checkbox that can be used to change the value of a variable
+        between true and false.
 
         Parameters
         ----------
@@ -782,7 +827,8 @@ class Model:
 
     def line_chart(self, variables, colors, min_y=None, max_y=None):
         """
-        Adds a line chart to the simulation window that shows the trend of multiple variables over time.
+        Adds a line chart to the simulation window that shows the trend of
+        multiple variables over time.
 
         Parameters
         ----------
@@ -799,7 +845,8 @@ class Model:
 
     def bar_chart(self, variables, color):
         """
-        Adds a bar chart to the simulation window that shows the relation between multiple variables.
+        Adds a bar chart to the simulation window that shows the relation
+        between multiple variables.
 
         Parameters
         ----------
@@ -812,12 +859,14 @@ class Model:
 
     def histogram(self, variable, minimum, maximum, bins, color):
         """
-        Adds a histogram to the simulation window that shows how the agents in the model are distributed based on a specific attribute.
+        Adds a histogram to the simulation window that shows how the agents in
+        the model are distributed based on a specific attribute.
 
         Parameters
         ----------
         variable
-            The name of the attribute to base the distribution on. Must be provided as a string.
+            The name of the attribute to base the distribution on. Must be
+            provided as a string.
         minimum
             The minimum value of the distribution.
         maximum
@@ -846,7 +895,8 @@ class Model:
 
     def add_ellipse(self, x, y, w, h, color):
         """
-        Draws an ellipse on the simulation area. Returns a shape object that can be used to refer to the ellipse.
+        Draws an ellipse on the simulation area. Returns a shape object that
+        can be used to refer to the ellipse.
 
         Parameters
         ----------
@@ -867,7 +917,8 @@ class Model:
 
     def add_rect(self, x, y, w, h, color):
         """
-        Draws a square on the simulation area. Returns a shape object that can be used to refer to the square.
+        Draws a square on the simulation area. Returns a shape object that can
+        be used to refer to the square.
 
         Parameters
         ----------
@@ -906,7 +957,9 @@ class Model:
 
     def pause(self):
         """
-        Pauses the model. The main effect of this is to ignore the "on" status of any toggled buttons, meaning that `step` functions and similar are not run.
+        Pauses the model. The main effect of this is to ignore the "on" status
+        of any toggled buttons, meaning that `step` functions and similar are
+        not run.
         """
         self._paused = True
 
@@ -918,7 +971,8 @@ class Model:
 
     def on_close(self, func):
         """
-        Defines a function to be run when the simulation window is closed. This is generally used to close any open file pointers.
+        Defines a function to be run when the simulation window is closed. This
+        is generally used to close any open file pointers.
         """
         self._close_func = func
 
@@ -933,13 +987,16 @@ class Model:
 
     def enable_wrapping(self):
         """
-        Enables wrapping, i.e. turns the simulation area *toroidal*. Agents exiting the simulation area on one side will enter on the other side.
+        Enables wrapping, i.e. turns the simulation area *toroidal*. Agents
+        exiting the simulation area on one side will enter on the other side.
         """
         self._wrapping = True
 
     def disable_wrapping(self):
         """
-        Disables wrapping. Agents attempting to move outside the simulation area will collide with the border and be moved back to the closest point inside.
+        Disables wrapping. Agents attempting to move outside the simulation
+        area will collide with the border and be moved back to the closest
+        point inside.
         """
         self._wrapping = False
 
@@ -1034,14 +1091,16 @@ def remove_agents_type(agents, agent_type):
 # kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
 def agents_ordered(agents, variable, increasing=True):
     """
-    Returns the agents list, sorted by variable in either increasing or decreasing order. Prints an error if not all agents in the list have the attribute.
+    Returns the agents list, sorted by variable in either increasing or
+    decreasing order. Prints an error if not all agents in the list have the
+    attribute.
     """
     try:
         sorted_agents = sorted(list(agents), key=operator.attrgetter(variable))
         if not increasing:
             sorted_agents.reverse()
         return iter(sorted_agents)
-    except:
+    except AttributeError:
         print(
             "Failed to sort agents. Do all agents have the attribute "
             + variable
