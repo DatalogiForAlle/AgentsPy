@@ -1,8 +1,10 @@
-from agents import *
+from agents import Model, Agent, run
+
 
 def setup(model):
     model.reset()
     model.add_agent(Agent())
+
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 

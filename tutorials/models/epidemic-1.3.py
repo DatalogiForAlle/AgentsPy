@@ -1,15 +1,18 @@
-from agents import *
+from agents import Model, Agent, run
 from random import randint
+
 
 def setup(model):
     model.reset()
     for agent in range(100):
         model.add_agent(Agent())
 
+
 def step(model):
     for agent in model.agents:
-        agent.direction += randint(-10,10)
+        agent.direction += randint(-10, 10)
         agent.forward()
+
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 

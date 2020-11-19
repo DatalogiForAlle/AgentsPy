@@ -1,4 +1,4 @@
-from agents import *
+from agents import Model, Agent, run
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 
