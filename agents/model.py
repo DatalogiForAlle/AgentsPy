@@ -16,6 +16,7 @@ class Agent:
     """
     Creates an agent with a random position, direction and color. Has no initial model; this must be provided by ``Agent.set_model``.
     """
+
     def __init__(self):
         # Destroyed agents are not drawn and are removed from their area.
         self.__destroyed = False
@@ -30,7 +31,7 @@ class Agent:
         saturation = random.uniform(0.8, 1.0)
         lightness = random.uniform(0.25, 1.0)
         r, g, b = colorsys.hls_to_rgb(hue, lightness, saturation)
-        self.__color = (int(r*255), int(g*255), int(b*255))
+        self.__color = (int(r * 255), int(g * 255), int(b * 255))
 
         self.x = 0
         self.y = 0
@@ -361,6 +362,7 @@ class Tile:
     model
         The model that the tile is a part of.
     """
+
     def __init__(self, x, y, model):
         self.x = x
         self.y = y
@@ -458,21 +460,24 @@ class HistogramSpec(Spec):
         ]
         self.color = color
 
-class EllipseStruct():
-    def __init__(self,x,y,w,h,color):
+
+class EllipseStruct:
+    def __init__(self, x, y, w, h, color):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.color = color
 
-class RectStruct():
-    def __init__(self,x,y,w,h,color):
+
+class RectStruct:
+    def __init__(self, x, y, w, h, color):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.color = color
+
 
 class Model:
     """
@@ -491,8 +496,10 @@ class Model:
     cell_data_file
         If provided, generates a model from the data file instead. The data is not immediately to the tiles, but must be applied with ``Model.reload()``.
     """
-    def __init__(self, title, x_tiles=50, y_tiles=50, tile_size=8,
-                 cell_data_file=None):
+
+    def __init__(
+        self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None
+    ):
         # Title of model, shown in window title
         self.title = title
 
@@ -506,25 +513,27 @@ class Model:
             cell_data.readline()
             cell_data.readline()
             header_line = cell_data.readline()[:-1]
-            self.header_info = header_line.split('\t')
+            self.header_info = header_line.split("\t")
 
             self.x_tiles = 0
             self.y_tiles = 0
             self.load_data = []
             for line in cell_data:
-                cell = line[:-1].split('\t')
+                cell = line[:-1].split("\t")
                 x = int(cell[0])
                 y = int(cell[1])
-                self.x_tiles = max(x+1, self.x_tiles)
-                self.y_tiles = max(y+1, self.y_tiles)
+                self.x_tiles = max(x + 1, self.x_tiles)
+                self.y_tiles = max(y + 1, self.y_tiles)
                 self.load_data.append(cell)
 
             cell_data.close()
 
         # Initial tileset (empty).
-        self.tiles = [Tile(x, y, self)
-                      for y in range(self.y_tiles)
-                      for x in range(self.x_tiles)]
+        self.tiles = [
+            Tile(x, y, self)
+            for y in range(self.y_tiles)
+            for x in range(self.x_tiles)
+        ]
 
         # Pixel sizes
         self.tile_size = tile_size
@@ -644,7 +653,7 @@ class Model:
             y = int(tile_data[1])
             for i in range(2, len(tile_data)):
                 variable = self.header_info[i]
-                tile = self.tiles[y*self.x_tiles+x]
+                tile = self.tiles[y * self.x_tiles + x]
                 tile.info[variable] = float(tile_data[i])
 
     def update_plots(self):
@@ -655,12 +664,12 @@ class Model:
             if type(plot.spec) is LineChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(getattr(self,d))
+                    dataset.append(getattr(self, d))
                 plot.add_data(dataset)
             elif type(plot.spec) is BarChartSpec:
                 dataset = []
                 for d in plot.spec.variables:
-                    dataset.append(getattr(self,d))
+                    dataset.append(getattr(self, d))
                 plot.update_data(dataset)
             elif type(plot.spec) is HistogramSpec:
                 dataset = []
@@ -735,7 +744,6 @@ class Model:
             The function to run while the button is toggled on.
         """
         self.current_row.append(ToggleSpec(label, func))
-
 
     def add_slider(self, variable, initial, minval=0, maxval=100):
         """
@@ -836,7 +844,7 @@ class Model:
             self.add_controller_row()
         self.current_row.append(MonitorSpec(variable))
 
-    def add_ellipse(self,x,y,w,h,color):
+    def add_ellipse(self, x, y, w, h, color):
         """
         Draws an ellipse on the simulation area. Returns a shape object that can be used to refer to the ellipse.
 
@@ -853,11 +861,11 @@ class Model:
         color
             The color of the ellipse.
         """
-        new_shape = EllipseStruct(x,y,w,h,color)
+        new_shape = EllipseStruct(x, y, w, h, color)
         self._shapes.append(new_shape)
         return new_shape
 
-    def add_rect(self,x,y,w,h,color):
+    def add_rect(self, x, y, w, h, color):
         """
         Draws a square on the simulation area. Returns a shape object that can be used to refer to the square.
 
@@ -874,7 +882,7 @@ class Model:
         color
             The color of the square.
         """
-        new_shape = RectStruct(x,y,w,h,color)
+        new_shape = RectStruct(x, y, w, h, color)
         self._shapes.append(new_shape)
         return new_shape
 
@@ -914,14 +922,14 @@ class Model:
         """
         self._close_func = func
 
-        '''
+        """
         What is this even used for?
 
     def close(self):
         self.pause()
         if self._close_func:
             self._close_func(self)
-        '''
+        """
 
     def enable_wrapping(self):
         """
@@ -964,10 +972,9 @@ class Model:
 
 
 class SimpleModel(Model):
-    def __init__(self, title,
-                 x_tiles, y_tiles,
-                 setup_func, step_func,
-                 tile_size=8):
+    def __init__(
+        self, title, x_tiles, y_tiles, setup_func, step_func, tile_size=8
+    ):
         super().__init__(title, x_tiles, y_tiles, tile_size)
         self.setup_first = False
 
@@ -987,9 +994,10 @@ class SimpleModel(Model):
 
 def get_quickstart_model():
     global quickstart_model
-    if 'quickstart_model' not in globals():
+    if "quickstart_model" not in globals():
         quickstart_model = Model("AgentsPy model", 50, 50)
     return quickstart_model
+
 
 def contains_agent_type(agents, agent_type):
     """
@@ -999,6 +1007,7 @@ def contains_agent_type(agents, agent_type):
         if type(a) == agent_type:
             return True
     return False
+
 
 def only_agents_type(agents, agent_type):
     """
@@ -1010,6 +1019,7 @@ def only_agents_type(agents, agent_type):
             agents_t.add(a)
     return agents_t
 
+
 def remove_agents_type(agents, agent_type):
     """
     Returns agents where all agents not of type agent_type are removed.
@@ -1019,6 +1029,7 @@ def remove_agents_type(agents, agent_type):
         if not (type(a) == agent_type):
             agents_t.add(a)
     return agents_t
+
 
 # kite.com/python/answers/how-to-sort-a-list-of-objects-by-attribute-in-python
 def agents_ordered(agents, variable, increasing=True):
@@ -1031,13 +1042,19 @@ def agents_ordered(agents, variable, increasing=True):
             sorted_agents.reverse()
         return iter(sorted_agents)
     except:
-        print("Failed to sort agents. Do all agents have the attribute "+variable+" ?")
+        print(
+            "Failed to sort agents. Do all agents have the attribute "
+            + variable
+            + " ?"
+        )
         return agents
+
 
 def agents_random(agents):
     l_agents = list(agents)
     random.shuffle(l_agents)
     return l_agents
+
 
 def destroy_agents(agents):
     """

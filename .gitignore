@@ -135,3 +135,6 @@ dmypy.json
 
 # Stupidmodel
 examples/stupid/stupid.data
+
+# Blockly
+blockly
