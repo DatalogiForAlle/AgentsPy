@@ -1,4 +1,4 @@
-Tutorial - Miner Bots
+Tutorial: Miner Bots
 =====================
 
 This tutorial intends to showcase some of the functionalities provided by the ``AgentsPy`` library.
@@ -29,7 +29,7 @@ This line should generally be the last one in your file.
 
 Running the python file, you should see a window with a black square and the name "MinerBots".
 
-.. image:: tutorial_images/01-basics.png
+.. image:: images/minerbots/01-basics.png
    :height: 400
 
 
@@ -44,7 +44,7 @@ This creates an agent and adds it to the model.
 
 Starting the simulation, you should see an agent appear in the simulation area.
 
-.. image:: tutorial_images/02-the-first-agent.png
+.. image:: images/minerbots/02-the-first-agent.png
    :height: 400
 
 
@@ -66,7 +66,7 @@ Add the following line after creating the model, but before running it:
 
 Running the program, the model should now show a button labelled *"Setup"*.
 
-.. image:: tutorial_images/03-setup.png
+.. image:: images/minerbots/03-setup.png
    :height: 400
 
 
@@ -90,7 +90,7 @@ We can join it to a toggleable button in the same manner as **Setup** by adding:
 
 Running the program and pressing the button, you should now see the agent move around.
 
-.. image:: tutorial_images/04-step.png
+.. image:: images/minerbots/04-step.png
    :height: 400
 
 
@@ -120,7 +120,7 @@ Then, in the ``step`` function, add
 
 inside the loop over the agents. This will make each agent randomly adjust their direction with up to 10 degrees each step.
 
-.. image:: tutorial_images/05-more-and-better-agents.png
+.. image:: images/minerbots/05-more-and-better-agents.png
    :height: 400
 
 
@@ -159,7 +159,7 @@ Start by creating a ``Robot`` class, which looks like this:
 
 Running the model should not show any changes, but now we can make multiple types of agents, each with their own ``setup`` and ``step`` methods, without changing the "main" ``setup`` and ``step`` functions.
 
-.. image:: tutorial_images/06-from-agents-to-robots.png
+.. image:: images/minerbots/06-from-agents-to-robots.png
    :height: 400
 
 
@@ -182,7 +182,7 @@ Now, just below the code where you add the buttons to the model, add this line:
 
 This will add an adjustible slider to the model. Starting up the model, you should be able to adjust the speed of the robots by moving the slider back and forth.
 
-.. image:: tutorial_images/07-adjusting-parameters.png
+.. image:: images/minerbots/07-adjusting-parameters.png
    :height: 400
 
 
@@ -205,7 +205,7 @@ The ``randint`` function makes it so that each tile has a 1/50 chance of being a
 
 The model should now show a red-brown landscape with light blue mineral deposits scattered around it.
 
-.. image:: tutorial_images/08-tiles.png
+.. image:: images/minerbots/08-tiles.png
    :height: 400
 
 
@@ -235,7 +235,7 @@ This code inspects the tile that the robot is standing on, and, if the tile cont
 3. Update ``self.loaded`` to indicate that the robot is carrying minerals.
 4. Recolor the robot (to show that it is loaded).
 
-.. image:: tutorial_images/09-doing-some-mining.png
+.. image:: images/minerbots/09-doing-some-mining.png
    :height: 400
 
 
@@ -289,7 +289,7 @@ Finally, add a single ``Homebase`` to the model by inserting:
 
 into the ``setup`` function where the robots are also created.
 
-.. image:: tutorial_images/10-robot-headquarters.png
+.. image:: images/minerbots/10-robot-headquarters.png
    :height: 400
 
 
@@ -328,7 +328,7 @@ Finally, add the actual graph by using:
 
    miner_model.line_chart("minerals_collected",(0,255,255))
 
-.. image:: tutorial_images/11-graphs.png
+.. image:: images/minerbots/11-graphs.png
    :height: 400
 
 
@@ -396,7 +396,7 @@ and then add a button which runs the function:
 
 If the base is large enough, we can press the button to shrink it a bit and "spend" the materials on building a new robot.
 
-.. image:: tutorial_images/12-more-agent-interaction.png
+.. image:: images/minerbots/12-more-agent-interaction.png
    :height: 400
 
 
