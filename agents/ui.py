@@ -53,8 +53,9 @@ class SimulationArea(QtWidgets.QWidget):
         # Default to a black background
         white = QtGui.QColor("black")
         painter.setBrush(white)
-        painter.drawRect(0, 0,
-                         painter.device().width(), painter.device().height())
+        painter.drawRect(
+            0, 0, painter.device().width(), painter.device().height()
+        )
 
         if self.model:
             # Draw tiles
@@ -65,9 +66,9 @@ class SimulationArea(QtWidgets.QWidget):
                 c = shape.color
                 painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
                 if type(shape) is EllipseStruct:
-                    painter.drawEllipse(shape.x,shape.y,shape.w,shape.h)
+                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
                 elif type(shape) is RectStruct:
-                    painter.drawRect(shape.x,shape.y,shape.w,shape.h)
+                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
             # Draw agents
             select = None
             for agent in self.model.agents:
@@ -181,6 +182,7 @@ class SimulationArea(QtWidgets.QWidget):
         if action == pause_action:
             self.enable_rendering = not self.enable_rendering
 
+
 class QtGraph(QChartView):
     def __init__(self, spec):
         super().__init__(None)
@@ -203,7 +205,7 @@ class QtGraph(QChartView):
         self.autoscale_y_axis = True
         if self.spec.min_y and self.spec.max_y:
             self.autoscale_y_axis = False
-            self.chart.axes()[1].setRange(self.spec.min_y,self.spec.max_y)
+            self.chart.axes()[1].setRange(self.spec.min_y, self.spec.max_y)
 
         self._updates_per_second = 60
         self._data = []
@@ -223,19 +225,24 @@ class QtGraph(QChartView):
             for i in range(len(self.spec.variables)):
                 data = [datapoint[i] for datapoint in self._data]
                 datapoint = sum(data) / len(data)
-                self.chart.series()[i].append(QPointF(self.chart.series()[i].count() /
-                                                    self._updates_per_second,
-                                                    datapoint))
+                self.chart.series()[i].append(
+                    QPointF(
+                        self.chart.series()[i].count()
+                        / self._updates_per_second,
+                        datapoint,
+                    )
+                )
                 self._min = min(self._min, datapoint)
                 self._max = max(self._max, datapoint)
-        self.chart.axes()[0].setRange(0, (self.chart.series()[0].count() - 1) /
-                                      self._updates_per_second)
+        self.chart.axes()[0].setRange(
+            0, (self.chart.series()[0].count() - 1) / self._updates_per_second
+        )
         diff = self._max - self._min
         if self.autoscale_y_axis:
             if diff > 0:
-                self.chart.axes()[1].setRange(self._min,self._max)
+                self.chart.axes()[1].setRange(self._min, self._max)
             else:
-                self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+                self.chart.axes()[1].setRange(self._min - 0.5, self._max + 0.5)
         self._data = []
 
 

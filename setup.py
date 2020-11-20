@@ -13,6 +13,18 @@ else:
       'PyQtChart'
     ]
 
+extras_require = {
+    "tests": [
+        "black",
+    ],
+    "docs": [
+        "sphinx",
+        "alabaster",
+    ]
+  }
+
+extras_require["dev"] = extras_require["tests"] + extras_require["docs"]
+
 setup(
   name='AgentsPy',
   packages=['agents'],
@@ -26,6 +38,7 @@ setup(
   download_url='https://github.com/DatalogiForAlle/AgentsPy/releases/tag/v0.1',
   keywords=['AGENT', 'MODELING', 'SIMULATION'],
   install_requires=install_requires,
+  extras_require=extras_require,
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
