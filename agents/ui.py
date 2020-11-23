@@ -358,7 +358,7 @@ class QtAgentGraph(QChartView):
         self.autoscale_y_axis = True
         if self.spec.min_y and self.spec.max_y:
             self.autoscale_y_axis = False
-            self.chart.axes()[1].setRange(self.spec.min_y,self.spec.max_y)
+            self.chart.axes()[1].setRange(self.spec.min_y, self.spec.max_y)
 
         self.axis_x = QValueAxis()
         self.axis_y = QValueAxis()
@@ -379,7 +379,9 @@ class QtAgentGraph(QChartView):
         for a in self.spec.agents:
             if not hasattr(a, "_agent_series"):
                 a._agent_series = QLineSeries()
-                a._agent_series.setColor(QColor(a.color[0], a.color[1], a.color[2]))
+                a._agent_series.setColor(
+                    QColor(a.color[0], a.color[1], a.color[2])
+                )
                 a._agent_series_data = [getattr(a, self.spec.variable)]
                 self.chart.addSeries(a._agent_series)
                 a._agent_series.attachAxis(self.chart.axisX())
@@ -390,26 +392,37 @@ class QtAgentGraph(QChartView):
     def redraw(self):
         for a in self.spec.agents:
             if hasattr(a, "_agent_series") and len(a._agent_series_data) > 0:
-                datapoint = sum(a._agent_series_data) / len(a._agent_series_data)
-                a._agent_series.append(QPointF(a._agent_series.count() /
-                                               self._updates_per_second,
-                                               datapoint))
+                datapoint = sum(a._agent_series_data) / len(
+                    a._agent_series_data
+                )
+                a._agent_series.append(
+                    QPointF(
+                        a._agent_series.count() / self._updates_per_second,
+                        datapoint,
+                    )
+                )
                 self._min = min(self._min, datapoint)
                 self._max = max(self._max, datapoint)
-                a._agent_series.setColor(QColor(a.color[0], a.color[1], a.color[2]))
+                a._agent_series.setColor(
+                    QColor(a.color[0], a.color[1], a.color[2])
+                )
             a._agent_series_data = []
         if len(self.spec.agents) > 0:
             first_agent = self.spec.agents[0]
             if hasattr(first_agent, "_agent_series"):
                 first_series = first_agent._agent_series
-                self.chart.axes()[0].setRange(0, (first_series.count() - 1) /
-                                              self._updates_per_second)
+                self.chart.axes()[0].setRange(
+                    0, (first_series.count() - 1) / self._updates_per_second
+                )
                 diff = self._max - self._min
                 if self.autoscale_y_axis:
                     if diff > 0:
-                        self.chart.axes()[1].setRange(self._min,self._max)
+                        self.chart.axes()[1].setRange(self._min, self._max)
                     else:
-                        self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+                        self.chart.axes()[1].setRange(
+                            self._min - 0.5, self._max + 0.5
+                        )
+
 
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):

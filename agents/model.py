@@ -895,7 +895,8 @@ class Model:
 
     def agent_line_chart(self, variable, min_y=None, max_y=None):
         """
-        Adds a line chart to the simulation window that shows the trend of multiple variables over time.
+        Adds a line chart to the simulation window that shows the trend of
+        multiple variables over time.
 
         Parameters
         ----------
