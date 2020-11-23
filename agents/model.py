@@ -673,6 +673,7 @@ class Model:
     def reset(self):
         """
         Resets the model by doing the following:
+
         * Destroys all agents.
         * Clears the set of agents.
         * Clears the set of shapes.
