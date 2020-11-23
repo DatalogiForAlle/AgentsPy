@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import random
 from agents import Agent, SimpleModel, run
-
+import cProfile
 
 class Person(Agent):
 
@@ -122,4 +122,4 @@ epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
 epidemic_model.agent_line_chart("infection",0,1000)
 epidemic_model.on_close(print_infections)
 
-run(epidemic_model)
+cProfile.run('run(epidemic_model)')

@@ -1,0 +1,214 @@
+         26015881 function calls in 17.318 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:103(release)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:143(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:147(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:151(__exit__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:157(_get_module_lock)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:176(cb)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:211(_call_with_frames_removed)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:222(_verbose_message)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:232(_requires_builtin_wrapper)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:307(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:311(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:318(__exit__)
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:321(<genexpr>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:369(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:416(parent)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:424(has_location)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:433(spec_from_loader)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:504(_init_module_attrs)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:564(module_from_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:58(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:651(_load_unlocked)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:707(find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:728(create_module)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:736(exec_module)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:753(is_package)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:78(acquire)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:843(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:847(__exit__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:870(_find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:936(_find_and_load_unlocked)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:966(_find_and_load)
+        1    0.000    0.000   17.318   17.318 <string>:1(<module>)
+      300    0.000    0.000    0.000    0.000 colorsys.py:108(_v)
+      100    0.000    0.000    0.000    0.000 colorsys.py:98(hls_to_rgb)
+      100    0.000    0.000    0.000    0.000 epidemic.py:22(setup)
+    37000    0.164    0.000    4.553    0.000 epidemic.py:31(step)
+        1    0.001    0.001    0.011    0.011 epidemic.py:71(setup)
+        1    0.000    0.000    0.004    0.004 epidemic.py:80(<listcomp>)
+      370    0.378    0.001    5.012    0.014 epidemic.py:88(step)
+        9    0.000    0.000    0.000    0.000 epidemic.py:9(infect)
+        1    0.000    0.000    0.000    0.000 model.py:1009(close)
+    37000    0.005    0.000    0.005    0.000 model.py:1029(wrapping)
+    40295    0.030    0.000    1.635    0.000 model.py:1038(agents)
+        1    0.000    0.000    0.011    0.011 model.py:1064(setup_wrapper)
+      370    0.001    0.000    5.013    0.014 model.py:1068(step_wrapper)
+      100    0.000    0.000    0.002    0.000 model.py:1078(get_quickstart_model)
+      200    0.000    0.000    0.000    0.000 model.py:152(set_model)
+      540    0.001    0.000    0.002    0.000 model.py:167(direction_to)
+    37000    0.077    0.000    0.297    0.000 model.py:203(forward)
+      100    0.000    0.000    0.004    0.000 model.py:21(__init__)
+  3975640    1.375    0.000    1.375    0.000 model.py:258(distance_to)
+    39751    0.911    0.000    3.893    0.000 model.py:271(agents_nearby)
+    74200    0.082    0.000    0.139    0.000 model.py:290(current_tile)
+  4028200    0.309    0.000    0.309    0.000 model.py:335(is_destroyed)
+    54500    0.007    0.000    0.007    0.000 model.py:349(color)
+    37109    0.016    0.000    0.016    0.000 model.py:357(color)
+   126578    0.022    0.000    0.022    0.000 model.py:362(direction)
+    37000    0.009    0.000    0.009    0.000 model.py:369(direction)
+     2500    0.001    0.000    0.001    0.000 model.py:389(__init__)
+     4828    0.002    0.000    0.003    0.000 model.py:397(add_agent)
+     4728    0.003    0.000    0.004    0.000 model.py:409(remove_agent)
+        1    0.000    0.000    0.002    0.002 model.py:540(__init__)
+        1    0.001    0.001    0.002    0.002 model.py:573(<listcomp>)
+      200    0.000    0.000    0.002    0.000 model.py:595(add_agent)
+        1    0.000    0.000    0.001    0.001 model.py:618(add_agents)
+    37200    0.026    0.000    0.117    0.000 model.py:63(update_current_tile)
+    74200    0.035    0.000    0.035    0.000 model.py:630(tile)
+        1    0.005    0.005    0.005    0.005 model.py:673(reset)
+      370    0.006    0.000    0.058    0.000 model.py:710(update_plots)
+    40295    1.027    0.000    1.593    0.000 model.py:740(remove_destroyed_agents)
+        2    0.000    0.000    0.000    0.000 model.py:749(clear_plots)
+        1    0.000    0.000    0.000    0.000 model.py:769(add_controller_row)
+    37000    0.037    0.000    0.181    0.000 model.py:81(__post_move)
+    37000    0.023    0.000    0.023    0.000 model.py:89(__wraparound)
+      174    0.000    0.000    0.001    0.000 model.py:970(get_shapes)
+      496    0.001    0.000    0.001    0.000 model.py:982(is_paused)
+        1    0.000    0.000    0.000    0.000 model.py:988(pause)
+        2    0.000    0.000    0.000    0.000 model.py:996(unpause)
+    37078    0.038    0.000    0.090    0.000 random.py:173(randrange)
+    37078    0.019    0.000    0.108    0.000 random.py:217(randint)
+    37078    0.035    0.000    0.052    0.000 random.py:223(_randbelow)
+      200    0.000    0.000    0.000    0.000 random.py:371(uniform)
+  1740000    4.561    0.000    7.252    0.000 ui.py:159(paintTile)
+        1    0.002    0.002    0.005    0.005 ui.py:187(__init__)
+        2    0.000    0.000    0.000    0.000 ui.py:215(clear)
+      370    0.000    0.000    0.000    0.000 ui.py:220(add_data)
+      172    0.005    0.000    0.143    0.001 ui.py:223(redraw)
+      381    0.000    0.000    0.000    0.000 ui.py:226(<listcomp>)
+        1    0.001    0.001    0.002    0.002 ui.py:250(__init__)
+        1    0.000    0.000    0.000    0.000 ui.py:257(<listcomp>)
+        2    0.000    0.000    0.000    0.000 ui.py:280(clear)
+      370    0.001    0.000    0.002    0.000 ui.py:283(update_data)
+      172    0.002    0.000    0.014    0.000 ui.py:289(redraw)
+        1    0.000    0.000    0.000    0.000 ui.py:34(__init__)
+        1    0.000    0.000    0.001    0.001 ui.py:345(__init__)
+        2    0.000    0.000    0.000    0.000 ui.py:373(clear)
+      370    0.020    0.000    0.049    0.000 ui.py:378(update_data)
+  6960696    0.647    0.000    0.647    0.000 ui.py:38(model)
+      172    0.090    0.001    0.677    0.004 ui.py:390(redraw)
+        1    0.000    0.000    0.000    0.000 ui.py:415(__init__)
+        1    0.000    0.000    0.000    0.000 ui.py:42(model)
+        2    0.001    0.000    0.001    0.000 ui.py:424(__init__)
+        1    0.000    0.000    0.000    0.000 ui.py:442(__init__)
+      496    0.001    0.000    0.001    0.000 ui.py:448(update_label)
+        1    0.000    0.000    0.000    0.000 ui.py:460(__init__)
+        1    0.000    0.000    0.000    0.000 ui.py:464(closeEvent)
+        1    0.000    0.000    0.052    0.052 ui.py:470(__init__)
+        1    0.001    0.001    0.051    0.051 ui.py:478(initializeUI)
+      174    0.639    0.004    8.163    0.047 ui.py:48(paintEvent)
+      496    0.010    0.000    5.034    0.010 ui.py:523(update_logic)
+      172    0.003    0.000    0.840    0.005 ui.py:534(update_graphics)
+        2    0.002    0.001    0.002    0.001 ui.py:540(add_button)
+        1    0.000    0.000    0.011    0.011 ui.py:542(<lambda>)
+        1    0.000    0.000    0.000    0.000 ui.py:546(add_toggle)
+        2    0.000    0.000    0.001    0.000 ui.py:551(add_slider)
+        1    0.000    0.000    0.000    0.000 ui.py:578(add_monitor)
+        1    0.000    0.000    0.006    0.006 ui.py:583(add_line_chart)
+        1    0.000    0.000    0.002    0.002 ui.py:588(add_bar_chart)
+        1    0.000    0.000    0.001    0.001 ui.py:598(add_agent_graph)
+        1    0.000    0.000    0.003    0.003 ui.py:603(add_controllers)
+        1    0.000    0.000    0.009    0.009 ui.py:626(add_plots)
+        1    0.057    0.057   17.318   17.318 ui.py:638(run)
+    16100    0.143    0.000    0.237    0.000 ui.py:92(paintAgent)
+        3    0.000    0.000    0.000    0.000 {built-in method _imp.acquire_lock}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.create_builtin}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.exec_builtin}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.is_builtin}
+        3    0.000    0.000    0.000    0.000 {built-in method _imp.release_lock}
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        2    0.000    0.000    0.000    0.000 {built-in method addAxis}
+       10    0.000    0.000    0.000    0.000 {built-in method addLayout}
+      104    0.011    0.000    0.011    0.000 {built-in method addSeries}
+        5    0.000    0.000    0.000    0.000 {built-in method addStretch}
+       14    0.000    0.000    0.000    0.000 {built-in method addWidget}
+    13081    0.223    0.000    0.223    0.000 {built-in method append}
+      200    0.006    0.000    0.006    0.000 {built-in method attachAxis}
+      652    0.011    0.000    0.011    0.000 {built-in method axes}
+      100    0.000    0.000    0.000    0.000 {built-in method axisX}
+      100    0.000    0.000    0.000    0.000 {built-in method axisY}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.any}
+        1    0.000    0.000   17.319   17.319 {built-in method builtins.exec}
+    39224    0.004    0.000    0.004    0.000 {built-in method builtins.getattr}
+      100    0.000    0.000    0.000    0.000 {built-in method builtins.globals}
+    53265    0.010    0.000    0.010    0.000 {built-in method builtins.hasattr}
+     5597    0.007    0.000    0.007    0.000 {built-in method builtins.isinstance}
+    40469    0.012    0.000    0.012    0.000 {built-in method builtins.iter}
+    29279    0.003    0.000    0.003    0.000 {built-in method builtins.len}
+    13235    0.003    0.000    0.003    0.000 {built-in method builtins.max}
+    13081    0.006    0.000    0.006    0.000 {built-in method builtins.min}
+    13081    0.003    0.000    0.003    0.000 {built-in method builtins.sum}
+        6    0.000    0.000    0.000    0.000 {built-in method clear}
+    13407    0.007    0.000    0.007    0.000 {built-in method count}
+        2    0.003    0.001    0.003    0.001 {built-in method createDefaultAxes}
+      348    0.000    0.000    0.000    0.000 {built-in method device}
+    16100    0.061    0.000    0.061    0.000 {built-in method drawPolygon}
+  1740174    1.374    0.000    1.374    0.000 {built-in method drawRect}
+      174    0.001    0.000    0.001    0.000 {built-in method end}
+        1    3.163    3.163   17.210   17.210 {built-in method exec_}
+      174    0.000    0.000    0.000    0.000 {built-in method height}
+        3    0.000    0.000    0.000    0.000 {built-in method hide}
+      496    0.002    0.000    0.002    0.000 {built-in method isChecked}
+        3    0.000    0.000    0.000    0.000 {built-in method legend}
+      540    0.001    0.000    0.001    0.000 {built-in method math.acos}
+   101400    0.018    0.000    0.018    0.000 {built-in method math.cos}
+      540    0.000    0.000    0.000    0.000 {built-in method math.degrees}
+   148400    0.022    0.000    0.022    0.000 {built-in method math.floor}
+    90100    0.012    0.000    0.012    0.000 {built-in method math.radians}
+   101400    0.016    0.000    0.016    0.000 {built-in method math.sin}
+      462    0.006    0.000    0.006    0.000 {built-in method replace}
+      938    0.001    0.000    0.001    0.000 {built-in method series}
+        1    0.000    0.000    0.000    0.000 {built-in method setAxisX}
+        1    0.000    0.000    0.000    0.000 {built-in method setAxisY}
+  1756274    0.701    0.000    0.701    0.000 {built-in method setBrush}
+        1    0.000    0.000    0.000    0.000 {built-in method setCentralWidget}
+        3    0.002    0.001    0.002    0.001 {built-in method setChart}
+        1    0.000    0.000    0.000    0.000 {built-in method setCheckable}
+    12803    0.007    0.000    0.007    0.000 {built-in method setColor}
+        1    0.000    0.000    0.000    0.000 {built-in method setFixedSize}
+        1    0.000    0.000    0.000    0.000 {built-in method setLayout}
+        2    0.000    0.000    0.000    0.000 {built-in method setMaximum}
+        3    0.000    0.000    0.000    0.000 {built-in method setMinimumHeight}
+        5    0.000    0.000    0.000    0.000 {built-in method setMinimumWidth}
+        2    0.000    0.000    0.000    0.000 {built-in method setMinimum}
+      174    0.001    0.000    0.001    0.000 {built-in method setPen}
+      806    0.459    0.001    0.459    0.001 {built-in method setRange}
+        3    0.000    0.000    0.000    0.000 {built-in method setRenderHint}
+        5    0.000    0.000    0.000    0.000 {built-in method setText}
+        3    0.000    0.000    0.000    0.000 {built-in method setTitle}
+        2    0.000    0.000    0.000    0.000 {built-in method setValue}
+        1    0.000    0.000    0.000    0.000 {built-in method setWindowTitle}
+        1    0.038    0.038    0.038    0.038 {built-in method show}
+        2    0.000    0.000    0.000    0.000 {built-in method start}
+        1    0.000    0.000    0.000    0.000 {built-in method sys.exit}
+      172    0.003    0.000    0.003    0.000 {built-in method update}
+      174    0.000    0.000    0.000    0.000 {built-in method width}
+        1    0.000    0.000    0.000    0.000 {function MainWindow.closeEvent at 0x7f4e33ec8bf8}
+    44315    0.006    0.000    0.006    0.000 {method 'add' of 'set' objects}
+  4069107    0.260    0.000    0.260    0.000 {method 'append' of 'list' objects}
+    37078    0.005    0.000    0.005    0.000 {method 'bit_length' of 'int' objects}
+        6    0.000    0.000    0.000    0.000 {method 'connect' of 'PyQt5.QtCore.pyqtBoundSignal' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+     4728    0.001    0.000    0.001    0.000 {method 'discard' of 'set' objects}
+        2    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+    56506    0.011    0.000    0.011    0.000 {method 'getrandbits' of '_random.Random' objects}
+      300    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+        2    0.000    0.000    0.000    0.000 {method 'rpartition' of 'str' objects}
+
+
