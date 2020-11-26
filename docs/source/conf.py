@@ -16,6 +16,7 @@ import os
 import sys
 import mock
 sys.path.insert(0, os.path.abspath('../..'))
+sys.modules["PyQt5.QtChart"] = mock.Mock()
 import agents
 
 # -- Project information -----------------------------------------------------
@@ -42,7 +43,6 @@ extensions = [
 ]
 
 autodoc_mock_imports = ["PyQtChart", "PyQt5"]
-sys.modules["PyQt5.QtChart"] = mock.Mock()
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
