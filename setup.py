@@ -5,13 +5,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 # Don't install PyQt dependencies on ReadTheDocs documentation builds
+"""
 if os.getenv('READTHEDOCS'):
     install_requires = []
-else:
-    install_requires = [
-      'PyQt5',
-      'PyQtChart'
-    ]
+else:"""
+install_requires = [
+    'PyQt5',
+    'PyQtChart'
+]
 
 extras_require = {
     "tests": [
