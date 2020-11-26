@@ -15,7 +15,7 @@ from datetime import datetime
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
-
+import agents
 
 # -- Project information -----------------------------------------------------
 
@@ -35,7 +35,9 @@ language = 'da'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
 ]
 
 autodoc_mock_imports = ["PyQtChart"]
