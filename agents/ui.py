@@ -531,7 +531,7 @@ class Application:
 
         # Start timers
         self.logic_timer.start(1000 / 60)
-        self.graphics_timer.start(1000 / 10)
+        self.graphics_timer.start(1000 / 30)
 
     def update_logic(self):
         if not self.model.is_paused():
