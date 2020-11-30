@@ -300,25 +300,25 @@ Begynd først med at indsætte disse tre linjer i
 ``setup``-funktionen, lige efter du har kaldt
 ``model.reset()``::
 
-  model["S"] = 0
-  model["I"] = 0
-  model["R"] = 0
+  model.Susceptible = 0
+  model.Infectious = 0
+  model.Recovered = 0
 
 Vi får agenterne selv til at tildele sig de forskellige kategorier, så vi lader alle tre starte med at være 0.
 
 Tilføj øverst i ``Person.setup``::
 
-  model["S"] += 1
+  model.Susceptible += 1
 
 Tilføj øverst i ``Person.infect``::
 
-  model["S"] -= 1
-  model["I"] += 1
+  model.Susceptible -= 1
+  model.Infectious += 1
 
 Tilføj øverst i ``Person.turn_immune``::
 
-  model["I"] -= 1
-  model["R"] += 1
+  model.Infectious -= 1
+  model.Recovered += 1
 
 Nu har vi styr på dataen til vores model. Programmet skal dog lige
 vide, at det skal opdatere grafen, imens *Go*-knappen holdes
@@ -329,7 +329,7 @@ inde. Tilføj denne linje nederst i ``step``-funktionen::
 Det eneste, vi mangler nu, er at tilføje selve grafen. Indsæt denne
 linje, lige efter der hvor du tilføjer knapperne til modellen::
 
-  epidemic_model.multi_line_chart(["S","I","R"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
+  epidemic_model.multi_line_chart(["Susceptible","Infectious","Recovered"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
 
 Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og sammenlign så den graf du får med den, der er på `Wikipedia-siden for SIR-modellen <https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model}{>`_.
 
@@ -398,7 +398,7 @@ I takt med, at vi indfører forskellige tiltag til at begrænse smitten, kunne d
 Nu kan vi gå i gang med faktisk at lave gruppefunktionaliteten.
 Tilføj, nederst i ``Person.setup``, denne linje::
 
-  if model["enable_groups"]:
+  if model.enable_groups:
       self.group = randint(1,5)
 
 Dette tildeler agenten til en tilfældig gruppe, identificeret med et ID mellem 1 og 5.
@@ -425,12 +425,12 @@ Dette gemmer agentens farvecirkel i variablen ``group_indicator``, og giver den 
 
 til denne::
 
-  if model["enable_groups"] and agent.group != self.group:
+  if model.enable_groups and agent.group != self.group:
 
 Det får agenten til at undgå alle, der ikke er i dens egen gruppe, fremfor dem der er smittede.
 Tilføj til sidst, nederst i ``Person.step``::
 
-  if model["enable_groups"]:
+  if model.enable_groups:
       self.group_indicator.x = self.x-10
       self.group_indicator.y = self.y-10
 
@@ -463,7 +463,7 @@ startværdien.
 
 til denne::
 
-  for agent in self.agents_nearby(model["social_distance"]):
+  for agent in self.agents_nearby(model.social_distance):
 
 og ændr denne::
 
@@ -471,7 +471,7 @@ og ændr denne::
 
 til denne::
 
-  for agent in self.agents_nearby(model["infection_distance"]):
+  for agent in self.agents_nearby(model.infection_distance):
 
 Prøv at køre simulationen, og juster på værdierne undervejs. Overvej,
 hvilken indflydelse forholdet mellem de to værdier har på
@@ -525,8 +525,8 @@ at gøre med agentens infektion, til at bruge denne klasse i
 stedet. Ændr ``Person.infect`` til denne::
 
   def infect(self, model):
-      model["S"] -= 1
-      model["I"] += 1
+      model.Susceptible -= 1
+      model.Infectious += 1
       self.color = (200,0,0)
       self.category = 1
       self.virus = virus
@@ -534,8 +534,8 @@ stedet. Ændr ``Person.infect`` til denne::
 og ``Person.turn_immune`` til denne::
 
   def turn_immune(self, model):
-      model["I"] -= 1
-      model["R"] += 1
+      model.Infectious -= 1
+      model.Recovered += 1
       self.color = (0,0,200)
       self.category = 2
       self.virus = None
@@ -543,7 +543,7 @@ og ``Person.turn_immune`` til denne::
 Ændr til sidst dette stykke i ``Person.step``::
 
   if self.category == 1:
-      for agent in self.agents_nearby(model["infection_distance"]):
+      for agent in self.agents_nearby(model.infection_distance):
           if agent.category == 0:
               agent.infect(model)
       self.infection_level -= 1
@@ -553,7 +553,7 @@ og ``Person.turn_immune`` til denne::
 til dette::
 
   if self.category == 1:
-      for agent in self.agents_nearby(model["infection_distance"]):
+      for agent in self.agents_nearby(model.infection_distance):
           if agent.category == 0:
               agent.infect(model, self.virus.mutate())
       self.virus.infection_level -= 1
@@ -613,8 +613,8 @@ Samtidig ændrer vi nu lidt på ``Person.turn_immune``, da agenterne i stedet bl
 Erstat ``Person.turn_immune`` med nedenstående::
 
   def turn_immune(self, model):
-      model["I"] -= 1
-      model["S"] += 1
+      model.Infectious -= 1
+      model.Susceptible += 1
       self.color = (200-30*len(self.immunities),200,200-30*len(self.immunities))
       self.category = 0
       self.immunities.append(self.virus.mutation)
@@ -625,11 +625,11 @@ Der er nogle ændringer i forhold til den nuværende:
  * I stedet for at sætte agentens kategori til 2, sætter vi den
    tilbage til 0, da agenten egentlig ikke bliver immun, men går
    tilbage til at være modtagelig. Af samme årsag lægger vi 1 til
-   ``model["S"]`` i stedet for ``model["R"]``.
-   
+   ``model.Susceptible`` i stedet for ``model.Recovered``.
+
  * Agentens farve bliver nu mere grøn, jo mere resistent den er (altså
    jo flere sygdomme den har haft).
-   
+
  * Vi tilføjer virussens "*mutation-ID*" til agentens liste over
    immuniteter. Den kan altså ikke smittes med denne mutation
    fremover.
@@ -704,11 +704,11 @@ i ``Person.setup``::
 
 til denne::
 
-  self.infect(model, Virus(5, 600, model["infection_distance"]))
+  self.infect(model, Virus(5, 600, model.infection_distance))
 
 Til sidst, ændr denne linje i ``Person.step``::
 
-  for agent in self.agents_nearby(model["infection_distance"]):
+  for agent in self.agents_nearby(model.infection_distance):
 
 til denne::
 
