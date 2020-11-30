@@ -61,7 +61,7 @@ Slet først den linje, du lige har tilføjet ovenfor (altså den, der
 laver en agent og tilføjer den til modellen). Tilføj så denne
 funktion, lige efter, at du har importeret ``agents``::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       model.add_agent(Agent())
 
@@ -71,17 +71,17 @@ men det vil blive brugbart senere.
 
 Tilføj så, efter du har lavet ``epidemic_model``, følgende linje::
 
-  epidemic_model.add_button("Setup", setup)
+  epidemic_model.add_button("Setup", model_setup)
 
 Linjen tilføjer en knap til vinduet som, når den klikkes på, kører
-``setup``-funktionen.
+``model_setup``-funktionen.
 
 Flere agenter
 -------------
-Lad os tilføje lidt flere agenter. Ændr ``setup`` funktionen, sådan at
+Lad os tilføje lidt flere agenter. Ændr ``model_setup`` funktionen, sådan at
 den siger følgende::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for agent in range(100):
           model.add_agent(Agent())
@@ -89,10 +89,10 @@ den siger følgende::
 Nu laver vi 100 agenter og tilføjer dem til modellen.
 
 Lige nu laver agenterne ikke særlig meget. Lad os gøre det muligt for
-agenterne at gå rundt omkring. Tilføj denne ``step`` funktion under
-``setup`` funktionen::
+agenterne at gå rundt omkring. Tilføj denne ``model_step`` funktion under
+``model_setup`` funktionen::
 
-  def step(model):
+  def model_step(model):
       for agent in model.agents:
           agent.direction += randint(-10,10)
           agent.forward()
@@ -112,10 +112,10 @@ dette i toppen af filen, sammen med at du importerer ``agents``)::
 
 Slut af med at tilføje denne linje efter at du tilføjer `setup`-knappen::
 
-  epidemic_model.add_toggle_button("Go", step)
+  epidemic_model.add_toggle_button("Go", model_step)
 
 Dette laver en knap, som man kan slå til og fra. Når den er slået til,
-kører den ``step``-funktionen konstant, hvilket får agenterne til
+kører den ``model_step``-funktionen konstant, hvilket får agenterne til
 at bevæge sig rundt.
 
 SIR-modellen
@@ -161,7 +161,7 @@ Lige nu er vores agenter "bare" agenter. Vi vil gerne gøre dem lidt
 mere avancerede, sådan at de blandt andet kan selv kan holde styr på,
 hvilken kategori af SIR-modellen, de er i.
 
-Tilføj, over din ``setup``-funktion (men under dine imports), følgende kode::
+Tilføj, over din ``model_setup``-funktion (men under dine imports), følgende kode::
 
   class Person(Agent):
       def setup(self,model):
@@ -174,9 +174,9 @@ Tilføj, over din ``setup``-funktion (men under dine imports), følgende kode::
 Ovenstående kode definerer en *klasse*, som har noget opførsel
 beskrevet i sine egne funktioner ``Person.setup`` og ``Person.step``.
 
-Ændr så ``setup``-funktionen (*ikke* ``Person.setup``) til::
+Ændr så ``model_setup``-funktionen til::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for person in range(100):
           model.add_agent(Person())
@@ -184,10 +184,10 @@ beskrevet i sine egne funktioner ``Person.setup`` og ``Person.step``.
 Nu tilføjer vi altså personer i stedet for "bare" normale agenter.
 
 Bemærk, at indholdet i ``Person.step`` lidt ligner det, der står i
-``step``-funktionen i forvejen. Faktisk kan vi nu også ændre i
-``step``-funktionen, sådan at der i stedet står::
+``model_step``-funktionen i forvejen. Faktisk kan vi nu også ændre i
+``model_step``-funktionen, sådan at der i stedet står::
 
-  def step(model):
+  def model_step(model):
       for person in model.agents:
           person.step(model)
 
@@ -297,7 +297,7 @@ agenter i hver kategori, og så får grafen til at vise tre linjer, som
 viser antallene i hver kategori som funktion af tid.
 
 Begynd først med at indsætte disse tre linjer i
-``setup``-funktionen, lige efter du har kaldt
+``model_setup``-funktionen, lige efter du har kaldt
 ``model.reset()``::
 
   model.Susceptible = 0
@@ -322,7 +322,7 @@ Tilføj øverst i ``Person.turn_immune``::
 
 Nu har vi styr på dataen til vores model. Programmet skal dog lige
 vide, at det skal opdatere grafen, imens *Go*-knappen holdes
-inde. Tilføj denne linje nederst i ``step``-funktionen::
+inde. Tilføj denne linje nederst i ``model_step``-funktionen::
 
   model.update_plots()
 
@@ -448,9 +448,9 @@ Tilføj to *sliders* til modellen med følgende kode (indsæt dem samme
 sted, som du laver knapper/checkboxes)::
 
   epidemic_model.add_controller_row()
-  epidemic_model.add_slider("social_distance", 0, 80, 50)
+  epidemic_model.add_slider("social_distance", 50, 0, 80)
   epidemic_model.add_controller_row()
-  epidemic_model.add_slider("infection_distance", 0, 40, 15)
+  epidemic_model.add_slider("infection_distance", 15, 0, 40)
 
 Dette giver to sliders, som kan bruges til at justere variablene
 ``social_distance`` og ``infection_distance``. De to første tal er

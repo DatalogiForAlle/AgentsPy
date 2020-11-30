@@ -12,7 +12,9 @@ Brug ``pip`` til at installere AgentsPy:
 Installer AgentsPy i Mu
 =======================
 
-Todo...
+1. Klik på tandhjul-ikonet nederst i højre hjørne.
+2. Vælg fanen *Third Party Packages*.
+3. I tekstfeltet, indtast `agentspy` og klik OK.
 
 
 Et simpelt projekt med AgentsPy
