@@ -4,10 +4,10 @@ Kom godt i gang
 Installer AgentsPy
 ==================
 
-Brug ``pip`` til at installere AgentsPy:
+Åben din terminal på Mac eller Ubuntu, og brug ``pip3`` til at installere AgentsPy:
 ::
 
-    pip install agentspy
+    pip3 install agentspy
 
 Installer AgentsPy i Mu
 =======================
