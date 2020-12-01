@@ -17,7 +17,7 @@ class Virus:
 
 class Person(Agent):
     def setup(self, model):
-        model["S"] += 1
+        model.Susceptible += 1
         self.category = 0
         self.color = (200, 200, 200)
         self.virus = None
@@ -25,7 +25,7 @@ class Person(Agent):
         if randint(1, 50) == 1:
             self.infect(model, Virus(5))
 
-        if model["enable_groups"]:
+        if model.enable_groups:
             self.group = randint(1, 5)
             self.group_indicator = model.add_ellipse(
                 self.x - 10, self.y - 10, 20, 20, (0, 0, 0)
@@ -42,13 +42,13 @@ class Person(Agent):
                 self.group_indicator.color = (250, 150, 0)
 
     def step(self, model):
-        if model["enable_groups"]:
+        if model.enable_groups:
             self.group_indicator.x = self.x - 10
             self.group_indicator.y = self.y - 10
         new_direction = 0
         nearby_agents = 0
-        for agent in self.agents_nearby(model["social_distance"]):
-            if model["enable_groups"] and agent.group != self.group:
+        for agent in self.agents_nearby(model.social_distance):
+            if model.enable_groups and agent.group != self.group:
                 new_direction += self.direction_to(agent.x, agent.y)
                 nearby_agents += 1
         if nearby_agents > 0:
@@ -57,7 +57,7 @@ class Person(Agent):
             self.direction += randint(-10, 10)
         self.forward()
         if self.category == 1:
-            for agent in self.agents_nearby(model["infection_distance"]):
+            for agent in self.agents_nearby(model.infection_distance):
                 if agent.category == 0 and self.virus.mutation > 0:
                     agent.infect(model, self.virus.mutate())
             self.virus.infection_level -= 1
@@ -66,8 +66,8 @@ class Person(Agent):
 
     def infect(self, model, virus):
         if virus.mutation not in self.immunities:
-            model["S"] -= 1
-            model["I"] += 1
+            model.Susceptible -= 1
+            model.Infectious += 1
             self.color = (
                 200,
                 150 - 30 * virus.mutation,
@@ -77,8 +77,8 @@ class Person(Agent):
             self.virus = virus
 
     def turn_immune(self, model):
-        model["I"] -= 1
-        model["S"] += 1
+        model.Infectious -= 1
+        model.Susceptible += 1
         self.color = (
             200 - 30 * len(self.immunities),
             200,
@@ -89,16 +89,16 @@ class Person(Agent):
         self.virus = None
 
 
-def setup(model):
+def model_setup(model):
     model.reset()
-    model["S"] = 0
-    model["I"] = 0
-    model["R"] = 0
+    model.Susceptible = 0
+    model.Infectious = 0
+    model.Recovered = 0
     for person in range(100):
         model.add_agent(Person())
 
 
-def step(model):
+def model_step(model):
     for person in model.agents:
         person.step(model)
     model.update_plots()
@@ -106,15 +106,15 @@ def step(model):
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 
-epidemic_model.add_button("Setup", setup)
-epidemic_model.add_toggle_button("Go", step)
-epidemic_model.multi_line_chart(
-    ["S", "I", "R"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
+epidemic_model.add_button("Setup", model_setup)
+epidemic_model.add_toggle_button("Go", model_step)
+epidemic_model.line_chart(
+    ["Susceptible", "Infectious", "Recovered"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
 )
 epidemic_model.add_checkbox("enable_groups")
 epidemic_model.add_controller_row()
-epidemic_model.add_slider("social_distance", 0, 80, 50)
+epidemic_model.add_slider("social_distance", 50, 0, 80)
 epidemic_model.add_controller_row()
-epidemic_model.add_slider("infection_distance", 0, 40, 15)
+epidemic_model.add_slider("infection_distance", 15, 0, 40)
 
 run(epidemic_model)

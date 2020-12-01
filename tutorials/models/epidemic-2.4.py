@@ -4,7 +4,7 @@ from random import randint
 
 class Person(Agent):
     def setup(self, model):
-        model["S"] += 1
+        model.Susceptible += 1
         self.category = 0
         self.color = (0, 200, 0)
         if randint(1, 50) == 1:
@@ -22,29 +22,29 @@ class Person(Agent):
                 self.turn_immune(model)
 
     def infect(self, model):
-        model["S"] -= 1
-        model["I"] += 1
+        model.Susceptible -= 1
+        model.Infectious += 1
         self.color = (200, 0, 0)
         self.category = 1
         self.infection_level = 600
 
     def turn_immune(self, model):
-        model["I"] -= 1
-        model["R"] += 1
+        model.Infectious -= 1
+        model.Recovered += 1
         self.color = (0, 0, 200)
         self.category = 2
 
 
-def setup(model):
+def model_setup(model):
     model.reset()
-    model["S"] = 0
-    model["I"] = 0
-    model["R"] = 0
+    model.Susceptible = 0
+    model.Infectious = 0
+    model.Recovered = 0
     for person in range(100):
         model.add_agent(Person())
 
 
-def step(model):
+def model_step(model):
     for person in model.agents:
         person.step(model)
     model.update_plots()
@@ -52,10 +52,10 @@ def step(model):
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 
-epidemic_model.add_button("Setup", setup)
-epidemic_model.add_toggle_button("Go", step)
-epidemic_model.multi_line_chart(
-    ["S", "I", "R"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
+epidemic_model.add_button("Setup", model_setup)
+epidemic_model.add_toggle_button("Go", model_step)
+epidemic_model.line_chart(
+    ["Susceptible", "Infectious", "Recovered"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
 )
 
 run(epidemic_model)
