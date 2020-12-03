@@ -775,9 +775,11 @@ class Model:
         self.current_row = []
         self.controller_rows.append(self.current_row)
 
-    def add_button(self, label, func):
+    def add_button(self, label, func, toggle=False):
         """
-        Adds a button that runs a provided function when pressed.
+        Adds a button that runs a provided function when pressed. Can be
+        specified to be a toggled button, which will cause the button to
+        continuously call the function while toggled on.
 
         Parameters
         ----------
@@ -785,22 +787,13 @@ class Model:
             The label on the button.
         func
             The function to run when the button is pressed.
+        toggle
+            Whether or not the button should be a toggled button.
         """
-        self.current_row.append(ButtonSpec(label, func))
-
-    def add_toggle_button(self, label, func):
-        """
-        Adds a button that runs a provided function while toggled on. Initially
-        off.
-
-        Parameters
-        ----------
-        label
-            The label on the button.
-        func
-            The function to run while the button is toggled on.
-        """
-        self.current_row.append(ToggleSpec(label, func))
+        if not toggle:
+            self.current_row.append(ButtonSpec(label, func))
+        else:
+            self.current_row.append(ToggleSpec(label, func))
 
     def add_slider(self, variable, initial, minval=0, maxval=100):
         """
@@ -1074,7 +1067,7 @@ class SimpleModel(Model):
                 print("Remember to click 'Setup' first!")
 
         self.add_button("Setup", setup_wrapper)
-        self.add_toggle_button("Go", step_wrapper)
+        self.add_button("Go", step_wrapper, toggle=True)
 
 
 def get_quickstart_model():
