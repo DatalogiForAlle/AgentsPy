@@ -109,7 +109,7 @@ def print_infections(model):
 
 
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
-epidemic_model.add_button("Step", step)
+epidemic_model.add_button("Step", step, toggle=True)
 epidemic_model.add_slider("decay", 2, 0, 3)
 epidemic_model.add_slider("movespeed", 0.5, 0.1, 2)
 epidemic_model.monitor("immune")
