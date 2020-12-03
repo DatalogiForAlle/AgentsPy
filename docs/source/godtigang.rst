@@ -16,6 +16,13 @@ Installer AgentsPy i Mu
 2. Vælg fanen *Third Party Packages*.
 3. I tekstfeltet, indtast `agentspy` og klik OK.
 
+Installer AgentsPy i Thonny
+===========================
+
+1. Vælg **Tools** -> **Manage Packages**.
+2. Skriv ``agentspy`` i feltet og klik på *Search on PyPI.
+3. Klik på **AgentsPy** og derefter **Install**.
+
 
 Et simpelt projekt med AgentsPy
 ===============================
