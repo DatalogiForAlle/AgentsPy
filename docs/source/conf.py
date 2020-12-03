@@ -28,7 +28,7 @@ copyright = '{}, DIKU, Københavns Universitet'.format(_period)
 author = 'Jens Kanstrup Larsen & Martin Dybdal'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3'
+release = '0.7'
 language = 'da'
 
 # -- General configuration ---------------------------------------------------
