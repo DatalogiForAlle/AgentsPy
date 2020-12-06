@@ -242,28 +242,17 @@ class AgentTests(unittest.TestCase):
         self.assertAlmostEqual(agent.x, 0)
         self.assertAlmostEqual(agent.y, 399)
 
-    def test_agent_left(self):
+    def test_agent_rotate(self):
         """
-        Check that left() changes the direction of the agent
+        Check that rotate() changes the direction of the agent
         the given number of degrees
         """
-        test_cases = [(45, 45), (270, 270), (360, 0), (405, 45)]
+        test_cases = [(45, 45), (270, 270), (360, 0), (405, 45),
+                      (-45, 315), (-270, 90), (-360, 0), (-405, 315)]
         for (turn, d) in test_cases:
             with self.subTest(i=(turn, d)):
                 self.test_agent.direction = 0
-                self.test_agent.left(turn)
-                self.assertEqual(self.test_agent.direction, d)
-
-    def test_agent_right(self):
-        """
-        Check that left() changes the direction of the agent
-        the given number of degrees
-        """
-        test_cases = [(45, 315), (270, 90), (360, 0), (405, 315)]
-        for (turn, d) in test_cases:
-            with self.subTest(i=(turn, d)):
-                self.test_agent.direction = 0
-                self.test_agent.right(turn)
+                self.test_agent.rotate(turn)
                 self.assertEqual(self.test_agent.direction, d)
 
     def test_agent_distance_to(self):
