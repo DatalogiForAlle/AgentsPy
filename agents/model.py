@@ -232,10 +232,10 @@ class Agent:
         self.y -= math.sin(math.radians(self.direction)) * distance
         self.__post_move()
 
-    def left(self, degrees):
+    def rotate(self, degrees):
         """
-        Make the agent turn left (counter clockwise) the given number of
-        degrees.
+        Make the agent turn the given number of degrees. Positive is
+        counter-clockwise, negative is clockwise.
 
         Parameters
         ----------
@@ -243,17 +243,6 @@ class Agent:
             The amount of degrees to turn.
         """
         self.direction += degrees
-
-    def right(self, degrees):
-        """
-        Make the agent turn right (clockwise) the given number of degrees.
-
-        Parameters
-        ----------
-        degrees
-            The amount of degrees to turn.
-        """
-        self.direction -= degrees
 
     def distance_to(self, other_x, other_y):
         """
