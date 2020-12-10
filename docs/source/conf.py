@@ -14,8 +14,10 @@ from datetime import datetime
 #
 import os
 import sys
+import mock
 sys.path.insert(0, os.path.abspath('../..'))
-
+sys.modules["PyQt5.QtChart"] = mock.Mock()
+import agents
 
 # -- Project information -----------------------------------------------------
 
@@ -26,7 +28,7 @@ copyright = '{}, DIKU, Københavns Universitet'.format(_period)
 author = 'Jens Kanstrup Larsen & Martin Dybdal'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3'
+release = '0.7'
 language = 'da'
 
 # -- General configuration ---------------------------------------------------
@@ -35,10 +37,12 @@ language = 'da'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
 ]
 
-autodoc_mock_imports = ["PyQtChart"]
+autodoc_mock_imports = ["PyQtChart", "PyQt5"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

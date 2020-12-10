@@ -49,6 +49,9 @@ den så til modellen ved at bruge ``add_agent()``. Starter man
 modellen igen, burde der vises en enkelt lille trekant inde i
 modellen - dette er agenten.
 
+.. image:: images/epidemic/epidemic-1.1.png
+   :height: 400
+
 Knapper
 -------
 For at gøre det nemmere at styre vores model undervejs, vil vi gerne
@@ -61,7 +64,7 @@ Slet først den linje, du lige har tilføjet ovenfor (altså den, der
 laver en agent og tilføjer den til modellen). Tilføj så denne
 funktion, lige efter, at du har importeret ``agents``::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       model.add_agent(Agent())
 
@@ -71,17 +74,20 @@ men det vil blive brugbart senere.
 
 Tilføj så, efter du har lavet ``epidemic_model``, følgende linje::
 
-  epidemic_model.add_button("Setup", setup)
+  epidemic_model.add_button("Setup", model_setup)
 
 Linjen tilføjer en knap til vinduet som, når den klikkes på, kører
-``setup``-funktionen.
+``model_setup``-funktionen.
+
+.. image:: images/epidemic/epidemic-1.2.png
+   :height: 400
 
 Flere agenter
 -------------
-Lad os tilføje lidt flere agenter. Ændr ``setup`` funktionen, sådan at
+Lad os tilføje lidt flere agenter. Ændr ``model_setup`` funktionen, sådan at
 den siger følgende::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for agent in range(100):
           model.add_agent(Agent())
@@ -89,10 +95,10 @@ den siger følgende::
 Nu laver vi 100 agenter og tilføjer dem til modellen.
 
 Lige nu laver agenterne ikke særlig meget. Lad os gøre det muligt for
-agenterne at gå rundt omkring. Tilføj denne ``step`` funktion under
-``setup`` funktionen::
+agenterne at gå rundt omkring. Tilføj denne ``model_step`` funktion under
+``model_setup`` funktionen::
 
-  def step(model):
+  def model_step(model):
       for agent in model.agents:
           agent.direction += randint(-10,10)
           agent.forward()
@@ -112,11 +118,14 @@ dette i toppen af filen, sammen med at du importerer ``agents``)::
 
 Slut af med at tilføje denne linje efter at du tilføjer `setup`-knappen::
 
-  epidemic_model.add_toggle_button("Go", step)
+  epidemic_model.add_toggle_button("Go", model_step)
 
 Dette laver en knap, som man kan slå til og fra. Når den er slået til,
-kører den ``step``-funktionen konstant, hvilket får agenterne til
+kører den ``model_step``-funktionen konstant, hvilket får agenterne til
 at bevæge sig rundt.
+
+.. image:: images/epidemic/epidemic-1.3.png
+   :height: 400
 
 SIR-modellen
 ------------
@@ -161,7 +170,7 @@ Lige nu er vores agenter "bare" agenter. Vi vil gerne gøre dem lidt
 mere avancerede, sådan at de blandt andet kan selv kan holde styr på,
 hvilken kategori af SIR-modellen, de er i.
 
-Tilføj, over din ``setup``-funktion (men under dine imports), følgende kode::
+Tilføj, over din ``model_setup``-funktion (men under dine imports), følgende kode::
 
   class Person(Agent):
       def setup(self,model):
@@ -174,9 +183,9 @@ Tilføj, over din ``setup``-funktion (men under dine imports), følgende kode::
 Ovenstående kode definerer en *klasse*, som har noget opførsel
 beskrevet i sine egne funktioner ``Person.setup`` og ``Person.step``.
 
-Ændr så ``setup``-funktionen (*ikke* ``Person.setup``) til::
+Ændr så ``model_setup``-funktionen til::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for person in range(100):
           model.add_agent(Person())
@@ -184,10 +193,10 @@ beskrevet i sine egne funktioner ``Person.setup`` og ``Person.step``.
 Nu tilføjer vi altså personer i stedet for "bare" normale agenter.
 
 Bemærk, at indholdet i ``Person.step`` lidt ligner det, der står i
-``step``-funktionen i forvejen. Faktisk kan vi nu også ændre i
-``step``-funktionen, sådan at der i stedet står::
+``model_step``-funktionen i forvejen. Faktisk kan vi nu også ændre i
+``model_step``-funktionen, sådan at der i stedet står::
 
-  def step(model):
+  def model_step(model):
       for person in model.agents:
           person.step(model)
 
@@ -225,6 +234,9 @@ Vi gør her sådan, at de fleste agenter starter med at være raske og
 have en grøn farve, men en lille del (omkring 2%) starter med at være
 syge og have en rød farve.
 
+.. image:: images/epidemic/epidemic-2.2.png
+   :height: 400
+
 Smittespredning
 ---------------
 
@@ -241,6 +253,9 @@ kode i bunden af ``Person.step``-funktionen::
 Koden siger, at hvis agenten er i kategori 1 (altså syg), så smitter
 den alle agenter indenfor en radius af 12 (agentens egen radius er på
 4).
+
+.. image:: images/epidemic/epidemic-2.3.png
+   :height: 400
 
 Immunitet
 ---------
@@ -297,41 +312,44 @@ agenter i hver kategori, og så får grafen til at vise tre linjer, som
 viser antallene i hver kategori som funktion af tid.
 
 Begynd først med at indsætte disse tre linjer i
-``setup``-funktionen, lige efter du har kaldt
+``model_setup``-funktionen, lige efter du har kaldt
 ``model.reset()``::
 
-  model["S"] = 0
-  model["I"] = 0
-  model["R"] = 0
+  model.Susceptible = 0
+  model.Infectious = 0
+  model.Recovered = 0
 
 Vi får agenterne selv til at tildele sig de forskellige kategorier, så vi lader alle tre starte med at være 0.
 
 Tilføj øverst i ``Person.setup``::
 
-  model["S"] += 1
+  model.Susceptible += 1
 
 Tilføj øverst i ``Person.infect``::
 
-  model["S"] -= 1
-  model["I"] += 1
+  model.Susceptible -= 1
+  model.Infectious += 1
 
 Tilføj øverst i ``Person.turn_immune``::
 
-  model["I"] -= 1
-  model["R"] += 1
+  model.Infectious -= 1
+  model.Recovered += 1
 
 Nu har vi styr på dataen til vores model. Programmet skal dog lige
 vide, at det skal opdatere grafen, imens *Go*-knappen holdes
-inde. Tilføj denne linje nederst i ``step``-funktionen::
+inde. Tilføj denne linje nederst i ``model_step``-funktionen::
 
   model.update_plots()
 
 Det eneste, vi mangler nu, er at tilføje selve grafen. Indsæt denne
 linje, lige efter der hvor du tilføjer knapperne til modellen::
 
-  epidemic_model.multi_line_chart(["S","I","R"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
+  epidemic_model.multi_line_chart(["Susceptible","Infectious","Recovered"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
 
 Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og sammenlign så den graf du får med den, der er på `Wikipedia-siden for SIR-modellen <https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model}{>`_.
+
+.. image:: images/epidemic/epidemic-2.4.png
+   :height: 400
 
 Mindskning af smitte
 --------------------
@@ -398,7 +416,7 @@ I takt med, at vi indfører forskellige tiltag til at begrænse smitten, kunne d
 Nu kan vi gå i gang med faktisk at lave gruppefunktionaliteten.
 Tilføj, nederst i ``Person.setup``, denne linje::
 
-  if model["enable_groups"]:
+  if model.enable_groups:
       self.group = randint(1,5)
 
 Dette tildeler agenten til en tilfældig gruppe, identificeret med et ID mellem 1 og 5.
@@ -425,16 +443,19 @@ Dette gemmer agentens farvecirkel i variablen ``group_indicator``, og giver den 
 
 til denne::
 
-  if model["enable_groups"] and agent.group != self.group:
+  if model.enable_groups and agent.group != self.group:
 
 Det får agenten til at undgå alle, der ikke er i dens egen gruppe, fremfor dem der er smittede.
 Tilføj til sidst, nederst i ``Person.step``::
 
-  if model["enable_groups"]:
+  if model.enable_groups:
       self.group_indicator.x = self.x-10
       self.group_indicator.y = self.y-10
 
 Dette får agentens "gruppe-indikator" til at følge med den rundt.
+
+.. image:: images/epidemic/epidemic-3.2.png
+   :height: 400
 
 Mere/mindre afstand
 -------------------
@@ -448,9 +469,9 @@ Tilføj to *sliders* til modellen med følgende kode (indsæt dem samme
 sted, som du laver knapper/checkboxes)::
 
   epidemic_model.add_controller_row()
-  epidemic_model.add_slider("social_distance", 0, 80, 50)
+  epidemic_model.add_slider("social_distance", 50, 0, 80)
   epidemic_model.add_controller_row()
-  epidemic_model.add_slider("infection_distance", 0, 40, 15)
+  epidemic_model.add_slider("infection_distance", 15, 0, 40)
 
 Dette giver to sliders, som kan bruges til at justere variablene
 ``social_distance`` og ``infection_distance``. De to første tal er
@@ -463,7 +484,7 @@ startværdien.
 
 til denne::
 
-  for agent in self.agents_nearby(model["social_distance"]):
+  for agent in self.agents_nearby(model.social_distance):
 
 og ændr denne::
 
@@ -471,7 +492,10 @@ og ændr denne::
 
 til denne::
 
-  for agent in self.agents_nearby(model["infection_distance"]):
+  for agent in self.agents_nearby(model.infection_distance):
+
+.. image:: images/epidemic/epidemic-3.3.png
+   :height: 400
 
 Prøv at køre simulationen, og juster på værdierne undervejs. Overvej,
 hvilken indflydelse forholdet mellem de to værdier har på
@@ -525,8 +549,8 @@ at gøre med agentens infektion, til at bruge denne klasse i
 stedet. Ændr ``Person.infect`` til denne::
 
   def infect(self, model):
-      model["S"] -= 1
-      model["I"] += 1
+      model.Susceptible -= 1
+      model.Infectious += 1
       self.color = (200,0,0)
       self.category = 1
       self.virus = virus
@@ -534,8 +558,8 @@ stedet. Ændr ``Person.infect`` til denne::
 og ``Person.turn_immune`` til denne::
 
   def turn_immune(self, model):
-      model["I"] -= 1
-      model["R"] += 1
+      model.Infectious -= 1
+      model.Recovered += 1
       self.color = (0,0,200)
       self.category = 2
       self.virus = None
@@ -543,7 +567,7 @@ og ``Person.turn_immune`` til denne::
 Ændr til sidst dette stykke i ``Person.step``::
 
   if self.category == 1:
-      for agent in self.agents_nearby(model["infection_distance"]):
+      for agent in self.agents_nearby(model.infection_distance):
           if agent.category == 0:
               agent.infect(model)
       self.infection_level -= 1
@@ -553,7 +577,7 @@ og ``Person.turn_immune`` til denne::
 til dette::
 
   if self.category == 1:
-      for agent in self.agents_nearby(model["infection_distance"]):
+      for agent in self.agents_nearby(model.infection_distance):
           if agent.category == 0:
               agent.infect(model, self.virus.mutate())
       self.virus.infection_level -= 1
@@ -613,8 +637,8 @@ Samtidig ændrer vi nu lidt på ``Person.turn_immune``, da agenterne i stedet bl
 Erstat ``Person.turn_immune`` med nedenstående::
 
   def turn_immune(self, model):
-      model["I"] -= 1
-      model["S"] += 1
+      model.Infectious -= 1
+      model.Susceptible += 1
       self.color = (200-30*len(self.immunities),200,200-30*len(self.immunities))
       self.category = 0
       self.immunities.append(self.virus.mutation)
@@ -625,11 +649,11 @@ Der er nogle ændringer i forhold til den nuværende:
  * I stedet for at sætte agentens kategori til 2, sætter vi den
    tilbage til 0, da agenten egentlig ikke bliver immun, men går
    tilbage til at være modtagelig. Af samme årsag lægger vi 1 til
-   ``model["S"]`` i stedet for ``model["R"]``.
-   
+   ``model.Susceptible`` i stedet for ``model.Recovered``.
+
  * Agentens farve bliver nu mere grøn, jo mere resistent den er (altså
    jo flere sygdomme den har haft).
-   
+
  * Vi tilføjer virussens "*mutation-ID*" til agentens liste over
    immuniteter. Den kan altså ikke smittes med denne mutation
    fremover.
@@ -662,6 +686,9 @@ Til sidst gør vi sådan, at der er en 25\% chance for, at virussen muterer, nå
           return Virus(self.mutation-1)
 
 Prøv at køre modellen nu, og observer grafen. Kan du se, hvordan de forskellige "bølger" af mutationer optræder?
+
+.. image:: images/epidemic/epidemic-4.2.png
+   :height: 400
 
 Mutationseffekter
 -----------------
@@ -704,11 +731,11 @@ i ``Person.setup``::
 
 til denne::
 
-  self.infect(model, Virus(5, 600, model["infection_distance"]))
+  self.infect(model, Virus(5, 600, model.infection_distance))
 
 Til sidst, ændr denne linje i ``Person.step``::
 
-  for agent in self.agents_nearby(model["infection_distance"]):
+  for agent in self.agents_nearby(model.infection_distance):
 
 til denne::
 

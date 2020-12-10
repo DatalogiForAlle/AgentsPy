@@ -1,7 +1,7 @@
 from agents import Model, Agent, run
 
 
-def setup(model):
+def model_setup(model):
     model.reset()
     print("hello\n")
     model.add_agent(Agent())
@@ -9,6 +9,6 @@ def setup(model):
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 
-epidemic_model.add_button("Setup", setup)
-print("hello 1")
-# run(epidemic_model)
+epidemic_model.add_button("Setup", model_setup)
+
+run(epidemic_model)

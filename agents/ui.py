@@ -188,12 +188,19 @@ class QtGraph(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setTitle(str(self.spec.variables))
-        self.chart.legend().hide()
+        # self.chart.setTitle(str(self.spec.variables))
+        # self.chart.legend().hide()
 
-        for color in self.spec.colors:
+        for i in range(len(self.spec.variables)):
             series = QLineSeries()
-            series.setColor(QColor(color[0], color[1], color[2]))
+            series.setColor(
+                QColor(
+                    self.spec.colors[i][0],
+                    self.spec.colors[i][1],
+                    self.spec.colors[i][2],
+                )
+            )
+            series.setName(self.spec.variables[i])
             self.chart.addSeries(series)
 
         self.setMinimumWidth(400)
@@ -251,7 +258,7 @@ class QtBarChart(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setTitle(str(self.spec.variables))
+        # self.chart.setTitle(str(self.spec.variables))
         self.chart.legend().hide()
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
@@ -531,7 +538,7 @@ class Application:
 
         # Start timers
         self.logic_timer.start(1000 / 60)
-        self.graphics_timer.start(1000 / 10)
+        self.graphics_timer.start(1000 / 30)
 
     def update_logic(self):
         if not self.model.is_paused():
