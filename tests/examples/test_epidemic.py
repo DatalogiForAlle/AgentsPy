@@ -9,5 +9,6 @@ spec = importlib.util.spec_from_file_location("epidemic-1.2.py", sys.argv[1])
 print("hello \n")
 foo = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(foo)
+testing = true
 
 foo.setup(foo.epidemic_model)
