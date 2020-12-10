@@ -28,4 +28,5 @@ epidemic_model.add_button("Setup", model_setup)
 
 epidemic_model.add_toggle_button("Go", model_step)
 
-run(epidemic_model)
+if __name__ == "__main__":
+    run(epidemic_model)

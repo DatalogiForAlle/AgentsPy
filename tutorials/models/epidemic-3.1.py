@@ -67,4 +67,5 @@ epidemic_model.line_chart(
     ["Susceptible", "Infectious", "Recovered"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
 )
 
-run(epidemic_model)
+if __name__ == "__main__":
+    run(epidemic_model)

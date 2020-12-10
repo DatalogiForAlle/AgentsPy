@@ -122,4 +122,5 @@ epidemic_model.add_slider("social_distance", 50, 0, 80)
 epidemic_model.add_controller_row()
 epidemic_model.add_slider("infection_distance", 15, 0, 40)
 
-run(epidemic_model)
+if __name__ == "__main__":
+    run(epidemic_model)

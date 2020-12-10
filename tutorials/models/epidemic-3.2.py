@@ -87,4 +87,5 @@ epidemic_model.line_chart(
 )
 epidemic_model.add_checkbox("enable_groups")
 
-run(epidemic_model)
+if __name__ == "__main__":
+    run(epidemic_model)

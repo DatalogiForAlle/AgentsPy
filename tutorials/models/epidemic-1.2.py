@@ -8,5 +8,5 @@ def model_setup(model):
 epidemic_model = Model("Epidemimodel", 100, 100)
 
 epidemic_model.add_button("Setup", model_setup)
-
-run(epidemic_model)
+if __name__ == "__main__":
+    run(epidemic_model)
