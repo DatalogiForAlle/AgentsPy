@@ -138,3 +138,10 @@ examples/stupid/stupid.data
 
 # Blockly
 blockly
+
+#Added by cargo
+#
+#already existing elements are commented out
+
+/target
+**/*.rs.bk

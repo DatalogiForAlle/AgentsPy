@@ -1149,3 +1149,10 @@ def destroy_agents(agents):
     """
     for a in agents:
         a.destroy()
+
+def run_no_UI(model, iterations):
+    """
+    Calls setup and step on a model
+    """
+
+    model.step()
