@@ -4,6 +4,8 @@ import operator
 import colorsys
 from enum import Enum
 
+from multiprocessing import Process, Queue
+from threading import Thread
 
 class AgentShape(Enum):
     CIRCLE = 1
@@ -17,6 +19,8 @@ class Agent:
     Creates an agent with a random position, direction and color. Has no
     initial model; this must be provided by ``Agent.set_model``.
     """
+
+    _queue = Queue()
 
     def __init__(self):
         # Destroyed agents are not drawn and are removed from their area.
@@ -36,15 +40,22 @@ class Agent:
 
         self.x = 0
         self.y = 0
-        self.size = 8
+        self.__size = 8
         self.__direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
-        self.shape = AgentShape.ARROW
+        self.__shape = AgentShape.ARROW
 
         # Associated simulation area.
+        Agent._queue.put([id(self),"create",
+                                self.x,self.y,
+                                self.__direction,
+                                self.__size,
+                                self.__shape,
+                                self.color])
         get_quickstart_model().add_agent(self, setup=False)
+
 
     # Should be overwritten by a subclass
     def setup(self, model):
@@ -84,6 +95,7 @@ class Agent:
         else:
             self.__stay_inside()
         self.update_current_tile()
+        Agent._queue.put([id(self),"update_pos",self.x,self.y])
 
     # Makes the agent wrap around the simulation area
     def __wraparound(self):
@@ -347,6 +359,42 @@ class Agent:
             self.__destroyed = True
 
     @property
+    def direction(self):
+        """
+        The direction of the agent, measured in degrees.
+        """
+        return self.__direction % 360
+
+    @direction.setter
+    def direction(self, direction):
+        self.__direction = direction % 360
+        Agent._queue.put([id(self),"update_dir",direction])
+
+    @property
+    def size(self):
+        """
+        The size of the agent.
+        """
+        return self.__size
+
+    @size.setter
+    def size(self, size):
+        self.__size = size
+        Agent._queue.put([id(self),"update_size",size])
+
+    @property
+    def shape(self):
+        """
+        The shape of the agent.
+        """
+        return self.__shape
+
+    @shape.setter
+    def shape(self, shape):
+        self.__shape = shape
+        Agent._queue.put([id(self),"update_shape",shape])
+
+    @property
     def color(self):
         """
         The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255,
@@ -358,17 +406,7 @@ class Agent:
     def color(self, color):
         r, g, b = color
         self.__color = [r, g, b]
-
-    @property
-    def direction(self):
-        """
-        The direction of the agent, measured in degrees.
-        """
-        return self.__direction % 360
-
-    @direction.setter
-    def direction(self, direction):
-        self.__direction = direction % 360
+        Agent._queue.put([id(self),"update_color",color])
 
 
 class Tile:
@@ -386,13 +424,16 @@ class Tile:
         The model that the tile is a part of.
     """
 
+    _queue = Queue()
+
     def __init__(self, x, y, model):
         self.x = x
         self.y = y
         self.info = {}
-        self.color = (0, 0, 0)
+        self.__color = (0, 0, 0)
         self.__agents = set()
         self.__model = model
+        Tile._queue.put([id(self),"create",self.x,self.y,self.color])
 
     def add_agent(self, agent):
         """
@@ -423,6 +464,20 @@ class Tile:
         Gets the set of agents currently on the tile.
         """
         return self.__agents
+
+    @property
+    def color(self):
+        """
+        The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255,
+        255, 255) to color the agent white.
+        """
+        return self.__color
+
+    @color.setter
+    def color(self, color):
+        r, g, b = color
+        self.__color = [r, g, b]
+        Tile._queue.put([id(self),"update_color",color])
 
 
 class Spec:
@@ -537,6 +592,9 @@ class Model:
         ``Model.reload()``.
     """
 
+    _ui_queue = Queue()
+    _input_queue = Queue()
+
     def __init__(
         self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None
     ):
@@ -583,14 +641,26 @@ class Model:
         self.__agents = []
         self.variables = {}
         self.plot_specs = []
-        self.controller_rows = []
-        self.add_controller_row()
+        self.control_panel = {}
         self.plots = set()  # Filled in during initialization
         self.show_direction = False
         self._paused = False
         self._wrapping = True
         self._close_func = None
         self._shapes = []
+
+        input_thread = Thread(target=self.input_listener)
+        input_thread.start()
+
+    def input_listener(self):
+        while True:
+            msg = Model._input_queue.get()
+            button_type = msg[0]
+            button_id = msg[1]
+            if button_id not in self.control_panel: # Not the right model
+                Model._input_queue.put(msg)
+            elif msg[0] == "single_button":
+                self.control_panel[msg[1]].function(self)
 
     def add_agent(self, agent, setup=True):
         """
@@ -605,8 +675,8 @@ class Model:
             ``True``).
         """
         agent.set_model(self)
-        agent.x = random.randint(0, self.width)
-        agent.y = random.randint(0, self.height)
+        agent.jump_to(random.randint(0, self.width),
+                      random.randint(0, self.height))
         agent.update_current_tile()
         self.__agents.append(agent)
         if setup:
@@ -772,8 +842,10 @@ class Model:
         Creates a new row to place controller widgets on (buttons, sliders,
         etc.).
         """
-        self.current_row = []
-        self.controller_rows.append(self.current_row)
+        print("?")
+        Model._ui_queue.put(["add_row"])
+        #self.current_row = []
+        #self.controller_rows.append(self.current_row)
 
     def add_button(self, label, func, toggle=False):
         """
@@ -791,9 +863,15 @@ class Model:
             Whether or not the button should be a toggled button.
         """
         if not toggle:
-            self.current_row.append(ButtonSpec(label, func))
+            #self.current_row.append(ButtonSpec(label, func))
+            spec = ButtonSpec(label, func)
+            self.control_panel[id(spec)] = spec
+            Model._ui_queue.put(["add_button",id(spec),label])
         else:
-            self.current_row.append(ToggleSpec(label, func))
+            #self.current_row.append(ToggleSpec(label, func))
+            spec = ToggleSpec(label, func)
+            self.control_panel[id(spec)] = spec
+            Model._ui_queue.put(["add_toggle",id(spec),label])
 
     def add_slider(self, variable, initial, minval=0, maxval=100):
         """
