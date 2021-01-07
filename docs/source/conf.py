@@ -40,6 +40,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
 ]
 
 autodoc_mock_imports = ["PyQtChart", "PyQt5"]
@@ -53,6 +54,8 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 master_doc = 'index'
+
+todo_include_todos = True
 
 
 # -- Options for HTML output -------------------------------------------------
