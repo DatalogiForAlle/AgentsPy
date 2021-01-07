@@ -1,5 +1,5 @@
 from time import sleep
-
+from random import randint
 from agents import Agent, Model, run
 
 modello = Model("Zepto", 100, 100)
@@ -20,13 +20,11 @@ epidemic_model.on_close(print_infections)
 for i in range(100):
     modello.add_agent(Agent())
 
-def sayhello(model):
-    print("hej :)")
-
 def step(model):
     for ag in model.agents:
         ag.forward()
+        ag.direction += randint(-5,5)
 
-modello.add_button("Go", sayhello, toggle=True)
+modello.add_button("Go", step, toggle=True)
 
 run(modello)

@@ -497,8 +497,9 @@ class QtAgentGraph(QChartView):
 
 
 class ToggleButton(QtWidgets.QPushButton):
-    def __init__(self, text):
+    def __init__(self, text, button_id):
         super().__init__(text)
+        self.button_id = button_id
         self.setCheckable(True)
 
 
@@ -545,7 +546,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
     def closeEvent(self, event):
-        self.model.close()
+        Model._input_queue.put(["close"])
         super().closeEvent(event)
 
 
@@ -613,7 +614,7 @@ class Application:
                 and controller.isChecked()
             ):
                 Model._input_queue.put(["toggle_button",
-                                        id(controller)])
+                                        controller.button_id])
             elif isinstance(controller, Monitor):
                 controller.update_label()
 
@@ -634,7 +635,7 @@ class Application:
         self.controllers.append(btn)
 
     def add_toggle(self, button_id, label, row):
-        btn = ToggleButton(toggle_spec.label, toggle_spec.function, self.model)
+        btn = ToggleButton(label, button_id)
         row.addWidget(btn)
         self.controllers.append(btn)
 

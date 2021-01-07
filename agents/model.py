@@ -656,10 +656,16 @@ class Model:
         while True:
             msg = Model._input_queue.get()
             button_type = msg[0]
+            if msg[0] == "close": # Stop this model
+                self.close()
+                Model._input_queue.put(["close"])
+                break
             button_id = msg[1]
             if button_id not in self.control_panel: # Not the right model
                 Model._input_queue.put(msg)
             elif msg[0] == "single_button":
+                self.control_panel[msg[1]].function(self)
+            elif msg[0] == "toggle_button":
                 self.control_panel[msg[1]].function(self)
 
     def add_agent(self, agent, setup=True):
@@ -863,12 +869,10 @@ class Model:
             Whether or not the button should be a toggled button.
         """
         if not toggle:
-            #self.current_row.append(ButtonSpec(label, func))
             spec = ButtonSpec(label, func)
             self.control_panel[id(spec)] = spec
             Model._ui_queue.put(["add_button",id(spec),label])
         else:
-            #self.current_row.append(ToggleSpec(label, func))
             spec = ToggleSpec(label, func)
             self.control_panel[id(spec)] = spec
             Model._ui_queue.put(["add_toggle",id(spec),label])
