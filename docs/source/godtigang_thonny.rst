@@ -1,4 +1,4 @@
-.. |RUN| image:: images/thonny/run.jpg
+.. |RUN| image:: images/godtigang/thonny-run.png
    :height: 20
    :width: 20
 
@@ -12,7 +12,9 @@ Hent og installer Thonny fra: https://thonny.org/
 
 Åbn Thonny, du burde få et vindue op der ser nogenlunde sådan her ud:
 
-.. todo:: SCREENSHOT
+.. figure:: images/godtigang/thonny.png
+    :alt: Thonny window
+    :width: 600px
 
 Installer AgentsPy i Thonny
 ---------------------------
@@ -63,11 +65,11 @@ står ``# Write your code here :-)``,og skriver følgende::
 Når du har skrevet ovenstående, kan du prøve programmet ved at trykke
 på Run |RUN|.
 
-.. todo:: run button icon
-
 Du burde nu se følgende vindue:
 
-.. todo:: SCREENSHOT
+.. figure:: images/godtigang/first_model.png
+    :alt: Første model
+    :width: 400px
 
 Prøv at trykke på knappen "Step" for at få din agent til at tage et skridt.
 
