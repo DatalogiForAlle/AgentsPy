@@ -49,7 +49,7 @@ den så til modellen ved at bruge ``add_agent()``. Starter man
 modellen igen, burde der vises en enkelt lille trekant inde i
 modellen - dette er agenten.
 
-.. image:: images/epidemic/epidemic-1.1.png
+.. image:: ../images/epidemic/epidemic-1.1.png
    :height: 400
 
 Knapper
@@ -79,7 +79,7 @@ Tilføj så, efter du har lavet ``epidemic_model``, følgende linje::
 Linjen tilføjer en knap til vinduet som, når den klikkes på, kører
 ``model_setup``-funktionen.
 
-.. image:: images/epidemic/epidemic-1.2.png
+.. image:: ../images/epidemic/epidemic-1.2.png
    :height: 400
 
 Flere agenter
@@ -124,7 +124,7 @@ Dette laver en knap, som man kan slå til og fra. Når den er slået til,
 kører den ``model_step``-funktionen konstant, hvilket får agenterne til
 at bevæge sig rundt.
 
-.. image:: images/epidemic/epidemic-1.3.png
+.. image:: ../images/epidemic/epidemic-1.3.png
    :height: 400
 
 SIR-modellen
@@ -234,7 +234,7 @@ Vi gør her sådan, at de fleste agenter starter med at være raske og
 have en grøn farve, men en lille del (omkring 2%) starter med at være
 syge og have en rød farve.
 
-.. image:: images/epidemic/epidemic-2.2.png
+.. image:: ../images/epidemic/epidemic-2.2.png
    :height: 400
 
 Smittespredning
@@ -254,7 +254,7 @@ Koden siger, at hvis agenten er i kategori 1 (altså syg), så smitter
 den alle agenter indenfor en radius af 12 (agentens egen radius er på
 4).
 
-.. image:: images/epidemic/epidemic-2.3.png
+.. image:: ../images/epidemic/epidemic-2.3.png
    :height: 400
 
 Immunitet
@@ -348,5 +348,5 @@ linje, lige efter der hvor du tilføjer knapperne til modellen::
 
 Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og sammenlign så den graf du får med den, der er på `Wikipedia-siden for SIR-modellen <https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model}{>`_.
 
-.. image:: images/epidemic/epidemic-2.4.png
+.. image:: ../images/epidemic/epidemic-2.4.png
    :height: 400

@@ -184,7 +184,7 @@ Til sidst gør vi sådan, at der er en 25\% chance for, at virussen muterer, nå
 
 Prøv at køre modellen nu, og observer grafen. Kan du se, hvordan de forskellige "bølger" af mutationer optræder?
 
-.. image:: images/epidemic/epidemic-4.2.png
+.. image:: ../images/epidemic/epidemic-4.2.png
    :height: 400
 
 Mutationseffekter

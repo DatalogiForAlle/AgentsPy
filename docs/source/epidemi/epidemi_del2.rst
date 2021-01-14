@@ -100,7 +100,7 @@ Tilføj til sidst, nederst i ``Person.step``::
 
 Dette får agentens "gruppe-indikator" til at følge med den rundt.
 
-.. image:: images/epidemic/epidemic-3.2.png
+.. image:: ../images/epidemic/epidemic-3.2.png
    :height: 400
 
 Mere/mindre afstand
@@ -140,7 +140,7 @@ til denne::
 
   for agent in self.agents_nearby(model.infection_distance):
 
-.. image:: images/epidemic/epidemic-3.3.png
+.. image:: ../images/epidemic/epidemic-3.3.png
    :height: 400
 
 Prøv at køre simulationen, og juster på værdierne undervejs. Overvej,
