@@ -35,6 +35,8 @@ from agents.model import (
 
 from multiprocessing import Process, Queue
 
+from random import randint
+
 class UIAgent():
     def __init__(self, x, y, direction, size, shape, color):
         self.x = x
@@ -74,18 +76,22 @@ class SimulationArea(QtWidgets.QWidget):
         self.enable_rendering = True
     """
 
+    def reset(self):
+        self.__ui_agents = {}
+        self.__ui_tiles = {}
+
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         # Default to a black background
-        white = QtGui.QColor("black")
+        white = QtGui.QColor("white")
         painter.setBrush(white)
         painter.drawRect(
-            0, 0, painter.device().width(), painter.device().height()
+            0, 0, painter.device().width()/2, painter.device().height()/2
         )
-
+        """
         # Load/update all simulation area elements (agents/tiles):
         i = 0
         while not Agent._queue.empty():
@@ -110,7 +116,7 @@ class SimulationArea(QtWidgets.QWidget):
                 self.__ui_agents[sender].selected = True
             elif command == "deselect":
                 self.__ui_agents[sender].selected = False
-
+        """
         while not Tile._queue.empty():
             msg = Tile._queue.get()
             sender = msg[0]
@@ -120,6 +126,7 @@ class SimulationArea(QtWidgets.QWidget):
             elif command == "update_color":
                 self.__ui_tiles[sender].color = msg[2]
 
+        print(len(self.__ui_tiles))
         # Draw tiles
         for tile in self.__ui_tiles.values():
             self.paintTile(painter, tile)
@@ -133,7 +140,7 @@ class SimulationArea(QtWidgets.QWidget):
             elif type(shape) is RectStruct:
                 painter.drawRect(shape.x, shape.y, shape.w, shape.h)
                 # Draw agents
-        """
+
         select = None
         for agent in self.__ui_agents.values():
             self.paintAgent(painter, agent)
@@ -151,6 +158,7 @@ class SimulationArea(QtWidgets.QWidget):
             )
             painter.setBrush(QColor(0, 0, 0, 150))
             painter.drawPath(path)
+        """
         painter.end()
 
 
@@ -447,42 +455,45 @@ class QtAgentGraph(QChartView):
             chart.clear()
         self._data = []
 
-    def update_data(self):
-        for a in self.spec.agents:
-            if not hasattr(a, "_agent_series"):
-                a._agent_series = QLineSeries()
-                a._agent_series.setColor(
-                    QColor(a.color[0], a.color[1], a.color[2])
+    def update_data(self, dataset):
+        for ag in dataset:
+            agent_id = ag[0]
+            agent_data = ag[1]
+            agent_color = ag[2]
+            if agent_id not in self.spec.agents.keys():
+                self.spec.agents[agent_id] = (QLineSeries(), [agent_data])
+                self.spec.agents[agent_id][0].setColor(
+                    QColor(agent_color[0], agent_color[1], agent_color[2])
                 )
-                a._agent_series_data = [getattr(a, self.spec.variable)]
-                self.chart.addSeries(a._agent_series)
-                a._agent_series.attachAxis(self.chart.axisX())
-                a._agent_series.attachAxis(self.chart.axisY())
+                self.chart.addSeries(self.spec.agents[agent_id][0])
+                self.spec.agents[agent_id][0].attachAxis(self.chart.axisX())
+                self.spec.agents[agent_id][0].attachAxis(self.chart.axisY())
             else:
-                a._agent_series_data.append(getattr(a, self.spec.variable))
+                self.spec.agents[agent_id][0].setColor(
+                    QColor(agent_color[0], agent_color[1], agent_color[2])
+                )
+                self.spec.agents[agent_id][1].append(agent_data)
 
     def redraw(self):
-        for a in self.spec.agents:
-            if hasattr(a, "_agent_series") and len(a._agent_series_data) > 0:
-                datapoint = sum(a._agent_series_data) / len(
-                    a._agent_series_data
-                )
-                a._agent_series.append(
+        for ag in self.spec.agents.keys():
+            ag_tuple = self.spec.agents[ag]
+            ag_series = ag_tuple[0]
+            ag_data = ag_tuple[1]
+            if len(ag_data) > 0:
+                datapoint = sum(ag_data) / len(ag_data)
+                ag_series.append(
                     QPointF(
-                        a._agent_series.count() / self._updates_per_second,
+                        ag_series.count() / self._updates_per_second,
                         datapoint,
                     )
                 )
                 self._min = min(self._min, datapoint)
                 self._max = max(self._max, datapoint)
-                a._agent_series.setColor(
-                    QColor(a.color[0], a.color[1], a.color[2])
-                )
-            a._agent_series_data = []
+            ag_data = []
         if len(self.spec.agents) > 0:
-            first_agent = self.spec.agents[0]
-            if hasattr(first_agent, "_agent_series"):
-                first_series = first_agent._agent_series
+            first_agent_tuple = list(self.spec.agents.values())[0]
+            if len(first_agent_tuple[1]):
+                first_series = first_agent_tuple[0]
                 self.chart.axes()[0].setRange(
                     0, (first_series.count() - 1) / self._updates_per_second
                 )
@@ -523,15 +534,15 @@ class Slider(QtWidgets.QHBoxLayout):
 
 
 class Monitor(QtWidgets.QLabel):
-    def __init__(self, variable, model):
+    def __init__(self, variable):
         super().__init__()
         self.variable = variable
         self.setText(variable + ": -")
-        self.model = model
+        self.data = None
 
-    def update_label(self):
-        if self.variable in self.model.variables:
-            self.setText(self.variable + ": " + str(self.model[self.variable]))
+    def update_label(self, data):
+        self.data = data
+        self.setText(self.variable + ": " + str(self.data))
 
 
 class Checkbox(QtWidgets.QCheckBox):
@@ -553,12 +564,13 @@ class MainWindow(QtWidgets.QMainWindow):
 class Application:
     def __init__(self, model):
         self.model = model
+        self.plots = {}
         self.logic_timer = QtCore.QTimer()
         self.logic_timer.timeout.connect(self.update_logic)
         self.graphics_timer = QtCore.QTimer()
         self.graphics_timer.timeout.connect(self.update_graphics)
         self.panel_timer = QtCore.QTimer()
-        self.panel_timer.timeout.connect(self.add_controllers)
+        self.panel_timer.timeout.connect(self.add_elements)
         self.initializeUI()
 
     def initializeUI(self):
@@ -590,6 +602,7 @@ class Application:
         self.left_box.addWidget(self.simulation_area)
 
         # Controller box (bottom left)
+        self.row_empty = True
         self.controller_box = QtWidgets.QVBoxLayout()
         self.left_box.addLayout(self.controller_box)
         self.left_box.addStretch(1)
@@ -621,11 +634,25 @@ class Application:
     def update_graphics(self):
         if self.simulation_area.enable_rendering:
             self.simulation_area.update()
-
-        """
-        for p in self.model.plots:
-            p.redraw()
-        """
+        while not Model._data_queue.empty():
+            msg = Model._data_queue.get()
+            plot_id = msg[0]
+            dataset = msg[1]
+            if plot_id in self.plots.keys():
+                plot = self.plots[plot_id]
+                if type(plot) is QtGraph:
+                    plot.add_data(dataset)
+                elif type(plot) is QtBarChart:
+                    plot.update_data(dataset)
+                elif type(plot) is QtHistogram:
+                    plot.update_data(dataset)
+                elif type(plot) is QtAgentGraph:
+                    plot.update_data(dataset)
+                elif type(plot) is Monitor:
+                    plot.update_data(dataset)
+        for plot in self.plots.values():
+            if type(plot) is not Monitor:
+                plot.redraw()
 
     def add_button(self, button_id, label, row):
         btn = QtWidgets.QPushButton(label)
@@ -639,77 +666,101 @@ class Application:
         row.addWidget(btn)
         self.controllers.append(btn)
 
-    def add_slider(self, slider_spec, row):
+    def add_slider(self, slider_id, variable, initial, minval, maxval, row):
         slider = Slider(
-            slider_spec.variable,
-            slider_spec.minval,
-            slider_spec.maxval,
-            slider_spec.initial,
+            variable,
+            minval,
+            maxval,
+            initial,
         )
 
         def update_variable(v):
             value = v / slider.sliderBar.factor
-            setattr(self.model, slider_spec.variable, value)
+            Model._input_queue.put(["slider_change",
+                                    slider_id,variable,v/1000])
             slider.indicator.setText(str(value))
 
         slider.sliderBar.valueChanged.connect(update_variable)
         row.addLayout(slider)
         self.controllers.append(slider)
 
-    def add_checkbox(self, checkbox_spec, row):
-        checkbox = Checkbox(checkbox_spec.variable)
+    def add_checkbox(self, checkbox_id, variable, row):
+        checkbox = Checkbox(variable)
 
         def update_variable(v):
-            setattr(self.model, checkbox_spec.variable, checkbox.isChecked())
+            Model._input_queue.put(["checkbox_check",
+                                    checkbox_id, checkbox.isChecked()])
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
         self.controllers.append(checkbox)
 
-    def add_monitor(self, monitor_spec, plots_box):
-        monitor = Monitor(monitor_spec.variable, self.model)
-        plots_box.addWidget(monitor)
-        self.controllers.append(monitor)
+    def add_monitor(self, monitor_id, variable, row):
+        monitor = Monitor(variable)
+        row.addWidget(monitor)
+        self.plots[monitor_id] = monitor
 
-    def add_line_chart(self, line_chart_spec, plots_box):
-        chart = QtGraph(line_chart_spec)
-        plots_box.addWidget(chart)
-        self.model.plots.add(chart)
+    def add_line_chart(self, graph_id, variables, colors, min_y, max_y):
+        chart = QtGraph(LineChartSpec(variables, colors, min_y, max_y))
+        self.plots[graph_id] = chart
+        self.plots_box.addWidget(chart)
 
-    def add_bar_chart(self, bar_chart_spec, plots_box):
-        chart = QtBarChart(bar_chart_spec)
-        plots_box.addWidget(chart)
-        self.model.plots.add(chart)
+    def add_bar_chart(self, graph_id, variables, color):
+        chart = QtBarChart(BarChartSpec(variables, color))
+        self.plots[graph_id] = chart
+        self.plots_box.addWidget(chart)
 
-    def add_histogram(self, histogram_spec, plots_box):
-        histogram = QtHistogram(histogram_spec)
-        plots_box.addWidget(histogram)
-        self.model.plots.add(histogram)
+    def add_histogram(self, graph_id, variable, minimum, maximum, bins, color):
+        histogram = QtHistogram(HistogramSpec(variable, minimum, maximum, bins, color))
+        self.plots[graph_id] = chart
+        self.plots_box.addWidget(histogram)
 
-    def add_agent_graph(self, agent_graph_spec, plots_box):
-        chart = QtAgentGraph(agent_graph_spec)
-        plots_box.addWidget(chart)
-        self.model.plots.add(chart)
+    def add_agent_graph(self, graph_id, variable, min_y, max_y):
+        chart = QtAgentGraph(AgentGraphSpec({}, variable, min_y, max_y))
+        self.plots[graph_id] = chart
+        self.plots_box.addWidget(chart)
 
-    def add_controllers(self):
+    def add_elements(self):
         rowbox = QtWidgets.QHBoxLayout()
         self.controller_box.addLayout(rowbox)
         while not Model._ui_queue.empty():
             msg = Model._ui_queue.get()
             command = msg[0]
-            if command == "add_row":
+            if command == "add_row" and not self.row_empty:
+                self.row_empty = True
                 rowbox = QtWidgets.QHBoxLayout()
                 self.controller_box.addLayout(rowbox)
                 continue
+            elif command == "clear_all":
+                for plot in self.plots.values():
+                    plot.clear()
             elif command == "add_button":
                 self.add_button(msg[1], msg[2], rowbox)
             elif command == "add_toggle":
                 self.add_toggle(msg[1], msg[2], rowbox)
+            elif command == "add_slider":
+                self.add_slider(msg[1], msg[2], msg[3], msg[4], msg[5], rowbox)
+            elif command == "add_checkbox":
+                self.add_checkbox(msg[1], msg[2], rowbox)
+            elif command == "add_monitor":
+                self.add_monitor(msg[1], msg[2], rowbox)
+            elif command == "add_line_chart":
+                self.add_line_chart(msg[1], msg[2], msg[3], msg[4], msg[5])
+            elif command == "add_bar_chart":
+                self.add_bar_chart(msg[1], msg[2], msg[3])
+            elif command == "add_histogram":
+                self.add_histogram(msg[1], msg[2], msg[3], msg[4], msg[5], msg[6])
+            elif command == "add_agent_graph":
+                self.add_agent_graph(msg[1], msg[2], msg[3], msg[4])
             elif command == "new_model":
                 self.simulation_area.setFixedSize(msg[1],msg[2])
                 self.simulation_area.model_width = msg[1]
                 self.simulation_area.model_height = msg[2]
                 self.simulation_area.model_tile_size = msg[3]
+                self.simulation_area.reset()
+                print("It's over!")
+                continue
+            self.row_empty = False
             rowbox.addStretch(1)
 
     def add_plots(self, plot_specs, plots_box):
@@ -727,7 +778,6 @@ pid = os.getpid()
 
 def run(model):
     global pid
-    print(os.getpid())
     if pid == os.getpid():
         Model._ui_queue.put(["new_model",model.width,model.height,model.tile_size])
         return
@@ -747,7 +797,6 @@ def run(model):
 
 
 def quick_run():
-    print("UI: "+str(os.getpid()))
     run(None)
 
 process = Process(target=quick_run)

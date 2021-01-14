@@ -108,8 +108,9 @@ def print_infections(model):
     print("Total infections are " + str(model["infected"]))
 
 
-epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
+epidemic_model = SimpleModel("Epidemic", 60, 60, setup, step, tile_size=5)
 epidemic_model.add_button("Step", step, toggle=True)
+"""
 epidemic_model.add_slider("decay", 2, 0, 3)
 epidemic_model.add_slider("movespeed", 0.5, 0.1, 2)
 epidemic_model.monitor("immune")
@@ -121,5 +122,5 @@ epidemic_model.line_chart(
 epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
 epidemic_model.agent_line_chart("infection", 0, 1000)
 epidemic_model.on_close(print_infections)
-
+"""
 run(epidemic_model)

@@ -592,8 +592,9 @@ class Model:
         ``Model.reload()``.
     """
 
-    _ui_queue = Queue()
-    _input_queue = Queue()
+    _ui_queue = Queue() # Used for creating/defining UI elements
+    _input_queue = Queue() # Used for receiving input data from UI elements
+    _data_queue = Queue() # Used for providing UI elements with data
 
     def __init__(
         self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None
@@ -660,13 +661,17 @@ class Model:
                 self.close()
                 Model._input_queue.put(["close"])
                 break
-            button_id = msg[1]
-            if button_id not in self.control_panel: # Not the right model
+            element_id = msg[1]
+            if element_id not in self.control_panel: # Not the right model
                 Model._input_queue.put(msg)
             elif msg[0] == "single_button":
                 self.control_panel[msg[1]].function(self)
             elif msg[0] == "toggle_button":
                 self.control_panel[msg[1]].function(self)
+            elif msg[0] == "slider_change":
+                setattr(self, msg[2], msg[3])
+            elif msg[0] == "checkbox_check":
+                setattr(self.model, msg[2], msg[3])
 
     def add_agent(self, agent, setup=True):
         """
@@ -687,9 +692,9 @@ class Model:
         self.__agents.append(agent)
         if setup:
             agent.setup(self)
-        for plot in self.plots:
-            if type(plot.spec) is AgentGraphSpec:
-                plot.spec.agents.append(agent)
+        #for plot in self.plots:
+        #    if type(plot.spec) is AgentGraphSpec:
+        #        plot.spec.agents.append(agent)
 
     def add_agents(self, agents):
         """
@@ -789,20 +794,20 @@ class Model:
         Updates all plots with the relevant data. Usually called in each
         iteration of the simulation (i.e. in a ``step`` function or similar).
         """
-        for plot in self.plots:
-            if type(plot.spec) is LineChartSpec:
+        for plotspec in self.plots:
+            if type(plotspec) is LineChartSpec:
                 dataset = []
-                for d in plot.spec.variables:
+                for d in plotspec.variables:
                     dataset.append(getattr(self, d))
-                plot.add_data(dataset)
-            elif type(plot.spec) is BarChartSpec:
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is BarChartSpec:
                 dataset = []
-                for d in plot.spec.variables:
+                for d in plotspec.variables:
                     dataset.append(getattr(self, d))
-                plot.update_data(dataset)
-            elif type(plot.spec) is HistogramSpec:
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is HistogramSpec:
                 dataset = []
-                for b in plot.spec.bins:
+                for b in plotspec.bins:
                     bin_count = 0
                     for a in self.__agents:
                         if hasattr(a, plot.spec.variable):
@@ -810,9 +815,14 @@ class Model:
                             if val >= b[0] and val <= b[1]:
                                 bin_count += 1
                     dataset.append(bin_count)
-                plot.update_data(dataset)
-            elif type(plot.spec) is AgentGraphSpec:
-                plot.update_data()
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is AgentGraphSpec:
+                dataset = []
+                for ag in self.agents:
+                    dataset.append([id(ag),
+                                    getattr(ag, plotspec.variable),
+                                    ag.color])
+                Model._data_queue.put([id(plotspec),dataset])
 
     def remove_destroyed_agents(self):
         new_agents = []
@@ -827,8 +837,7 @@ class Model:
         """
         Clears the data from all plots.
         """
-        for plot in self.plots:
-            plot.clear()
+        Model._data_queue.put([-1,"clear_all"])
 
     def mouse_click(self, x, y):
         for a in self.__agents:
@@ -848,7 +857,6 @@ class Model:
         Creates a new row to place controller widgets on (buttons, sliders,
         etc.).
         """
-        print("?")
         Model._ui_queue.put(["add_row"])
         #self.current_row = []
         #self.controller_rows.append(self.current_row)
@@ -893,11 +901,12 @@ class Model:
         initial
             The initial value of the variable.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
+        self.add_controller_row()
         setattr(self, variable, initial)
-        self.variables[variable] = initial
-        self.current_row.append(SliderSpec(variable, initial, minval, maxval))
+        spec = SliderSpec(variable, initial, minval, maxval)
+        self.control_panel[id(spec)] = spec
+        Model._ui_queue.put(["add_slider",id(spec),
+                             variable,initial,minval,maxval])
 
     def add_checkbox(self, variable):
         """
@@ -909,10 +918,12 @@ class Model:
         variable
             The name of the variable to adjust. Must be provided as a string.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
+        self.add_controller_row()
         setattr(self, variable, False)
-        self.current_row.append(CheckboxSpec(variable))
+        spec = CheckboxSpec(variable)
+        self.control_panel[id(spec)] = spec
+        Model._ui_queue.put(["add_checkbox",id(spec),variable])
+
 
     def line_chart(self, variables, colors, min_y=None, max_y=None):
         """
@@ -930,7 +941,10 @@ class Model:
         max_y
             The maximum value on the y-axis.
         """
-        self.plot_specs.append(LineChartSpec(variables, colors, min_y, max_y))
+        spec = LineChartSpec(variables, colors, min_y, max_y)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_line_chart",id(spec),
+                             variables,colors,min_y,max_y])
 
     def bar_chart(self, variables, color):
         """
@@ -944,7 +958,10 @@ class Model:
         color
             The color of all the bars.
         """
-        self.plot_specs.append(BarChartSpec(variables, color))
+        spec = BarChartSpec(variables, color)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_bar_chart",id(spec),
+                             variables, color])
 
     def histogram(self, variable, minimum, maximum, bins, color):
         """
@@ -965,9 +982,10 @@ class Model:
         color
             The color of all the bars.
         """
-        self.plot_specs.append(
-            HistogramSpec(variable, minimum, maximum, bins, color)
-        )
+        spec = HistogramSpec(variable, minimum, maximum, bins, color)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_histogram", id(spec),
+                             variable, minimum, maximum, bins, color])
 
     def agent_line_chart(self, variable, min_y=None, max_y=None):
         """
@@ -985,7 +1003,10 @@ class Model:
         max_y
             The maximum value on the y-axis.
         """
-        self.plot_specs.append(AgentGraphSpec([], variable, min_y, max_y))
+        spec = AgentGraphSpec([], variable, min_y, max_y)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_agent_graph", id(spec),
+                             variable, min_y, max_y])
 
     def monitor(self, variable):
         """
@@ -996,9 +1017,10 @@ class Model:
         variable
             The variable to monitor.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
-        self.current_row.append(MonitorSpec(variable))
+        self.add_controller_row()
+        spec = MonitorSpec(variable)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_monitor", id(spec), variable])
 
     def add_ellipse(self, x, y, w, h, color):
         """
