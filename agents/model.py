@@ -19,7 +19,7 @@ class Agent:
     Creates an agent with a random position, direction and color. Has no
     initial model; this must be provided by ``Agent.set_model``.
     """
-
+    queue_pushes = 0
     _queue = Queue()
 
     def __init__(self):
@@ -49,12 +49,13 @@ class Agent:
 
         # Associated simulation area.
         Agent._queue.put([id(self),"create",
-                                self.x,self.y,
-                                self.__direction,
-                                self.__size,
-                                self.__shape,
-                                self.color])
-        get_quickstart_model().add_agent(self, setup=False)
+                          self.x,self.y,
+                          self.__direction,
+                          self.__size,
+                          self.__shape,
+                          self.color])
+        if not active_model_exists():
+            get_quickstart_model().add_agent(self, setup=False)
 
 
     # Should be overwritten by a subclass
@@ -476,8 +477,9 @@ class Tile:
     @color.setter
     def color(self, color):
         r, g, b = color
+        if self.__color != [r, g, b]:
+            Tile._queue.put([id(self),"update_color",color])
         self.__color = [r, g, b]
-        Tile._queue.put([id(self),"update_color",color])
 
 
 class Spec:
@@ -1246,3 +1248,11 @@ def destroy_agents(agents):
     """
     for a in agents:
         a.destroy()
+
+def active_model_exists():
+    global active_model
+    return ("active_model" in globals())
+
+def set_active_model(model):
+    global active_model
+    active_model = model

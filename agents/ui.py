@@ -19,6 +19,8 @@ from agents.model import (
     Tile,
     Model,
     get_quickstart_model,
+    active_model_exists,
+    set_active_model,
     AgentShape,
     ButtonSpec,
     ToggleSpec,
@@ -37,6 +39,8 @@ from multiprocessing import Process, Queue
 
 from random import randint
 
+import cProfile
+
 class UIAgent():
     def __init__(self, x, y, direction, size, shape, color):
         self.x = x
@@ -54,6 +58,9 @@ class UITile():
         self.color = color
 
 class SimulationArea(QtWidgets.QWidget):
+
+    output_count = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__ui_agents = {}
@@ -91,7 +98,7 @@ class SimulationArea(QtWidgets.QWidget):
         painter.drawRect(
             0, 0, painter.device().width()/2, painter.device().height()/2
         )
-        """
+
         # Load/update all simulation area elements (agents/tiles):
         i = 0
         while not Agent._queue.empty():
@@ -116,7 +123,7 @@ class SimulationArea(QtWidgets.QWidget):
                 self.__ui_agents[sender].selected = True
             elif command == "deselect":
                 self.__ui_agents[sender].selected = False
-        """
+
         while not Tile._queue.empty():
             msg = Tile._queue.get()
             sender = msg[0]
@@ -126,10 +133,10 @@ class SimulationArea(QtWidgets.QWidget):
             elif command == "update_color":
                 self.__ui_tiles[sender].color = msg[2]
 
-        print(len(self.__ui_tiles))
         # Draw tiles
         for tile in self.__ui_tiles.values():
             self.paintTile(painter, tile)
+
         # Draw shapes
         """
         for shape in self.model.get_shapes():
@@ -139,8 +146,9 @@ class SimulationArea(QtWidgets.QWidget):
                 painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
             elif type(shape) is RectStruct:
                 painter.drawRect(shape.x, shape.y, shape.w, shape.h)
-                # Draw agents
+        """
 
+        # Draw agents
         select = None
         for agent in self.__ui_agents.values():
             self.paintAgent(painter, agent)
@@ -158,7 +166,6 @@ class SimulationArea(QtWidgets.QWidget):
             )
             painter.setBrush(QColor(0, 0, 0, 150))
             painter.drawPath(path)
-        """
         painter.end()
 
 
@@ -615,9 +622,9 @@ class Application:
         #self.add_plots(self.model.plot_specs, self.plots_box)
 
         # Start timers
-        self.logic_timer.start(1000 / 60)
+        self.logic_timer.start(1000 / 30)
         self.graphics_timer.start(1000 / 30)
-        self.panel_timer.start(1000 / 30)
+        self.panel_timer.start(1000 / 10)
 
     def update_logic(self):
         #if not self.model.is_paused():
@@ -758,7 +765,6 @@ class Application:
                 self.simulation_area.model_height = msg[2]
                 self.simulation_area.model_tile_size = msg[3]
                 self.simulation_area.reset()
-                print("It's over!")
                 continue
             self.row_empty = False
             rowbox.addStretch(1)
@@ -779,7 +785,12 @@ pid = os.getpid()
 def run(model):
     global pid
     if pid == os.getpid():
-        Model._ui_queue.put(["new_model",model.width,model.height,model.tile_size])
+        if model:
+            set_active_model(model)
+            Model._ui_queue.put(["new_model",
+                                 model.width,
+                                 model.height,
+                                 model.tile_size])
         return
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)

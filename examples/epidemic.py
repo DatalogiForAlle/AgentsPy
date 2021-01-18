@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import random
 from agents import Agent, SimpleModel, run
+import cProfile
 
+from multiprocessing import Process, Queue
 
 class Person(Agent):
 
@@ -25,7 +27,7 @@ class Person(Agent):
         self.size = 10
         self.infection = 0
         model.normal += 1
-        if random.randint(0, 100) < 5:
+        if random.randint(0, 100) < 100:
             self.infect(model)
 
     def step(self, model):
@@ -53,7 +55,7 @@ class Person(Agent):
             for b in self.agents_nearby(15):
                 if (not b.immune) and (b.infection == 0):
                     b.infect(model)
-            self.infection -= 1
+            #self.infection -= 1
         elif self.infection == 1:
             self.immunize(model)
         elif not self.immune:
@@ -77,7 +79,7 @@ def setup(model):
     model.immune = 0
     model.decay = 2
     model.agentsize = 5
-    people = set([Person() for i in range(100)])
+    people = set([Person() for i in range(1)])
     model.add_agents(people)
     for t in model.tiles:
         t.color = (0, 50, 0)
@@ -93,7 +95,7 @@ def step(model):
     for t in model.tiles:
         if t.info["infection"] > 0:
             t.color = (100, 100, 0)
-            t.info["infection"] -= 1
+            #t.info["infection"] -= 1
         else:
             t.color = (0, 50, 0)
     model.update_plots()
@@ -108,8 +110,8 @@ def print_infections(model):
     print("Total infections are " + str(model["infected"]))
 
 
-epidemic_model = SimpleModel("Epidemic", 60, 60, setup, step, tile_size=5)
-epidemic_model.add_button("Step", step, toggle=True)
+epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
+epidemic_model.add_button("Step", step, toggle=False)
 """
 epidemic_model.add_slider("decay", 2, 0, 3)
 epidemic_model.add_slider("movespeed", 0.5, 0.1, 2)
