@@ -11,7 +11,7 @@ from PyQt5.QtChart import (
     QBarSeries,
     QBarCategoryAxis,
 )
-from PyQt5.QtCore import QPointF, Qt
+from PyQt5.QtCore import QPointF, QLineF, Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
@@ -50,6 +50,17 @@ class UIAgent():
         self.shape = shape
         self.color = color
         self.selected = False
+        self.drawn_paths = []
+        self.enable_draw_path = False
+
+    def move(self, new_x, new_y, continue_path):
+        if not self.enable_draw_path and continue_path:
+            self.drawn_paths.append([])
+        self.enable_draw_path = continue_path
+        if self.enable_draw_path:
+            self.drawn_paths[-1].append(QLineF(self.x,self.y,new_x,new_y))
+        self.x = new_x
+        self.y = new_y
 
 class UITile():
     def __init__(self, x, y, color):
@@ -85,7 +96,6 @@ class SimulationArea(QtWidgets.QWidget):
 
     def reset(self):
         self.__ui_agents = {}
-        self.__ui_tiles = {}
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
@@ -109,8 +119,7 @@ class SimulationArea(QtWidgets.QWidget):
                 self.__ui_agents[sender] = UIAgent(msg[2],msg[3],msg[4],
                                                    msg[5],msg[6],msg[7])
             elif command == "update_pos":
-                self.__ui_agents[sender].x = msg[2]
-                self.__ui_agents[sender].y = msg[3]
+                self.__ui_agents[sender].move(msg[2],msg[3],msg[4])
             elif command == "update_dir":
                 self.__ui_agents[sender].direction = msg[2]
             elif command == "update_size":
@@ -123,6 +132,8 @@ class SimulationArea(QtWidgets.QWidget):
                 self.__ui_agents[sender].selected = True
             elif command == "deselect":
                 self.__ui_agents[sender].selected = False
+            elif command == "reset":
+                self.reset()
 
         while not Tile._queue.empty():
             msg = Tile._queue.get()
@@ -148,6 +159,12 @@ class SimulationArea(QtWidgets.QWidget):
                 painter.drawRect(shape.x, shape.y, shape.w, shape.h)
         """
 
+        # Draw lines
+        for agent in self.__ui_agents.values():
+            painter.setPen(QColor(agent.color[0], agent.color[1], agent.color[2]))
+            for path in agent.drawn_paths:
+                painter.drawLines(path)
+
         # Draw agents
         select = None
         for agent in self.__ui_agents.values():
@@ -166,6 +183,8 @@ class SimulationArea(QtWidgets.QWidget):
             )
             painter.setBrush(QColor(0, 0, 0, 150))
             painter.drawPath(path)
+
+        painter.setBrush(QColor(255, 255, 255, 200))
         painter.end()
 
 
@@ -759,11 +778,15 @@ class Application:
                 self.add_histogram(msg[1], msg[2], msg[3], msg[4], msg[5], msg[6])
             elif command == "add_agent_graph":
                 self.add_agent_graph(msg[1], msg[2], msg[3], msg[4])
+            elif command == "add_ellipse"
             elif command == "new_model":
                 self.simulation_area.setFixedSize(msg[1],msg[2])
                 self.simulation_area.model_width = msg[1]
                 self.simulation_area.model_height = msg[2]
                 self.simulation_area.model_tile_size = msg[3]
+                self.simulation_area.reset()
+                continue
+            elif command == "reset_model":
                 self.simulation_area.reset()
                 continue
             self.row_empty = False

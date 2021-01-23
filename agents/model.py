@@ -46,6 +46,7 @@ class Agent:
         self.__current_tile = None
         self.selected = False
         self.__shape = AgentShape.ARROW
+        self.__draw_path = False
 
         # Associated simulation area.
         Agent._queue.put([id(self),"create",
@@ -96,7 +97,7 @@ class Agent:
         else:
             self.__stay_inside()
         self.update_current_tile()
-        Agent._queue.put([id(self),"update_pos",self.x,self.y])
+        Agent._queue.put([id(self),"update_pos",self.x,self.y,self.__draw_path])
 
     # Makes the agent wrap around the simulation area
     def __wraparound(self):
@@ -358,6 +359,12 @@ class Agent:
         """
         if not self.__destroyed:
             self.__destroyed = True
+
+    def pen_down(self):
+        self.__draw_path = True
+
+    def pen_up(self):
+        self.__draw_path = False
 
     @property
     def direction(self):
@@ -776,6 +783,7 @@ class Model:
                 self.tiles[i].info = {}
         self.clear_plots()
         self.unpause()
+        Agent._queue.put([0,"reset"])
 
     def reload(self):
         """
@@ -1180,6 +1188,11 @@ def get_quickstart_model():
     global quickstart_model
     if "quickstart_model" not in globals():
         quickstart_model = Model("AgentsPy model", 50, 50)
+        Model._ui_queue.put(["new_model",
+                             quickstart_model.width,
+                             quickstart_model.height,
+                             quickstart_model.tile_size])
+        set_active_model(quickstart_model)
     return quickstart_model
 
 
