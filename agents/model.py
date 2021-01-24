@@ -13,6 +13,9 @@ class AgentShape(Enum):
     PERSON = 3
     HOUSE = 4
 
+class ShapeType(Enum):
+    ELLIPSE = 1
+    RECTANGLE = 2
 
 class Agent:
     """
@@ -558,23 +561,69 @@ class AgentGraphSpec(Spec):
         self.max_y = max_y
 
 
-class EllipseStruct:
+class ShapeStruct:
+
+    queue = Queue()
+
+    def __init__(self, x, y, w, h, color, shape):
+        self._x = x
+        self._y = y
+        self._w = w
+        self._h = h
+        self._color = color
+        self.shape = shape
+        ShapeStruct.queue.put([id(self),"create",x,y,w,h,color,shape])
+
+    @property
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, x):
+        ShapeStruct.queue.put([id(self),"update_x",x])
+        self._x = x
+
+    @property
+    def y(self):
+        return self._y
+    @y.setter
+    def y(self, y):
+        ShapeStruct.queue.put([id(self),"update_y",y])
+        self._y = y
+
+    @property
+    def w(self):
+        return self._w
+    @w.setter
+    def w(self, w):
+        ShapeStruct.queue.put([id(self),"update_w",w])
+        self._w = w
+
+    @property
+    def h(self):
+        return self._h
+    @h.setter
+    def h(self, h):
+        ShapeStruct.queue.put([id(self),"update_h",h])
+        self._h = h
+
+    @property
+    def color(self):
+        return self._color
+    @color.setter
+    def color(self, color):
+        self._color = color
+        ShapeStruct.queue.put([id(self),"update_color",color])
+
+class EllipseStruct(ShapeStruct):
+
     def __init__(self, x, y, w, h, color):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.color = color
+        super().__init__(x,y,w,h,color,ShapeType.ELLIPSE)
 
 
-class RectStruct:
+class RectStruct(ShapeStruct):
+
     def __init__(self, x, y, w, h, color):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.color = color
-
+        super().__init__(x,y,w,h,color,ShapeType.RECTANGLE)
 
 class Model:
     """

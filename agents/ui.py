@@ -31,6 +31,8 @@ from agents.model import (
     HistogramSpec,
     AgentGraphSpec,
     MonitorSpec,
+    ShapeStruct,
+    ShapeType,
     EllipseStruct,
     RectStruct,
 )
@@ -76,6 +78,7 @@ class SimulationArea(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.__ui_agents = {}
         self.__ui_tiles = {}
+        self.__ui_shapes = {}
         self.model_width = 100
         self.model_height = 100
         self.model_tile_size = 8
@@ -148,16 +151,32 @@ class SimulationArea(QtWidgets.QWidget):
         for tile in self.__ui_tiles.values():
             self.paintTile(painter, tile)
 
+        while not ShapeStruct.queue.empty():
+            msg = ShapeStruct.queue.get()
+            sender = msg[0]
+            command = msg[1]
+            if command == "create":
+                self.__ui_shapes[sender] = ShapeStruct(msg[2],msg[3],msg[4],
+                                                       msg[5],msg[6],msg[7])
+            elif command == "update_x":
+                self.__ui_shapes[sender].x = msg[2]
+            elif command == "update_y":
+                self.__ui_shapes[sender].y = msg[2]
+            elif command == "update_w":
+                self.__ui_shapes[sender].w = msg[2]
+            elif command == "update_h":
+                self.__ui_shapes[sender].h = msg[2]
+            elif command == "update_color":
+                self.__ui_shapes[sender].color = msg[2]
+
         # Draw shapes
-        """
-        for shape in self.model.get_shapes():
+        for shape in self.__ui_shapes.values():
             c = shape.color
             painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
-            if type(shape) is EllipseStruct:
+            if shape.shape == ShapeType.ELLIPSE:
                 painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
-            elif type(shape) is RectStruct:
+            elif shape.shape == ShapeType.RECTANGLE:
                 painter.drawRect(shape.x, shape.y, shape.w, shape.h)
-        """
 
         # Draw lines
         for agent in self.__ui_agents.values():
@@ -778,7 +797,6 @@ class Application:
                 self.add_histogram(msg[1], msg[2], msg[3], msg[4], msg[5], msg[6])
             elif command == "add_agent_graph":
                 self.add_agent_graph(msg[1], msg[2], msg[3], msg[4])
-            elif command == "add_ellipse"
             elif command == "new_model":
                 self.simulation_area.setFixedSize(msg[1],msg[2])
                 self.simulation_area.model_width = msg[1]
