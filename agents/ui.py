@@ -209,6 +209,7 @@ class SimulationArea(QtWidgets.QWidget):
 
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
+        painter.setPen(QtGui.QColor(r, g, b))
         painter.setBrush(QtGui.QColor(r, g, b))
         if agent.shape == AgentShape.CIRCLE:
             painter.drawEllipse(
@@ -681,6 +682,9 @@ class Application:
             self.simulation_area.update()
         while not Model._data_queue.empty():
             msg = Model._data_queue.get()
+            if msg[0] == -1 and msg[1] == "clear_all":
+                for plot in self.plots.values():
+                    plot.clear()
             plot_id = msg[0]
             dataset = msg[1]
             if plot_id in self.plots.keys():
@@ -776,9 +780,6 @@ class Application:
                 rowbox = QtWidgets.QHBoxLayout()
                 self.controller_box.addLayout(rowbox)
                 continue
-            elif command == "clear_all":
-                for plot in self.plots.values():
-                    plot.clear()
             elif command == "add_button":
                 self.add_button(msg[1], msg[2], rowbox)
             elif command == "add_toggle":

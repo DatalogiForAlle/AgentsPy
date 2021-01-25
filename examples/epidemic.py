@@ -124,7 +124,7 @@ epidemic_model.line_chart(
 )
 
 epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
-epidemic_model.agent_line_chart("infection", 0, 1000)
+#epidemic_model.agent_line_chart("infection", 0, 1000)
 epidemic_model.on_close(print_infections)
 
 run(epidemic_model)
