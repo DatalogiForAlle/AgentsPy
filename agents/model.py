@@ -4,6 +4,8 @@ import operator
 import colorsys
 from enum import Enum
 
+from multiprocessing import Process, Queue
+from threading import Thread
 
 class AgentShape(Enum):
     CIRCLE = 1
@@ -11,12 +13,17 @@ class AgentShape(Enum):
     PERSON = 3
     HOUSE = 4
 
+class ShapeType(Enum):
+    ELLIPSE = 1
+    RECTANGLE = 2
 
 class Agent:
     """
     Creates an agent with a random position, direction and color. Has no
     initial model; this must be provided by ``Agent.set_model``.
     """
+    queue_pushes = 0
+    _queue = Queue()
 
     def __init__(self):
         # Destroyed agents are not drawn and are removed from their area.
@@ -36,15 +43,24 @@ class Agent:
 
         self.x = 0
         self.y = 0
-        self.size = 8
+        self.__size = 8
         self.__direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
         self.selected = False
-        self.shape = AgentShape.ARROW
+        self.__shape = AgentShape.ARROW
+        self.__draw_path = False
 
         # Associated simulation area.
-        get_quickstart_model().add_agent(self, setup=False)
+        Agent._queue.put([id(self),"create",
+                          self.x,self.y,
+                          self.__direction,
+                          self.__size,
+                          self.__shape,
+                          self.color])
+        if not active_model_exists():
+            get_quickstart_model().add_agent(self, setup=False)
+
 
     # Should be overwritten by a subclass
     def setup(self, model):
@@ -84,6 +100,7 @@ class Agent:
         else:
             self.__stay_inside()
         self.update_current_tile()
+        Agent._queue.put([id(self),"update_pos",self.x,self.y,self.__draw_path])
 
     # Makes the agent wrap around the simulation area
     def __wraparound(self):
@@ -346,6 +363,48 @@ class Agent:
         if not self.__destroyed:
             self.__destroyed = True
 
+    def pen_down(self):
+        self.__draw_path = True
+
+    def pen_up(self):
+        self.__draw_path = False
+
+    @property
+    def direction(self):
+        """
+        The direction of the agent, measured in degrees.
+        """
+        return self.__direction % 360
+
+    @direction.setter
+    def direction(self, direction):
+        self.__direction = direction % 360
+        Agent._queue.put([id(self),"update_dir",direction])
+
+    @property
+    def size(self):
+        """
+        The size of the agent.
+        """
+        return self.__size
+
+    @size.setter
+    def size(self, size):
+        self.__size = size
+        Agent._queue.put([id(self),"update_size",size])
+
+    @property
+    def shape(self):
+        """
+        The shape of the agent.
+        """
+        return self.__shape
+
+    @shape.setter
+    def shape(self, shape):
+        self.__shape = shape
+        Agent._queue.put([id(self),"update_shape",shape])
+
     @property
     def color(self):
         """
@@ -358,17 +417,7 @@ class Agent:
     def color(self, color):
         r, g, b = color
         self.__color = [r, g, b]
-
-    @property
-    def direction(self):
-        """
-        The direction of the agent, measured in degrees.
-        """
-        return self.__direction % 360
-
-    @direction.setter
-    def direction(self, direction):
-        self.__direction = direction % 360
+        Agent._queue.put([id(self),"update_color",color])
 
 
 class Tile:
@@ -386,13 +435,16 @@ class Tile:
         The model that the tile is a part of.
     """
 
+    _queue = Queue()
+
     def __init__(self, x, y, model):
         self.x = x
         self.y = y
         self.info = {}
-        self.color = (0, 0, 0)
+        self.__color = (0, 0, 0)
         self.__agents = set()
         self.__model = model
+        Tile._queue.put([id(self),"create",self.x,self.y,self.color])
 
     def add_agent(self, agent):
         """
@@ -423,6 +475,21 @@ class Tile:
         Gets the set of agents currently on the tile.
         """
         return self.__agents
+
+    @property
+    def color(self):
+        """
+        The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255,
+        255, 255) to color the agent white.
+        """
+        return self.__color
+
+    @color.setter
+    def color(self, color):
+        r, g, b = color
+        if self.__color != [r, g, b]:
+            Tile._queue.put([id(self),"update_color",color])
+        self.__color = [r, g, b]
 
 
 class Spec:
@@ -494,23 +561,69 @@ class AgentGraphSpec(Spec):
         self.max_y = max_y
 
 
-class EllipseStruct:
+class ShapeStruct:
+
+    queue = Queue()
+
+    def __init__(self, x, y, w, h, color, shape):
+        self._x = x
+        self._y = y
+        self._w = w
+        self._h = h
+        self._color = color
+        self.shape = shape
+        ShapeStruct.queue.put([id(self),"create",x,y,w,h,color,shape])
+
+    @property
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, x):
+        ShapeStruct.queue.put([id(self),"update_x",x])
+        self._x = x
+
+    @property
+    def y(self):
+        return self._y
+    @y.setter
+    def y(self, y):
+        ShapeStruct.queue.put([id(self),"update_y",y])
+        self._y = y
+
+    @property
+    def w(self):
+        return self._w
+    @w.setter
+    def w(self, w):
+        ShapeStruct.queue.put([id(self),"update_w",w])
+        self._w = w
+
+    @property
+    def h(self):
+        return self._h
+    @h.setter
+    def h(self, h):
+        ShapeStruct.queue.put([id(self),"update_h",h])
+        self._h = h
+
+    @property
+    def color(self):
+        return self._color
+    @color.setter
+    def color(self, color):
+        self._color = color
+        ShapeStruct.queue.put([id(self),"update_color",color])
+
+class EllipseStruct(ShapeStruct):
+
     def __init__(self, x, y, w, h, color):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.color = color
+        super().__init__(x,y,w,h,color,ShapeType.ELLIPSE)
 
 
-class RectStruct:
+class RectStruct(ShapeStruct):
+
     def __init__(self, x, y, w, h, color):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.color = color
-
+        super().__init__(x,y,w,h,color,ShapeType.RECTANGLE)
 
 class Model:
     """
@@ -536,6 +649,10 @@ class Model:
         not immediately to the tiles, but must be applied with
         ``Model.reload()``.
     """
+
+    _ui_queue = Queue() # Used for creating/defining UI elements
+    _input_queue = Queue() # Used for receiving input data from UI elements
+    _data_queue = Queue() # Used for providing UI elements with data
 
     def __init__(
         self, title, x_tiles=50, y_tiles=50, tile_size=8, cell_data_file=None
@@ -583,14 +700,36 @@ class Model:
         self.__agents = []
         self.variables = {}
         self.plot_specs = []
-        self.controller_rows = []
-        self.add_controller_row()
+        self.control_panel = {}
         self.plots = set()  # Filled in during initialization
         self.show_direction = False
         self._paused = False
         self._wrapping = True
         self._close_func = None
         self._shapes = []
+
+        input_thread = Thread(target=self.input_listener)
+        input_thread.start()
+
+    def input_listener(self):
+        while True:
+            msg = Model._input_queue.get()
+            button_type = msg[0]
+            if msg[0] == "close": # Stop this model
+                self.close()
+                Model._input_queue.put(["close"])
+                break
+            element_id = msg[1]
+            if element_id not in self.control_panel: # Not the right model
+                Model._input_queue.put(msg)
+            elif msg[0] == "single_button":
+                self.control_panel[msg[1]].function(self)
+            elif msg[0] == "toggle_button":
+                self.control_panel[msg[1]].function(self)
+            elif msg[0] == "slider_change":
+                setattr(self, msg[2], msg[3])
+            elif msg[0] == "checkbox_check":
+                setattr(self.model, msg[2], msg[3])
 
     def add_agent(self, agent, setup=True):
         """
@@ -605,15 +744,15 @@ class Model:
             ``True``).
         """
         agent.set_model(self)
-        agent.x = random.randint(0, self.width)
-        agent.y = random.randint(0, self.height)
+        agent.jump_to(random.randint(0, self.width),
+                      random.randint(0, self.height))
         agent.update_current_tile()
         self.__agents.append(agent)
         if setup:
             agent.setup(self)
-        for plot in self.plots:
-            if type(plot.spec) is AgentGraphSpec:
-                plot.spec.agents.append(agent)
+        #for plot in self.plots:
+        #    if type(plot.spec) is AgentGraphSpec:
+        #        plot.spec.agents.append(agent)
 
     def add_agents(self, agents):
         """
@@ -693,6 +832,7 @@ class Model:
                 self.tiles[i].info = {}
         self.clear_plots()
         self.unpause()
+        Agent._queue.put([0,"reset"])
 
     def reload(self):
         """
@@ -713,20 +853,20 @@ class Model:
         Updates all plots with the relevant data. Usually called in each
         iteration of the simulation (i.e. in a ``step`` function or similar).
         """
-        for plot in self.plots:
-            if type(plot.spec) is LineChartSpec:
+        for plotspec in self.plots:
+            if type(plotspec) is LineChartSpec:
                 dataset = []
-                for d in plot.spec.variables:
+                for d in plotspec.variables:
                     dataset.append(getattr(self, d))
-                plot.add_data(dataset)
-            elif type(plot.spec) is BarChartSpec:
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is BarChartSpec:
                 dataset = []
-                for d in plot.spec.variables:
+                for d in plotspec.variables:
                     dataset.append(getattr(self, d))
-                plot.update_data(dataset)
-            elif type(plot.spec) is HistogramSpec:
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is HistogramSpec:
                 dataset = []
-                for b in plot.spec.bins:
+                for b in plotspec.bins:
                     bin_count = 0
                     for a in self.__agents:
                         if hasattr(a, plot.spec.variable):
@@ -734,9 +874,14 @@ class Model:
                             if val >= b[0] and val <= b[1]:
                                 bin_count += 1
                     dataset.append(bin_count)
-                plot.update_data(dataset)
-            elif type(plot.spec) is AgentGraphSpec:
-                plot.update_data()
+                Model._data_queue.put([id(plotspec),dataset])
+            elif type(plotspec) is AgentGraphSpec:
+                dataset = []
+                for ag in self.agents:
+                    dataset.append([id(ag),
+                                    getattr(ag, plotspec.variable),
+                                    ag.color])
+                Model._data_queue.put([id(plotspec),dataset])
 
     def remove_destroyed_agents(self):
         new_agents = []
@@ -751,8 +896,7 @@ class Model:
         """
         Clears the data from all plots.
         """
-        for plot in self.plots:
-            plot.clear()
+        Model._data_queue.put([-1,"clear_all"])
 
     def mouse_click(self, x, y):
         for a in self.__agents:
@@ -772,8 +916,9 @@ class Model:
         Creates a new row to place controller widgets on (buttons, sliders,
         etc.).
         """
-        self.current_row = []
-        self.controller_rows.append(self.current_row)
+        Model._ui_queue.put(["add_row"])
+        #self.current_row = []
+        #self.controller_rows.append(self.current_row)
 
     def add_button(self, label, func, toggle=False):
         """
@@ -791,9 +936,13 @@ class Model:
             Whether or not the button should be a toggled button.
         """
         if not toggle:
-            self.current_row.append(ButtonSpec(label, func))
+            spec = ButtonSpec(label, func)
+            self.control_panel[id(spec)] = spec
+            Model._ui_queue.put(["add_button",id(spec),label])
         else:
-            self.current_row.append(ToggleSpec(label, func))
+            spec = ToggleSpec(label, func)
+            self.control_panel[id(spec)] = spec
+            Model._ui_queue.put(["add_toggle",id(spec),label])
 
     def add_slider(self, variable, initial, minval=0, maxval=100):
         """
@@ -811,11 +960,12 @@ class Model:
         initial
             The initial value of the variable.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
+        self.add_controller_row()
         setattr(self, variable, initial)
-        self.variables[variable] = initial
-        self.current_row.append(SliderSpec(variable, initial, minval, maxval))
+        spec = SliderSpec(variable, initial, minval, maxval)
+        self.control_panel[id(spec)] = spec
+        Model._ui_queue.put(["add_slider",id(spec),
+                             variable,initial,minval,maxval])
 
     def add_checkbox(self, variable):
         """
@@ -827,10 +977,12 @@ class Model:
         variable
             The name of the variable to adjust. Must be provided as a string.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
+        self.add_controller_row()
         setattr(self, variable, False)
-        self.current_row.append(CheckboxSpec(variable))
+        spec = CheckboxSpec(variable)
+        self.control_panel[id(spec)] = spec
+        Model._ui_queue.put(["add_checkbox",id(spec),variable])
+
 
     def line_chart(self, variables, colors, min_y=None, max_y=None):
         """
@@ -848,7 +1000,10 @@ class Model:
         max_y
             The maximum value on the y-axis.
         """
-        self.plot_specs.append(LineChartSpec(variables, colors, min_y, max_y))
+        spec = LineChartSpec(variables, colors, min_y, max_y)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_line_chart",id(spec),
+                             variables,colors,min_y,max_y])
 
     def bar_chart(self, variables, color):
         """
@@ -862,7 +1017,10 @@ class Model:
         color
             The color of all the bars.
         """
-        self.plot_specs.append(BarChartSpec(variables, color))
+        spec = BarChartSpec(variables, color)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_bar_chart",id(spec),
+                             variables, color])
 
     def histogram(self, variable, minimum, maximum, bins, color):
         """
@@ -883,9 +1041,10 @@ class Model:
         color
             The color of all the bars.
         """
-        self.plot_specs.append(
-            HistogramSpec(variable, minimum, maximum, bins, color)
-        )
+        spec = HistogramSpec(variable, minimum, maximum, bins, color)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_histogram", id(spec),
+                             variable, minimum, maximum, bins, color])
 
     def agent_line_chart(self, variable, min_y=None, max_y=None):
         """
@@ -903,7 +1062,10 @@ class Model:
         max_y
             The maximum value on the y-axis.
         """
-        self.plot_specs.append(AgentGraphSpec([], variable, min_y, max_y))
+        spec = AgentGraphSpec([], variable, min_y, max_y)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_agent_graph", id(spec),
+                             variable, min_y, max_y])
 
     def monitor(self, variable):
         """
@@ -914,9 +1076,10 @@ class Model:
         variable
             The variable to monitor.
         """
-        if len(self.current_row) > 0:
-            self.add_controller_row()
-        self.current_row.append(MonitorSpec(variable))
+        self.add_controller_row()
+        spec = MonitorSpec(variable)
+        self.plots.add(spec)
+        Model._ui_queue.put(["add_monitor", id(spec), variable])
 
     def add_ellipse(self, x, y, w, h, color):
         """
@@ -1074,6 +1237,11 @@ def get_quickstart_model():
     global quickstart_model
     if "quickstart_model" not in globals():
         quickstart_model = Model("AgentsPy model", 50, 50)
+        Model._ui_queue.put(["new_model",
+                             quickstart_model.width,
+                             quickstart_model.height,
+                             quickstart_model.tile_size])
+        set_active_model(quickstart_model)
     return quickstart_model
 
 
@@ -1142,3 +1310,11 @@ def destroy_agents(agents):
     """
     for a in agents:
         a.destroy()
+
+def active_model_exists():
+    global active_model
+    return ("active_model" in globals())
+
+def set_active_model(model):
+    global active_model
+    active_model = model
