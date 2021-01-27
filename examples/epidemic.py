@@ -25,7 +25,7 @@ class Person(Agent):
         self.size = 10
         self.infection = 0
         model.normal += 1
-        if random.randint(0, 100) < 5:
+        if random.randint(0, 100) < 10 and self.x < 250:
             self.infect(model)
 
     def step(self, model):
@@ -42,6 +42,8 @@ class Person(Agent):
         if nearby_infected > 0:
             average_angle /= nearby_infected
             self.direction = average_angle + 180
+        elif self.x >= 245 and self.x <= 255 and (self.y < 230 or self.y > 270):
+            self.direction += 180
         else:
             self.direction += random.randint(0, 20) - 10
         self.speed = model.movespeed
@@ -77,11 +79,17 @@ def setup(model):
     model.immune = 0
     model.decay = 2
     model.agentsize = 5
+    model.disable_wrapping()
     people = set([Person() for i in range(100)])
     model.add_agents(people)
+    wall1 = model.add_rect(245,0,10,230,(175,175,175))
+    wall2 = model.add_rect(245,270,10,230,(175,175,175))
     for t in model.tiles:
-        t.color = (0, 50, 0)
         t.info["infection"] = 0
+        if t.x < 50:
+            t.color = (75, 0, 0)
+        else:
+            t.color = (0, 0, 75)
     model.clear_plots()
 
 
@@ -92,10 +100,16 @@ def step(model):
         a.step(model)
     for t in model.tiles:
         if t.info["infection"] > 0:
-            t.color = (100, 100, 0)
             t.info["infection"] -= 1
+            if t.x < 50:
+                t.color = (175, 100, 0)
+            else:
+                t.color = (100, 100, 75)
         else:
-            t.color = (0, 50, 0)
+            if t.x < 50:
+                t.color = (75, 0, 0)
+            else:
+                t.color = (0, 0, 75)
     model.update_plots()
 
 
@@ -119,7 +133,7 @@ epidemic_model.line_chart(
     [(0, 200, 0), (200, 200, 0), (100, 100, 255)],
 )
 epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
-epidemic_model.agent_line_chart("infection", 0, 1000)
+#epidemic_model.agent_line_chart("infection", 0, 1000)
 epidemic_model.on_close(print_infections)
 
 run(epidemic_model)
