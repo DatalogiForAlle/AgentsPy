@@ -311,7 +311,7 @@ class QtHistogram(QChartView):
         self.chart.legend().hide()
 
         self.mainset = QBarSet("")
-        self.mainset.append([0 for i in range(len(spec.bins))])
+        self.mainset.append([0] * len(spec.bins))
         self.mainset.setColor(
             QColor(spec.color[0], spec.color[1], spec.color[2])
         )
@@ -321,25 +321,33 @@ class QtHistogram(QChartView):
         self.setMinimumWidth(400)
         self.setMinimumHeight(230)
 
+        self.y_ranges = [0, 1, 5, 10, 25, 50, 100, 250, 500, 1000]
+        self.max_y = 1000
+        self.max_y_range = 1000
+        self.lookback = 30
+        self.recent_max_y = deque([self.max_y_range] * self.lookback)
+
+        font = QtGui.QFont()
+        font.setPixelSize(10)
+
         self.axis_x = QBarCategoryAxis()
+        self.axis_x.setLabelsAngle(-90)
+        self.axis_x.setLabelsFont(font)
+
+
         self.axis_y = QValueAxis()
+        self.axis_y.setRange(0, self.max_y)
         self.axis_x.append(map(str, spec.bins))
         self.chart.addSeries(self.series)
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
 
-        self.y_ranges = [0, 1, 5, 10, 25, 50, 100, 250, 500, 1000]
-        self.max_y = 1000
-        self.max_y_range = 1000
 
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
         self._updates_per_second = 10
         self._dataset = []
-
-        self.lookback = 30
-        self.recent_max_y = deque([self.max_y_range] * self.lookback)
 
     def clear(self):
         self._dataset = []
