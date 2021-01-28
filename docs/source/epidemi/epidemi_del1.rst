@@ -118,7 +118,7 @@ dette i toppen af filen, sammen med at du importerer ``agents``)::
 
 Slut af med at tilføje denne linje efter at du tilføjer `setup`-knappen::
 
-  epidemic_model.add_toggle_button("Go", model_step)
+  epidemic_model.add_button("Go", model_step, toggle=True)
 
 Dette laver en knap, som man kan slå til og fra. Når den er slået til,
 kører den ``model_step``-funktionen konstant, hvilket får agenterne til
@@ -344,7 +344,7 @@ inde. Tilføj denne linje nederst i ``model_step``-funktionen::
 Det eneste, vi mangler nu, er at tilføje selve grafen. Indsæt denne
 linje, lige efter der hvor du tilføjer knapperne til modellen::
 
-  epidemic_model.multi_line_chart(["Susceptible","Infectious","Recovered"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
+  epidemic_model.line_chart(["Susceptible","Infectious","Recovered"],[(0, 200, 0),(200, 0, 0),(0, 0, 200)])
 
 Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og sammenlign så den graf du får med den, der er på `Wikipedia-siden for SIR-modellen <https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model}{>`_.
 

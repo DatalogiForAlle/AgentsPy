@@ -126,7 +126,7 @@ startværdien.
 
 Ændr nu denne linje i ``Person.step``::
 
-  for agent in self.agents_nearby(50):
+  for agent in self.agents_nearby(20):
 
 til denne::
 

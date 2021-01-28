@@ -1,5 +1,7 @@
 import sys
 import math
+import bisect
+from collections import deque
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtChart import (
     QChart,
@@ -326,11 +328,18 @@ class QtHistogram(QChartView):
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
 
+        self.y_ranges = [0, 1, 5, 10, 25, 50, 100, 250, 500, 1000]
+        self.max_y = 1000
+        self.max_y_range = 1000
+
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
         self._updates_per_second = 10
         self._dataset = []
+
+        self.lookback = 30
+        self.recent_max_y = deque([self.max_y_range] * self.lookback)
 
     def clear(self):
         self._dataset = []
@@ -345,7 +354,28 @@ class QtHistogram(QChartView):
         if len(self._dataset) > 0:
             for i in range(len(self._dataset)):
                 self.mainset.replace(i, self._dataset[i])
-            self.axis_y.setRange(0, max(self._dataset))
+
+            # Calculate max of current values
+            max_y_range = max(self._dataset)
+
+            # Store max value
+            self.recent_max_y.appendleft(max_y_range)
+            if len(self.recent_max_y) > self.lookback:
+                self.recent_max_y.pop()
+
+            # Set max based on the last 30 max values,
+            # to avoid flickering
+            self.max_y_range = max(self.recent_max_y)
+
+            y_range = bisect.bisect_left(self.y_ranges, self.max_y_range)
+            if y_range < len(self.y_ranges):
+                self.max_y = self.y_ranges[y_range]
+            elif max_y_range > self.max_y:
+                self.max_y += self.max_y
+            elif max_y_range < self.max_y / 2:
+                self.max_y = self.max_y / 2
+
+            self.axis_y.setRange(0, self.max_y)
 
 
 class QtAgentGraph(QChartView):
