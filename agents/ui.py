@@ -334,14 +334,12 @@ class QtHistogram(QChartView):
         self.axis_x.setLabelsAngle(-90)
         self.axis_x.setLabelsFont(font)
 
-
         self.axis_y = QValueAxis()
         self.axis_y.setRange(0, self.max_y)
         self.axis_x.append(map(str, spec.bins))
         self.chart.addSeries(self.series)
         self.chart.setAxisX(self.axis_x, self.series)
         self.chart.setAxisY(self.axis_y, self.series)
-
 
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
