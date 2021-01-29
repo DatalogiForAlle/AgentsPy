@@ -5,12 +5,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 # Don't install PyQt dependencies on ReadTheDocs documentation builds
+
 if os.getenv('READTHEDOCS'):
     install_requires = []
 else:
     install_requires = [
-      'PyQt5',
-      'PyQtChart'
+        'PyQt5',
+        'PyQtChart'
     ]
 
 extras_require = {
@@ -28,7 +29,7 @@ extras_require["dev"] = extras_require["tests"] + extras_require["docs"]
 setup(
   name='AgentsPy',
   packages=['agents'],
-  version='0.5',
+  version='0.7',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
   long_description=long_description,
