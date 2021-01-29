@@ -1033,11 +1033,11 @@ class Model:
     @property
     def agents(self):
         self.remove_destroyed_agents()
-        return iter(self.__agents)
+        return self.__agents
 
     @agents.setter
     def agents(self, agents):
-        self.__agents = list(agents)
+        self.__agents = agents
 
     def __setitem__(self, key, item):
         self.variables[key] = item
@@ -1048,6 +1048,117 @@ class Model:
     def __delitem__(self, key):
         del self.variables[key]
 
+__model = Model("AgentsPy model")
+
+def add_agent(agent, setup=True):
+    __model.add_agent(agent, setup)
+
+def add_agents(agents):
+    __model.add_agents(agents)
+
+def tile(x, y):
+    return __model.tile(x, y)
+
+def reset():
+    __model.reset()
+
+def reload():
+    __model.reload()
+
+def update_plots():
+    __model.update_plots()
+
+def remove_destroyed_agents():
+    __model.remove_destroyed_agents()
+
+def clear_plots():
+    __model.clear_plots()
+
+def add_controller_row():
+    __model.controller_row()
+
+def button(func, label=None):
+    if not label:
+        label=func.__name__
+    __model.add_button(label, func)
+
+def toggle_button(func, label=None):
+    if not label:
+        label=func.__name__
+    __model.add_toggle_button(label, func)
+
+def slider(variable, initial, minval=0, maxval=100):
+    __model.add_slider(variable, minval, maxval, initial)
+
+def add_checkbox(variable):
+    __model.add_checkbox(variable)
+
+def line_chart(variable, color):
+    __model.line_chart(variable, color)
+
+def multi_line_chart(variables, colors):
+    __model.multi_line_chart(variables, colors)
+
+def bar_chart(variables, color):
+    __model.bar_chart(variables, color)
+
+def histogram(variable, minimum, maximum, bins, color):
+    __model.histogram(variable, minimum, maximum, bins, color)
+
+def monitor(variable):
+    __model.monitor(variable)
+
+def add_ellipse(x,y,w,h,color):
+    return __model.add_ellipse(x,y,w,h,color)
+
+def add_rect(x,y,w,h):
+    return __model.add_rect(x,y,w,h)
+
+def get_shapes():
+    return __model.get_shapes()
+
+def clear_shapes():
+    __model.clear_shapes()
+
+def is_paused():
+    return __model.is_paused()
+
+def pause():
+    __model.pause()
+
+def unpause():
+    __model.unpause()
+
+def on_close(func):
+    __model.on_close(func)
+
+def close():
+    __model.close()
+
+def enable_wrapping():
+    __model.enable_wrapping()
+
+def disable_wrapping():
+    __model.disable_wrapping()
+
+def wrapping():
+    return __model.wrapping()
+
+def get_var(variable):
+    return __model[variable]
+
+def set_var(variable, value):
+    __model[variable] = value
+
+def size(w,h):
+    __model.x_tiles = w
+    __model.y_tiles = h
+
+def title(name):
+    __model.title = name
+
+def agents():
+    return __model.agents
 
 class SimpleModel(Model):
     def __init__(
@@ -1069,6 +1180,8 @@ class SimpleModel(Model):
         self.add_button("Setup", setup_wrapper)
         self.add_button("Go", step_wrapper, toggle=True)
 
+def get_anonymous_model():
+    return __model
 
 def get_quickstart_model():
     global quickstart_model
