@@ -1,12 +1,35 @@
+import os
 from setuptools import setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+# Don't install PyQt dependencies on ReadTheDocs documentation builds
+
+if os.getenv('READTHEDOCS'):
+    install_requires = []
+else:
+    install_requires = [
+        'PyQt5',
+        'PyQtChart'
+    ]
+
+extras_require = {
+    "tests": [
+        "black",
+    ],
+    "docs": [
+        "sphinx",
+        "alabaster",
+    ]
+  }
+
+extras_require["dev"] = extras_require["tests"] + extras_require["docs"]
+
 setup(
   name='AgentsPy',
   packages=['agents'],
-  version='0.2',
+  version='0.7',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
   long_description=long_description,
@@ -15,10 +38,8 @@ setup(
   url='https://github.com/DatalogiForAlle/pyagents',
   download_url='https://github.com/DatalogiForAlle/AgentsPy/releases/tag/v0.1',
   keywords=['AGENT', 'MODELING', 'SIMULATION'],
-  install_requires=[
-      'PyQt5',
-      'PyQtChart'
-  ],
+  install_requires=install_requires,
+  extras_require=extras_require,
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',

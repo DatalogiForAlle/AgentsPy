@@ -24,6 +24,12 @@ class ModelTests(unittest.TestCase):
         self.test_agent = TestAgent()
         self.other_agent = OtherAgent()
 
+    def test_model_wrapping_enabled_by_default(self):
+        """
+        Test that wrapping is enabled by default when creating models
+        """
+        self.assertTrue(self.model.wrapping())
+
     def test_model_add_agent(self):
         """
         Test that the agent is actually added on model.add_agent()
@@ -60,10 +66,15 @@ class ModelTests(unittest.TestCase):
         Check that reload() after a reset() actually reloads the model file
         """
         self.model_datafile.reset()
+        # Check that tiles were reset
+        for tile in self.model_datafile.tiles:
+            self.assertEqual(len(tile.info), 0)
+
         self.model_datafile.reload()
+        # Check that values are reloaded
         for x in range(3):
             for y in range(3):
-                tile = self.model_datafile.tiles[y * 3 + x]
+                tile = self.model_datafile.tile(x, y)
                 self.assertTrue("data" in tile.info)
                 self.assertEqual(tile.info["data"], y * 3 + x)
 

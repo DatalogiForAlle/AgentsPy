@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import math
 import random
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 """
   Forklaring af model:
@@ -25,6 +25,7 @@ class Person(Agent):
         return math.sqrt(self.bread) * math.sqrt(self.butter)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.bread = random.randint(0, 9) + 1.0
         self.butter = random.randint(0, 9) + 1.0
         self.update_visual()
@@ -37,15 +38,15 @@ class Person(Agent):
             self.color = (200, 200, 0)
 
     def step(self, model):
-        if model["Decay"]:
+        if model.Decay:
             self.bread *= 0.9999
             self.butter *= 0.9999
             if random.randint(0, 10000) == 10000:
                 self.bread += random.randint(0, 5)
                 self.butter += random.randint(0, 5)
         self.direction += random.randint(0, 20) - 10
-        self.speed = model["movespeed"]
-        model["total_util"] += self.utility()
+        self.speed = model.movespeed
+        model.total_util += self.utility()
         if self.utility() > self.risk_threshold or self.infection > 0:
             nearby = self.agents_nearby(60)
             nearby_infected = 0
@@ -77,8 +78,9 @@ class Person(Agent):
             if other.trade_cooldown > 0:
                 return
             total_bread = self.bread + other.bread
-            price_bread = (self.butter / total_bread
-                           + other.butter / total_bread)
+            price_bread = (
+                self.butter / total_bread + other.butter / total_bread
+            )
 
             self.bread = self.bread / 2 + self.butter / (2 * price_bread)
             self.butter = self.bread * price_bread
@@ -104,17 +106,17 @@ class Person(Agent):
 def setup(model):
     model.reset()
     model.clear_plots()
-    model["total_util"] = 0
-    model["BNP"] = 0
+    model.total_util = 0
+    model.BNP = 0
     people = set([Person() for i in range(20)])
     model.add_agents(people)
 
 
 def step(model):
-    model["BNP"] = 0
+    model.BNP = 0
     for a in model.agents:
         a.step(model)
-        model["BNP"] += a.utility()
+        model.BNP += a.utility()
     model.update_plots()
     model.remove_destroyed_agents()
 
@@ -124,8 +126,8 @@ bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
 bnb_model.add_toggle_button("Go", step)
 bnb_model.add_controller_row()
-bnb_model.add_slider("movespeed", 0.1, 1, 0.5)
+bnb_model.add_slider("movespeed", 0.5, 0.1, 1)
 bnb_model.add_checkbox("Decay")
-bnb_model.line_chart("BNP", (0, 0, 0))
+bnb_model.line_chart(["BNP"], [(0, 0, 0)])
 bnb_model.show_direction = False
 run(bnb_model)

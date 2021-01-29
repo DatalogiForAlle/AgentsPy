@@ -6,15 +6,15 @@ class Electron(Agent):
     def setup(self, model):
         self.size = 5
         self.color = (0, 0, 255)
-        self.speed = model["speed"]
+        self.speed = model.speed
         self.direction = 180
         self.charged = False
 
     def step(self, model):
-        self.speed = model["speed"]
+        self.speed = model.speed
         self.direction = 180
         if self.x < self.speed + self.size:
-            model["charge_flow"] += 1
+            model.charge_flow += 1
         # If hitting a nucleus, point in the opposite direction of it
         for b in self.agents_nearby(distance=10, agent_type=Nucleon):
             self.point_towards(b.x, b.y)
@@ -35,8 +35,8 @@ class Nucleon(Agent):
 
 def setup(model):
     model.reset()  # can this be made implicit?
-    model["speed"] = 2
-    model["charge_flow"] = 0
+    model.speed = 2
+    model.charge_flow = 0
 
     # Add agents
     for i in range(200):
@@ -50,11 +50,11 @@ def setup(model):
 
 
 def step(model):
-    old_charge_flow = model["charge_flow"]
-    model["charge_flow"] = 0
+    old_charge_flow = model.charge_flow
+    model.charge_flow = 0
     for agent in model.agents:
         agent.step(model)
-    model["charge_flow"] = model["charge_flow"] * 0.01 + old_charge_flow * 0.99
+    model.charge_flow = model.charge_flow * 0.01 + old_charge_flow * 0.99
     model.update_plots()
 
 
@@ -63,6 +63,6 @@ modello.add_button("Setup", setup)
 modello.add_button("Step", step)
 modello.add_toggle_button("Go", step)
 modello.add_controller_row()
-modello.add_slider("speed", 0.1, 3, 2)
-modello.line_chart("charge_flow", (100, 100, 250))
+modello.add_slider("speed", 2, 0.1, 3)
+modello.line_chart(["charge_flow"], [(100, 100, 250)])
 run(modello)

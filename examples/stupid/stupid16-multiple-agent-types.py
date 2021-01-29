@@ -16,17 +16,19 @@ def find_tile_with_bug(tiles):
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.size = 8
-        self.grow_size = max(0, random.gauss(model["initialBugSizeMean"],
-                                             model["initialBugSizeSD"]))
+        self.grow_size = max(
+            0, random.gauss(model.initialBugSizeMean, model.initialBugSizeSD)
+        )
         self.survivalProbability = 95
         self.size_to_color()
         self.center_in_tile()
-        model["current_bugs"] += 1
+        model.current_bugs += 1
 
     def move(self):
         """
@@ -62,8 +64,8 @@ class Bug(Agent):
     def eat(self, model):
         # Eat from the current tile
         tile = self.current_tile()
-        self.grow_size += min(model["max_food_eat"], tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model["max_food_eat"])
+        self.grow_size += min(model.max_food_eat, tile.info["food"])
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def reproduce(self, model):
@@ -75,11 +77,11 @@ class Bug(Agent):
             for i in range(5):
                 # Try 5 times
                 for j in range(5):
-                    newbug_x = 3-random.randint(0, 6)
-                    newbug_y = 3-random.randint(0, 6)
+                    newbug_x = 3 - random.randint(0, 6)
+                    newbug_y = 3 - random.randint(0, 6)
 
-                    tile = model.tile(tile.x+newbug_x, tile.y+newbug_y)
-                    
+                    tile = model.tile(tile.x + newbug_x, tile.y + newbug_y)
+
                     # TODO: we should still add the bug if the tile
                     # contains a predator, as a cell can contain both
                     if len(tile.get_agents()) == 0:
@@ -89,14 +91,14 @@ class Bug(Agent):
                         newbug.jump_to_tile(tile)
                         break
             self.destroy()
-            model["current_bugs"] -= 1
+            model.current_bugs -= 1
 
     def step(self, model):
         self.eat(model)
         self.move()
         if self.survivalProbability < random.randint(0, 100):
             self.destroy()
-            model["current_bugs"] -= 1
+            model.current_bugs -= 1
         else:
             self.reproduce(model)
 
@@ -121,8 +123,10 @@ class Predator(Agent):
             current_tile = self.current_tile()
             rand_x = current_tile.x + random.randrange(-1, 2)
             rand_y = current_tile.y + random.randrange(-1, 2)
-            random_tile = model.tiles[(rand_y % model.y_tiles) * model.x_tiles
-                                      + rand_x % model.x_tiles]
+            random_tile = model.tiles[
+                (rand_y % model.y_tiles) * model.x_tiles
+                + rand_x % model.x_tiles
+            ]
             self.jump_to_tile(random_tile)
         else:
             # Kill the bug
@@ -148,10 +152,10 @@ def setup(model):
 
     model.reset()
     model.reload()
-    model["current_bugs"] = model["initial_bugs"]
+    model.current_bugs = model.initial_bugs
 
     # Add agents
-    for i in range(int(model["initial_bugs"])):
+    for i in range(int(model.initial_bugs)):
         model.add_agent(Bug())
         # TODO: only add agent if tile is empty?
     for i in range(200):
@@ -188,7 +192,7 @@ def step(model):
             bug_min = min(bug_min, agent.grow_size)
             bug_max = max(bug_max, agent.grow_size)
             bug_sum += agent.grow_size
-    bug_mean = bug_sum / len(model.agents)
+    bug_mean = bug_sum / model.agent_count()
 
     # Write min, average and max bug size to file
     file_handle.write("{} {} {}\n".format(bug_min, bug_mean, bug_max))
@@ -198,7 +202,7 @@ def step(model):
     model.remove_destroyed_agents()
 
     # TODO: Stop after 1000 iterations
-    if len(model.agents) == 0:
+    if model.agent_count() == 0:
         model.pause()
 
 
@@ -207,20 +211,24 @@ def close(model):
         file_handle.close()
 
 
-stupid_model = Model("StupidModel w. multiple agent types (stupid16)",
-                     100, 100, tile_size=3,
-                     cell_data_file="stupid.cell")
+stupid_model = Model(
+    "StupidModel w. multiple agent types (stupid16)",
+    100,
+    100,
+    tile_size=3,
+    cell_data_file="stupid.cell",
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
 stupid_model.add_controller_row()
-stupid_model.add_slider("initial_bugs", 10, 300, 100)
+stupid_model.add_slider("initial_bugs", 100, 10, 300)
 stupid_model.add_controller_row()
-stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
+stupid_model.add_slider("max_food_eat", 0.1, 0.1, 1.0)
 stupid_model.add_controller_row()
-stupid_model.add_slider("initialBugSizeMean", 0, 10, 1)
-stupid_model.add_slider("initialBugSizeSD", 0, 10, 5)
+stupid_model.add_slider("initialBugSizeMean", 1, 0, 10)
+stupid_model.add_slider("initialBugSizeSD", 5, 0, 10)
 stupid_model.histogram("grow_size", 0, 10, 5, (0, 0, 0))
-stupid_model.line_chart("current_bugs", (0, 0, 0))
+stupid_model.line_chart(["current_bugs"], [(0, 0, 0)])
 stupid_model.on_close(close)
 run(stupid_model)

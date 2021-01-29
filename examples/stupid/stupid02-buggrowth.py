@@ -1,13 +1,14 @@
 import random
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.size = 8
         self.grow_size = 1
         self.size_to_color()
@@ -45,10 +46,10 @@ class Bug(Agent):
 
 def setup(model):
     model.reset()
-    model["initial_bugs"] = 100
+    model.initial_bugs = 100
 
     # Create and add agents
-    for i in range(int(model["initial_bugs"])):
+    for i in range(int(model.initial_bugs)):
         model.add_agent(Bug())
 
 
@@ -58,8 +59,9 @@ def step(model):
         agent.step(model)
 
 
-stupid_model = Model("StupidModel w. Bug Growth (stupid02)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. Bug Growth (stupid02)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)

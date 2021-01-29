@@ -1,14 +1,15 @@
 import random
 import math
-from agents import Agent, Model, run
+from agents import Agent, Model, run, AgentShape
 
 
 class Bug(Agent):
     def size_to_color(self):
-        gradient = max(0, 255-255*self.grow_size/10)
+        gradient = max(0, 255 - 255 * self.grow_size / 10)
         self.color = (255, gradient, gradient)
 
     def setup(self, model):
+        self.shape = AgentShape.CIRCLE
         self.size = 8
         self.grow_size = 1
         self.size_to_color()
@@ -38,8 +39,8 @@ class Bug(Agent):
     def eat(self, model):
         # Eat from the current tile
         tile = self.current_tile()
-        self.grow_size += min(model["max_food_eat"], tile.info["food"])
-        tile.info["food"] = max(0, tile.info["food"]-model["max_food_eat"])
+        self.grow_size += min(model.max_food_eat, tile.info["food"])
+        tile.info["food"] = max(0, tile.info["food"] - model.max_food_eat)
         self.size_to_color()
 
     def step(self, model):
@@ -53,7 +54,7 @@ def setup(model):
     model.reset()
 
     # Add agents
-    for i in range(int(model["initial_bugs"])):
+    for i in range(int(model.initial_bugs)):
         model.add_agent(Bug())
 
     # Initialize tiles
@@ -65,7 +66,7 @@ def setup(model):
 def step(model):
     # Food production
     for tile in model.tiles:
-        food_prod = random.uniform(0, model["max_food_prod"])
+        food_prod = random.uniform(0, model.max_food_prod)
         tile.info["food"] += food_prod
         c = min(255, math.floor(tile.info["food"] * 255))
         tile.color = (c, c, c)
@@ -78,16 +79,17 @@ def step(model):
     model.update_plots()
 
 
-stupid_model = Model("StupidModel w. stop condition (stupid07)",
-                     100, 100, tile_size=5)
+stupid_model = Model(
+    "StupidModel w. stop condition (stupid07)", 100, 100, tile_size=5
+)
 stupid_model.add_button("setup", setup)
 stupid_model.add_button("step", step)
 stupid_model.add_toggle_button("go", step)
 stupid_model.add_controller_row()
-stupid_model.add_slider("initial_bugs", 10, 300, 100)
+stupid_model.add_slider("initial_bugs", 100, 10, 300)
 stupid_model.add_controller_row()
-stupid_model.add_slider("max_food_eat", 0.1, 1.0, 1.0)
+stupid_model.add_slider("max_food_eat", 1.0, 0.1, 1.0)
 stupid_model.add_controller_row()
-stupid_model.add_slider("max_food_prod", 0.01, 0.1, 0.01)
+stupid_model.add_slider("max_food_prod", 0.01, 0.01, 0.1)
 stupid_model.histogram("grow_size", 0, 10, 5, (0, 0, 0))
 run(stupid_model)

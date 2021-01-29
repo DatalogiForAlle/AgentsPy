@@ -10,10 +10,26 @@ from PyQt5.QtChart import (
     QBarSeries,
     QBarCategoryAxis,
 )
-from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPointF, Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import *
+=======
+from agents.model import (
+    get_quickstart_model,
+    AgentShape,
+    ButtonSpec,
+    ToggleSpec,
+    SliderSpec,
+    CheckboxSpec,
+    LineChartSpec,
+    BarChartSpec,
+    HistogramSpec,
+    AgentGraphSpec,
+    MonitorSpec,
+    EllipseStruct,
+    RectStruct,
+)
 
 
 class SimulationArea(QtWidgets.QWidget):
@@ -39,8 +55,9 @@ class SimulationArea(QtWidgets.QWidget):
         # Default to a black background
         white = QtGui.QColor("black")
         painter.setBrush(white)
-        painter.drawRect(0, 0,
-                         painter.device().width(), painter.device().height())
+        painter.drawRect(
+            0, 0, painter.device().width(), painter.device().height()
+        )
 
         if self.model:
             # Draw tiles
@@ -51,9 +68,9 @@ class SimulationArea(QtWidgets.QWidget):
                 c = shape.color
                 painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
                 if type(shape) is EllipseStruct:
-                    painter.drawEllipse(shape.x,shape.y,shape.w,shape.h)
+                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
                 elif type(shape) is RectStruct:
-                    painter.drawRect(shape.x,shape.y,shape.w,shape.h)
+                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
             # Draw agents
             select = None
             for agent in self.model.agents:
@@ -167,74 +184,25 @@ class SimulationArea(QtWidgets.QWidget):
         if action == pause_action:
             self.enable_rendering = not self.enable_rendering
 
+
 class QtGraph(QChartView):
     def __init__(self, spec):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.createDefaultAxes()
-        self.chart.setTitle(self.spec.variable)
-        self.chart.legend().hide()
-        self.series = QLineSeries()
-        self.series.setColor(
-            QColor(spec.color[0], spec.color[1], spec.color[2])
-        )
-        self.setMinimumWidth(400)
-        self.setMinimumHeight(230)
+        # self.chart.setTitle(str(self.spec.variables))
+        # self.chart.legend().hide()
 
-        self.axis_x = QValueAxis()
-        self.axis_y = QValueAxis()
-        self.chart.addSeries(self.series)
-        self.chart.setAxisX(self.axis_x, self.series)
-        self.chart.setAxisY(self.axis_y, self.series)
-
-        self.setChart(self.chart)
-        self.setRenderHint(QPainter.Antialiasing)
-
-        self._updates_per_second = 10
-        self._data = []
-        self._min = 0
-        self._max = 0
-
-    def clear(self):
-        self.series.clear()
-        self._data = []
-
-    def add_data(self, data):
-        self._data.append(data)
-
-    def redraw(self):
-        if len(self._data) > 0:
-            datapoint = sum(self._data) / len(self._data)
-            self.series.append(
-                QPointF(
-                    self.series.count() / self._updates_per_second, datapoint
+        for i in range(len(self.spec.variables)):
+            series = QLineSeries()
+            series.setColor(
+                QColor(
+                    self.spec.colors[i][0],
+                    self.spec.colors[i][1],
+                    self.spec.colors[i][2],
                 )
             )
-            self.axis_x.setRange(
-                0, (self.series.count() - 1) / self._updates_per_second
-            )
-            self._min = min(self._min, datapoint)
-            self._max = max(self._max, datapoint)
-            diff = self._max - self._min
-            if diff > 0:
-                self.axis_y.setRange(self._min, self._max)
-            else:
-                self.axis_y.setRange(self._min - 0.5, self._max + 0.5)
-            self._data = []
-
-
-class QtMultiGraph(QChartView):
-    def __init__(self, spec):
-        super().__init__(None)
-        self.spec = spec
-        self.chart = QChart()
-        self.chart.setTitle(str(self.spec.variables))
-        self.chart.legend().hide()
-
-        for color in self.spec.colors:
-            series = QLineSeries()
-            series.setColor(QColor(color[0], color[1], color[2]))
+            series.setName(self.spec.variables[i])
             self.chart.addSeries(series)
 
         self.setMinimumWidth(400)
@@ -243,6 +211,10 @@ class QtMultiGraph(QChartView):
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
         self.chart.createDefaultAxes()
+        self.autoscale_y_axis = True
+        if self.spec.min_y and self.spec.max_y:
+            self.autoscale_y_axis = False
+            self.chart.axes()[1].setRange(self.spec.min_y, self.spec.max_y)
 
         self._updates_per_second = 60
         self._data = []
@@ -262,18 +234,24 @@ class QtMultiGraph(QChartView):
             for i in range(len(self.spec.variables)):
                 data = [datapoint[i] for datapoint in self._data]
                 datapoint = sum(data) / len(data)
-                self.chart.series()[i].append(QPointF(self.chart.series()[i].count() /
-                                                    self._updates_per_second,
-                                                    datapoint))
+                self.chart.series()[i].append(
+                    QPointF(
+                        self.chart.series()[i].count()
+                        / self._updates_per_second,
+                        datapoint,
+                    )
+                )
                 self._min = min(self._min, datapoint)
                 self._max = max(self._max, datapoint)
-        self.chart.axes()[0].setRange(0, (self.chart.series()[0].count() - 1) /
-                                      self._updates_per_second)
+        self.chart.axes()[0].setRange(
+            0, (self.chart.series()[0].count() - 1) / self._updates_per_second
+        )
         diff = self._max - self._min
-        if diff > 0:
-            self.chart.axes()[1].setRange(self._min,self._max)
-        else:
-            self.chart.axes()[1].setRange(self._min-0.5,self._max+0.5)
+        if self.autoscale_y_axis:
+            if diff > 0:
+                self.chart.axes()[1].setRange(self._min, self._max)
+            else:
+                self.chart.axes()[1].setRange(self._min - 0.5, self._max + 0.5)
         self._data = []
 
 
@@ -282,7 +260,7 @@ class QtBarChart(QChartView):
         super().__init__(None)
         self.spec = spec
         self.chart = QChart()
-        self.chart.setTitle(str(self.spec.variables))
+        # self.chart.setTitle(str(self.spec.variables))
         self.chart.legend().hide()
         self.mainset = QBarSet("")
         self.mainset.append([0 for i in range(len(spec.variables))])
@@ -370,6 +348,89 @@ class QtHistogram(QChartView):
             for i in range(len(self._dataset)):
                 self.mainset.replace(i, self._dataset[i])
             self.axis_y.setRange(0, max(self._dataset))
+
+
+class QtAgentGraph(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setTitle(str(self.spec.variable))
+        self.chart.legend().hide()
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+        self.chart.createDefaultAxes()
+        self.autoscale_y_axis = True
+        if self.spec.min_y and self.spec.max_y:
+            self.autoscale_y_axis = False
+            self.chart.axes()[1].setRange(self.spec.min_y, self.spec.max_y)
+
+        self.axis_x = QValueAxis()
+        self.axis_y = QValueAxis()
+        self.chart.addAxis(self.axis_x, Qt.AlignBottom)
+        self.chart.addAxis(self.axis_y, Qt.AlignLeft)
+
+        self._updates_per_second = 60
+        self._data = []
+        self._min = 0
+        self._max = 0
+
+    def clear(self):
+        for chart in self.chart.series():
+            chart.clear()
+        self._data = []
+
+    def update_data(self):
+        for a in self.spec.agents:
+            if not hasattr(a, "_agent_series"):
+                a._agent_series = QLineSeries()
+                a._agent_series.setColor(
+                    QColor(a.color[0], a.color[1], a.color[2])
+                )
+                a._agent_series_data = [getattr(a, self.spec.variable)]
+                self.chart.addSeries(a._agent_series)
+                a._agent_series.attachAxis(self.chart.axisX())
+                a._agent_series.attachAxis(self.chart.axisY())
+            else:
+                a._agent_series_data.append(getattr(a, self.spec.variable))
+
+    def redraw(self):
+        for a in self.spec.agents:
+            if hasattr(a, "_agent_series") and len(a._agent_series_data) > 0:
+                datapoint = sum(a._agent_series_data) / len(
+                    a._agent_series_data
+                )
+                a._agent_series.append(
+                    QPointF(
+                        a._agent_series.count() / self._updates_per_second,
+                        datapoint,
+                    )
+                )
+                self._min = min(self._min, datapoint)
+                self._max = max(self._max, datapoint)
+                a._agent_series.setColor(
+                    QColor(a.color[0], a.color[1], a.color[2])
+                )
+            a._agent_series_data = []
+        if len(self.spec.agents) > 0:
+            first_agent = self.spec.agents[0]
+            if hasattr(first_agent, "_agent_series"):
+                first_series = first_agent._agent_series
+                self.chart.axes()[0].setRange(
+                    0, (first_series.count() - 1) / self._updates_per_second
+                )
+                diff = self._max - self._min
+                if self.autoscale_y_axis:
+                    if diff > 0:
+                        self.chart.axes()[1].setRange(self._min, self._max)
+                    else:
+                        self.chart.axes()[1].setRange(
+                            self._min - 0.5, self._max + 0.5
+                        )
 
 
 class ToggleButton(QtWidgets.QPushButton):
@@ -479,7 +540,7 @@ class Application:
 
         # Start timers
         self.logic_timer.start(1000 / 60)
-        self.graphics_timer.start(1000 / 10)
+        self.graphics_timer.start(1000 / 30)
 
     def update_logic(self):
         if not self.model.is_paused():
@@ -519,7 +580,7 @@ class Application:
 
         def update_variable(v):
             value = v / slider.sliderBar.factor
-            self.model[slider_spec.variable] = value
+            setattr(self.model, slider_spec.variable, value)
             slider.indicator.setText(str(value))
 
         slider.sliderBar.valueChanged.connect(update_variable)
@@ -530,7 +591,7 @@ class Application:
         checkbox = Checkbox(checkbox_spec.variable)
 
         def update_variable(v):
-            self.model[checkbox_spec.variable] = checkbox.isChecked()
+            setattr(self.model, checkbox_spec.variable, checkbox.isChecked())
 
         checkbox.stateChanged.connect(update_variable)
         row.addWidget(checkbox)
@@ -546,11 +607,6 @@ class Application:
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
 
-    def add_multi_line_chart(self, multi_line_chart_spec, plots_box):
-        chart = QtMultiGraph(multi_line_chart_spec)
-        plots_box.addWidget(chart)
-        self.model.plots.add(chart)
-
     def add_bar_chart(self, bar_chart_spec, plots_box):
         chart = QtBarChart(bar_chart_spec)
         plots_box.addWidget(chart)
@@ -560,6 +616,11 @@ class Application:
         histogram = QtHistogram(histogram_spec)
         plots_box.addWidget(histogram)
         self.model.plots.add(histogram)
+
+    def add_agent_graph(self, agent_graph_spec, plots_box):
+        chart = QtAgentGraph(agent_graph_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
 
     def add_controllers(self, rows, controller_box):
         first_row = True
@@ -588,12 +649,12 @@ class Application:
         for plot_spec in plot_specs:
             if type(plot_spec) is LineChartSpec:
                 self.add_line_chart(plot_spec, plots_box)
-            elif type(plot_spec) is MultiLineChartSpec:
-                self.add_multi_line_chart(plot_spec, plots_box)
             elif type(plot_spec) is BarChartSpec:
                 self.add_bar_chart(plot_spec, plots_box)
             elif type(plot_spec) is HistogramSpec:
                 self.add_histogram(plot_spec, plots_box)
+            elif type(plot_spec) is AgentGraphSpec:
+                self.add_agent_graph(plot_spec, plots_box)
 
 def run(setup, step):
     global __model
