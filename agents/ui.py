@@ -24,6 +24,8 @@ from agents.model import (
     BarChartSpec,
     HistogramSpec,
     AgentGraphSpec,
+    StateGraphSpec,
+    StateBarSpec,
     MonitorSpec,
     EllipseStruct,
     RectStruct,
@@ -431,6 +433,117 @@ class QtAgentGraph(QChartView):
                         )
 
 
+class QtStateGraph(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setTitle(str(self.spec.variable))
+        self.chart.legend().hide()
+
+        for color in self.spec.colors:
+            series = QLineSeries()
+            series.setColor(QColor(color[0], color[1], color[2]))
+            self.chart.addSeries(series)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+        self.chart.createDefaultAxes()
+        self.autoscale_y_axis = True
+        if self.spec.min_y and self.spec.max_y:
+            self.autoscale_y_axis = False
+            self.chart.axes()[1].setRange(self.spec.min_y, self.spec.max_y)
+
+        self._updates_per_second = 60
+        self._data = []
+        self._min = 0
+        self._max = 0
+
+    def clear(self):
+        for chart in self.chart.series():
+            chart.clear()
+        self._data = []
+
+    def update_data(self, data):
+        self._data.append(data)
+
+    def redraw(self):
+        if len(self._data) > 0:
+            for i in range(len(self.spec.states)):
+                data = [datapoint[i] for datapoint in self._data]
+                datapoint = sum(data) / len(data)
+                self.chart.series()[i].append(
+                    QPointF(
+                        self.chart.series()[i].count()
+                        / self._updates_per_second,
+                        datapoint,
+                    )
+                )
+                self._min = min(self._min, datapoint)
+                self._max = max(self._max, datapoint)
+        self.chart.axes()[0].setRange(
+            0, (self.chart.series()[0].count() - 1) / self._updates_per_second
+        )
+        diff = self._max - self._min
+        if self.autoscale_y_axis:
+            if diff > 0:
+                self.chart.axes()[1].setRange(self._min, self._max)
+            else:
+                self.chart.axes()[1].setRange(self._min - 0.5, self._max + 0.5)
+        self._data = []
+
+
+class QtStateBarChart(QChartView):
+    def __init__(self, spec):
+        super().__init__(None)
+        self.spec = spec
+        self.chart = QChart()
+        self.chart.setTitle(self.spec.variable)
+        self.chart.legend().hide()
+
+        self.mainset = QBarSet("")
+        self.mainset.append([0 for i in range(len(spec.states))])
+        self.mainset.setColor(
+            QColor(spec.color[0], spec.color[1], spec.color[2])
+        )
+        self.series = QBarSeries()
+        self.series.append(self.mainset)
+
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(230)
+
+        self.axis_x = QBarCategoryAxis()
+        self.axis_y = QValueAxis()
+        self.axis_x.append(map(str, spec.states))
+        self.chart.addSeries(self.series)
+        self.chart.setAxisX(self.axis_x, self.series)
+        self.chart.setAxisY(self.axis_y, self.series)
+
+        self.setChart(self.chart)
+        self.setRenderHint(QPainter.Antialiasing)
+
+        self._updates_per_second = 10
+        self._dataset = []
+
+    def clear(self):
+        self._dataset = []
+
+    def update_data(self, dataset):
+        data = []
+        for d in dataset:
+            data.append(d)
+        self._dataset = data
+
+    def redraw(self):
+        if len(self._dataset) > 0:
+            for i in range(len(self._dataset)):
+                self.mainset.replace(i, self._dataset[i])
+            self.axis_y.setRange(0, max(self._dataset))
+
+
 class ToggleButton(QtWidgets.QPushButton):
     def __init__(self, text, func, model):
         super().__init__(text)
@@ -620,6 +733,16 @@ class Application:
         plots_box.addWidget(chart)
         self.model.plots.add(chart)
 
+    def add_state_graph(self, state_spec, plots_box):
+        chart = QtStateGraph(state_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
+
+    def add_state_bar_chart(self, state_spec, plots_box):
+        chart = QtStateBarChart(state_spec)
+        plots_box.addWidget(chart)
+        self.model.plots.add(chart)
+
     def add_controllers(self, rows, controller_box):
         first_row = True
         for row in rows:
@@ -653,6 +776,10 @@ class Application:
                 self.add_histogram(plot_spec, plots_box)
             elif type(plot_spec) is AgentGraphSpec:
                 self.add_agent_graph(plot_spec, plots_box)
+            elif type(plot_spec) is StateGraphSpec:
+                self.add_state_graph(plot_spec, plots_box)
+            elif type(plot_spec) is StateBarSpec:
+                self.add_state_bar_chart(plot_spec, plots_box)
 
 
 def run(model):

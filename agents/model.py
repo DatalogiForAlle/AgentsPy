@@ -473,6 +473,22 @@ class BarChartSpec(Spec):
         self.color = color
 
 
+class StateGraphSpec(Spec):
+    def __init__(self, variable, states, colors, min_y, max_y):
+        self.variable = variable
+        self.states = states
+        self.colors = colors
+        self.min_y = min_y
+        self.max_y = max_y
+
+
+class StateBarSpec(Spec):
+    def __init__(self, variable, states, color):
+        self.variable = variable
+        self.states = states
+        self.color = color
+
+
 class HistogramSpec(Spec):
     def __init__(self, variable, minimum, maximum, intervals, color):
         self.variable = variable
@@ -733,6 +749,20 @@ class Model:
                             val = getattr(a, plot.spec.variable)
                             if val >= b[0] and val <= b[1]:
                                 bin_count += 1
+                dataset.append(bin_count)
+                plot.update_data(dataset)
+            elif (
+                type(plot.spec) is StateGraphSpec
+                or type(plot.spec) is StateBarSpec
+            ):
+                dataset = []
+                for state in plot.spec.states:
+                    bin_count = 0
+                    for a in self.__agents:
+                        if hasattr(a, plot.spec.variable):
+                            a_state = getattr(a, plot.spec.variable)
+                            if a_state == state:
+                                bin_count += 1
                     dataset.append(bin_count)
                 plot.update_data(dataset)
             elif type(plot.spec) is AgentGraphSpec:
@@ -904,6 +934,48 @@ class Model:
             The maximum value on the y-axis.
         """
         self.plot_specs.append(AgentGraphSpec([], variable, min_y, max_y))
+
+    def state_graph(self, variable, states, colors, min_y, max_y):
+        """
+        Adds a line graph to the simulation window that shows how
+        agents are distributed between different "states" of a single
+        variable over time. The states must be represented as strings.
+
+        Parameters
+        ----------
+        variable
+            The state variable. This should be given as a string.
+        states
+            The different states that the state-variable may enter. These should be given as a list of strings.
+        colors
+            The color of each line.
+        min_y
+            The minimum value on the y-axis.
+        max_y
+            The maximum value on the y-axis.
+
+        """
+        self.plot_specs.append(
+            StateGraphSpec(variable, states, colors, min_y, max_y)
+        )
+
+    def state_bar_chart(self, variable, states, color):
+        """
+        Adds a bar chart to the simulation window that shows how agents
+        are distributed between different "states" of a single
+        variable. The states must be represented as strings.
+
+        Parameters
+        ----------
+        variable
+            The state variable. This should be given as a string.
+        states
+            The different states that the state-variable may enter. These should be given as a list of strings.
+        color
+            The color of all the bars.
+
+        """
+        self.plot_specs.append(StateBarSpec(variable, states, color))
 
     def monitor(self, variable):
         """

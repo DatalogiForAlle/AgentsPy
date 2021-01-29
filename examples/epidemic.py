@@ -8,23 +8,21 @@ class Person(Agent):
     # Inficer agenten
     def infect(self, model):
         self.infection = 1000
-        model.infected += 1
-        model.normal -= 1
+        self.infection_state = "infected"
         self.color = (200, 200, 0)
 
     # Gør agenten immun
     def immunize(self, model):
         self.infection = 0
-        model.infected -= 1
-        model.immune += 1
+        self.infection_state = "immune"
         self.immune = True
 
     def setup(self, model):
         self.color = (50, 150, 50)
         self.immune = False
-        self.size = 10
+        self.size = model.agentsize
         self.infection = 0
-        model.normal += 1
+        self.infection_state = "normal"
         if random.randint(0, 100) < 5:
             self.infect(model)
 
@@ -114,12 +112,10 @@ epidemic_model.add_slider("decay", 2, 0, 3)
 epidemic_model.add_slider("movespeed", 0.5, 0.1, 2)
 epidemic_model.monitor("immune")
 
-epidemic_model.line_chart(
-    ["normal", "infected", "immune"],
-    [(0, 200, 0), (200, 200, 0), (100, 100, 255)],
-)
-epidemic_model.bar_chart(["normal", "infected", "immune"], (100, 200, 100))
-epidemic_model.agent_line_chart("infection", 0, 1000)
+epidemic_model.agent_line_chart("infection",0,1000)
+epidemic_model.state_graph("infection_state", ["normal","infected","immune"], [(0, 200, 0), (200, 200, 0),(100, 100, 255)], 0, 100)
+epidemic_model.state_bar_chart("infection_state", ["normal", "infected", "immune"], (100, 100, 100))
+
 epidemic_model.on_close(print_infections)
 
 run(epidemic_model)
