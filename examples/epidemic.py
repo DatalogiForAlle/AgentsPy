@@ -47,24 +47,28 @@ class Person(Agent):
                 average_angle /= nearby_infected
                 self.direction = average_angle + 180
             elif self.x >= 245 and self.x <= 255 and (self.y < 230 or self.y > 270):
-                self.direction += 18
+                self.direction += 180
             else:
                 self.direction += random.randint(0, 20) - 10
-                self.speed = model.movespeed
-                self.forward()
+            self.speed = model.movespeed
+            self.forward()
 
         if self.infection > 1:
             t = self.current_tile()
             t.info["infection"] = model.decay * 60
-            for b in self.agents_nearby(15):
-                if (not b.immune) and (b.infection == 0):
-                    b.infect(model)
+            #for b in self.agents_nearby(15):
+            #    if (not b.immune) and (b.infection == 0):
+            #        b.infect(model)
             self.infection -= 1
         elif self.infection == 1:
             self.immunize(model)
         elif not self.immune:
             if self.current_tile().info["infection"] > 0:
                 self.infect(model)
+                print("infected by standing on tile",
+                      self.current_tile().x,
+                      self.current_tile().y,
+                      "(x and y is "+str(self.x)+" "+str(self.y)+")")
 
         if self.infection > 0:
             self.color = (200, 200, 0)
