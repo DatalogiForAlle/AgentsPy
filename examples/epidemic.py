@@ -11,6 +11,7 @@ class Person(Agent):
         model.infected += 1
         model.normal -= 1
         self.color = (200, 200, 0)
+        self.pen_up()
 
     # Gør agenten immun
     def immunize(self, model):
@@ -18,6 +19,7 @@ class Person(Agent):
         model.infected -= 1
         model.immune += 1
         self.immune = True
+        self.pen_down()
 
     def setup(self, model):
         self.color = (50, 150, 50)
@@ -25,6 +27,7 @@ class Person(Agent):
         self.size = 10
         self.infection = 0
         self.distance_const = random.randint(0, 100)
+        self.pen_down()
         model.normal += 1
         if random.randint(0, 100) < 5:
             self.infect(model)
@@ -107,7 +110,7 @@ def print_infections(model):
 
 
 epidemic_model = SimpleModel("Epidemic", 100, 100, setup, step, tile_size=5)
-epidemic_model.add_button("Step", step, toggle=True)
+epidemic_model.add_button("Step", step, toggle=False)
 epidemic_model.add_slider("decay", 2, 0, 3)
 epidemic_model.add_slider("movespeed", 0.5, 0.1, 2)
 epidemic_model.add_slider("social_distancing", 20, 0, 100)

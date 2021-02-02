@@ -12,7 +12,7 @@ from PyQt5.QtChart import (
     QBarSeries,
     QBarCategoryAxis,
 )
-from PyQt5.QtCore import QPointF, Qt
+from PyQt5.QtCore import QPointF, QLineF, Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
 
 from agents.model import (
@@ -63,6 +63,7 @@ class SimulationArea(QtWidgets.QWidget):
             # Draw tiles
             for tile in self.model.tiles:
                 self.paintTile(painter, tile)
+
             # Draw shapes
             for shape in self.model.get_shapes():
                 c = shape.color
@@ -71,6 +72,19 @@ class SimulationArea(QtWidgets.QWidget):
                     painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
                 elif type(shape) is RectStruct:
                     painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+
+            # Draw lines
+            for agent in self.model.agents:
+                painter.setPen(QColor(agent.color[0], agent.color[1], agent.color[2]))
+                # Pretty terrible code here
+                # Replaces line-tuples in agent.__paths with QLineF's
+                for path in agent.get_paths():
+                    for i in range(len(path)):
+                        if type(path[i]) is tuple:
+                            path[i] = QLineF(path[i][0][0],path[i][0][1],
+                                             path[i][1][0],path[i][1][1])
+                    painter.drawLines(path)
+
             # Draw agents
             select = None
             for agent in self.model.agents:
@@ -93,7 +107,8 @@ class SimulationArea(QtWidgets.QWidget):
 
     def paintAgent(self, painter, agent):
         r, g, b = agent.color
-        painter.setBrush(QtGui.QColor(r, g, b))
+        painter.setBrush(QColor(r, g, b))
+        painter.setPen(QColor(r, g, b))
         if agent.shape == AgentShape.CIRCLE:
             painter.drawEllipse(
                 agent.x - agent.size / 2,

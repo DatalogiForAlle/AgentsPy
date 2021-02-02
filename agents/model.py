@@ -40,6 +40,9 @@ class Agent:
         self.__direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
+        self.__draw_path = False
+        self.__paths = []
+        self.__prev_pos = (self.x,self.y)
         self.selected = False
         self.shape = AgentShape.ARROW
 
@@ -79,11 +82,16 @@ class Agent:
 
     # To be called after each movement step
     def __post_move(self):
+        skip_draw = False
         if self.__model.wrapping():
-            self.__wraparound()
+            skip_draw = self.__wraparound()
         else:
             self.__stay_inside()
         self.update_current_tile()
+        new_pos = (self.x,self.y)
+        if self.__draw_path and not skip_draw:
+            self.__paths[-1].append((self.__prev_pos,new_pos))
+        self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
     def __wraparound(self):
@@ -95,8 +103,12 @@ class Agent:
         #   400.0
         #
         # This should've returned 0.
+        prev_x = self.x
+        prev_y = self.y
         self.x = self.x % self.__model.width % self.__model.width
         self.y = self.y % self.__model.height % self.__model.height
+        # Returns true if a wrap occurred
+        return prev_x != self.x or prev_y != self.y
 
     # If the agent is outside the simulation area,
     # return it to the closest point inside
@@ -334,6 +346,16 @@ class Agent:
         """
         if not self.__destroyed:
             self.__destroyed = True
+
+    def pen_down(self):
+        self.__draw_path = True
+        self.__paths.append([])
+
+    def pen_up(self):
+        self.__draw_path = False
+
+    def get_paths(self):
+        return self.__paths
 
     @property
     def color(self):
@@ -594,8 +616,8 @@ class Model:
             ``True``).
         """
         agent.set_model(self)
-        agent.x = random.randint(0, self.width)
-        agent.y = random.randint(0, self.height)
+        agent.jump_to(random.randint(0, self.width),
+                      random.randint(0, self.height))
         agent.update_current_tile()
         self.__agents.append(agent)
         if setup:
