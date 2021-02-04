@@ -11,7 +11,7 @@ class Person(Agent):
         model.infected += 1
         model.normal -= 1
         self.color = (200, 200, 0)
-        self.pen_up()
+        self.penup()
 
     # Gør agenten immun
     def immunize(self, model):
@@ -19,7 +19,7 @@ class Person(Agent):
         model.infected -= 1
         model.immune += 1
         self.immune = True
-        self.pen_down()
+        self.pendown()
 
     def setup(self, model):
         self.color = (50, 150, 50)
@@ -27,7 +27,7 @@ class Person(Agent):
         self.size = 10
         self.infection = 0
         self.distance_const = random.randint(0, 100)
-        self.pen_down()
+        self.pendown()
         model.normal += 1
         if random.randint(0, 100) < 5:
             self.infect(model)

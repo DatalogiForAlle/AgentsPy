@@ -347,11 +347,11 @@ class Agent:
         if not self.__destroyed:
             self.__destroyed = True
 
-    def pen_down(self):
+    def pendown(self):
         self.__draw_path = True
         self.__paths.append([])
 
-    def pen_up(self):
+    def penup(self):
         self.__draw_path = False
 
     def get_paths(self):
