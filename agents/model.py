@@ -42,7 +42,7 @@ class Agent:
         self.__current_tile = None
         self.__draw_path = False
         self.__paths = []
-        self.__prev_pos = (self.x,self.y)
+        self.__prev_pos = (self.x, self.y)
         self.selected = False
         self.shape = AgentShape.ARROW
 
@@ -88,9 +88,9 @@ class Agent:
         else:
             self.__stay_inside()
         self.update_current_tile()
-        new_pos = (self.x,self.y)
+        new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
-            self.__paths[-1].append((self.__prev_pos,new_pos))
+            self.__paths[-1].append((self.__prev_pos, new_pos))
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
@@ -616,8 +616,9 @@ class Model:
             ``True``).
         """
         agent.set_model(self)
-        agent.jump_to(random.randint(0, self.width),
-                      random.randint(0, self.height))
+        agent.jump_to(
+            random.randint(0, self.width), random.randint(0, self.height)
+        )
         agent.update_current_tile()
         self.__agents.append(agent)
         if setup:

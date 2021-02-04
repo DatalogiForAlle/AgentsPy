@@ -75,14 +75,20 @@ class SimulationArea(QtWidgets.QWidget):
 
             # Draw lines
             for agent in self.model.agents:
-                painter.setPen(QColor(agent.color[0], agent.color[1], agent.color[2]))
+                painter.setPen(
+                    QColor(agent.color[0], agent.color[1], agent.color[2])
+                )
                 # Pretty terrible code here
                 # Replaces line-tuples in agent.__paths with QLineF's
                 for path in agent.get_paths():
                     for i in range(len(path)):
                         if type(path[i]) is tuple:
-                            path[i] = QLineF(path[i][0][0],path[i][0][1],
-                                             path[i][1][0],path[i][1][1])
+                            path[i] = QLineF(
+                                path[i][0][0],
+                                path[i][0][1],
+                                path[i][1][0],
+                                path[i][1][1],
+                            )
                     painter.drawLines(path)
 
             # Draw agents
