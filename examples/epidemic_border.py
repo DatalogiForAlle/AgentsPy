@@ -46,6 +46,8 @@ class Person(Agent):
             if nearby_infected > 0:
                 average_angle /= nearby_infected
                 self.direction = average_angle + 180
+            elif self.x >= 245 and self.x <= 255 and (self.y < 230 or self.y > 270):
+                self.direction += 180
             else:
                 self.direction += random.randint(0, 20) - 10
             self.speed = model.movespeed
@@ -88,6 +90,8 @@ def setup(model):
     model.disable_wrapping()
     people = set([Person() for i in range(100)])
     model.add_agents(people)
+    wall1 = model.add_rect(245,0,10,230,(175,175,175))
+    wall2 = model.add_rect(245,270,10,230,(175,175,175))
     for t in model.tiles:
         t.info["infection"] = 0
         if t.x < 50:

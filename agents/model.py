@@ -101,8 +101,9 @@ class Agent:
     # If the agent is outside the simulation area,
     # return it to the closest point inside
     def __stay_inside(self):
-        self.x = min(max(self.x, 0), self.__model.width)
-        self.y = min(max(self.y, 0), self.__model.height)
+        epsilon = 0.0001 # Due to a bug with current_tile detection
+        self.x = min(max(self.x, 0 + epsilon), self.__model.width - epsilon)
+        self.y = min(max(self.y, 0 + epsilon), self.__model.height - epsilon)
 
     def center_in_tile(self):
         """
