@@ -238,6 +238,7 @@ Her er den samlede kode du gerne skulle have nu::
   epidemic_model.line_chart(
       ["Susceptible", "Infectious", "Recovered"], [(0, 200, 0), (200, 0, 0), (0, 0, 200)]
   )
+  epidemic_model.bar_chart(["Susceptible", "Infectious", "Recovered"], (200, 200, 200))
   epidemic_model.add_checkbox("enable_groups")
   epidemic_model.add_controller_row()
   epidemic_model.add_slider("social_distance", 50, 0, 80)

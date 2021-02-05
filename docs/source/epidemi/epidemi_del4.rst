@@ -353,6 +353,7 @@ Her er den samlede kode du gerne skulle have nu::
   epidemic_model.add_button("Setup", model_setup)
   epidemic_model.add_button("Go", model_step, toggle=True)
   epidemic_model.line_chart(["Susceptible", "Infectious"], [(0, 200, 0), (200, 0, 0)])
+  epidemic_model.bar_chart(["Susceptible", "Infectious"], (200, 200, 200))
   epidemic_model.add_checkbox("enable_groups")
   epidemic_model.add_controller_row()
   epidemic_model.add_slider("social_distance", 50, 0, 80)
