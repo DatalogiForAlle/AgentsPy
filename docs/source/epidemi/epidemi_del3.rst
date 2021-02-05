@@ -1,4 +1,4 @@
-Del 2: Mindskning af smitte
+Del 3: Mindskning af smitte
 ===========================
 Succes! Regeringen er godt tilfreds med din model, der viser
 spredningen af smitte, og efterfølgende immunitet, over tid. Nu har de

@@ -1,4 +1,4 @@
-Del 1: En model over smittespredning
+Del 2: En model over smittespredning
 ====================================
 
 Du har nu din model, og dine agenter - men hvordan skal du simulere
