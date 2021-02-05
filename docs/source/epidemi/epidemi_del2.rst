@@ -223,15 +223,15 @@ Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og
 .. image:: ../images/epidemic/epidemic-2.4.png
    :height: 400
 
-Opgave
-------
+Opgave 1
+--------
 Tilføj en tilfældighed, så smitte ikke spredes med 100% sandsynlighed,
 men fx kun 20% sandsynlighed, når to agenter mødes.
 
 *Hint:* Brug ``randint()``-funktionen, som vi også har brugt tidligere.
 
-Opgave
-------
+Opgave 2
+--------
 Overvej hvordan vi kan lave en type agent “Superspreder”, der enten:
 
   - Bevæger sig hurtigere (flere kontakter)
