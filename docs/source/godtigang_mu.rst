@@ -19,7 +19,7 @@ Installation af Mu-editoren
 ---------------------------
 Hent og installér denne alpha-udgave af Mu-editoren:
 
-- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/archive/1.1.0-beta.1.zip>`_
+- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/releases/download/1.1.0-alpha.2/mu-editor_1.1.0-alpha.2_win64.exe>`_
 - `Hent Mu-editor til Mac OS X <http://dybber.dk/mu_editor_1.1.0b1.dmg>`_
 - `Hent Mu-editor til Linux <https://github.com/mu-editor/mu/archive/1.1.0-beta.1.tar.gz>`_
 
