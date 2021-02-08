@@ -91,7 +91,7 @@ class Agent:
         self.update_current_tile()
         new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
-            self.__stored_paths.append((self.__prev_pos, new_pos,self.color))
+            self.__stored_paths.append((self.__prev_pos, new_pos, self.color))
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area

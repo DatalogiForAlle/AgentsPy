@@ -98,8 +98,8 @@ class SimulationArea(QtWidgets.QWidget):
                 for path in agent.get_stored_paths():
                     prev_p = path[0]
                     next_p = path[1]
-                    line = QLineF(prev_p[0],prev_p[1],next_p[0],next_p[1])
-                    agent.get_draw_paths().append((line,path[2]))
+                    line = QLineF(prev_p[0], prev_p[1], next_p[0], next_p[1])
+                    agent.get_draw_paths().append((line, path[2]))
 
                 agent.clear_stored_paths()
 
