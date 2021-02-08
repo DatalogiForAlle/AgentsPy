@@ -11,7 +11,6 @@ class Person(Agent):
         model.infected += 1
         model.normal -= 1
         self.color = (200, 200, 0)
-        self.penup()
 
     # Gør agenten immun
     def immunize(self, model):
@@ -19,23 +18,18 @@ class Person(Agent):
         model.infected -= 1
         model.immune += 1
         self.immune = True
-        self.pendown()
 
     def setup(self, model):
         self.color = (50, 150, 50)
         self.immune = False
-        self.size = 10
+        self.size = model.agentsize
         self.infection = 0
         self.distance_const = random.randint(0, 100)
-        self.pendown()
         model.normal += 1
-        if random.randint(0, 100) < 5:
-            self.infect(model)
 
     def step(self, model):
         nearby = self.agents_nearby(30)
         nearby_infected = 0
-        self.size = model.agentsize
         # Find the average angle of nearby infected agents
         average_angle = 0
         for other in nearby:
@@ -78,8 +72,14 @@ def setup(model):
     model.immune = 0
     model.decay = 2
     model.agentsize = 5
+
     people = set([Person() for i in range(100)])
     model.add_agents(people)
+
+    patient_zero = Person()
+    model.add_agent(patient_zero)
+    patient_zero.infect(model)
+
     for t in model.tiles:
         t.color = (0, 50, 0)
         t.info["infection"] = 0
