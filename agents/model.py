@@ -41,7 +41,8 @@ class Agent:
         self.speed = 1
         self.__current_tile = None
         self.__draw_path = False
-        self.__paths = []
+        self.__stored_paths = []
+        self.__draw_paths = []
         self.__prev_pos = (self.x, self.y)
         self.selected = False
         self.shape = AgentShape.ARROW
@@ -90,7 +91,7 @@ class Agent:
         self.update_current_tile()
         new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
-            self.__paths[-1].append((self.__prev_pos, new_pos))
+            self.__stored_paths.append((self.__prev_pos, new_pos,self.color))
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
@@ -349,13 +350,18 @@ class Agent:
 
     def pendown(self):
         self.__draw_path = True
-        self.__paths.append([])
 
     def penup(self):
-        self.__draw_path = False
+        self.__stored_paths = False
 
-    def get_paths(self):
-        return self.__paths
+    def get_stored_paths(self):
+        return self.__stored_paths
+
+    def clear_stored_paths(self):
+        self.__stored_paths = []
+
+    def get_draw_paths(self):
+        return self.__draw_paths
 
     @property
     def color(self):

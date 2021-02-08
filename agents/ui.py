@@ -75,21 +75,39 @@ class SimulationArea(QtWidgets.QWidget):
 
             # Draw lines
             for agent in self.model.agents:
-                painter.setPen(
-                    QColor(agent.color[0], agent.color[1], agent.color[2])
-                )
-                # Pretty terrible code here
+                """
+                  How paths are drawn:
+
+                  Each agent, whenever they move, add points to their
+                  __stored_paths variable. Each point consists of a tuple with:
+
+                  0. A previous point (which is itself a tuple)
+                  1. The next point (also a tuple)
+                  2. The color of the agent at the time (also a tuple)
+
+                  From this tuple, a new tuple is constructed, which consists
+                  of:
+
+                  0. A QLineF (from the previous point to the next point)
+                  1. The color at the time
+
+                  This tuple is put into the agent's other variable,
+                  __drawn_paths, of which the entirety is then drawn.
+                """
                 # Replaces line-tuples in agent.__paths with QLineF's
-                for path in agent.get_paths():
-                    for i in range(len(path)):
-                        if type(path[i]) is tuple:
-                            path[i] = QLineF(
-                                path[i][0][0],
-                                path[i][0][1],
-                                path[i][1][0],
-                                path[i][1][1],
-                            )
-                    painter.drawLines(path)
+                for path in agent.get_stored_paths():
+                    prev_p = path[0]
+                    next_p = path[1]
+                    line = QLineF(prev_p[0],prev_p[1],next_p[0],next_p[1])
+                    agent.get_draw_paths().append((line,path[2]))
+
+                agent.clear_stored_paths()
+
+                for path in agent.get_draw_paths():
+                    line = path[0]
+                    color = path[1]
+                    painter.setPen(QColor(color[0], color[1], color[2]))
+                    painter.drawLines(line)
 
             # Draw agents
             select = None
