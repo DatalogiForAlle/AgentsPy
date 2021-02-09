@@ -567,8 +567,9 @@ class Application:
         self.left_box = QtWidgets.QVBoxLayout()
         self.constrain_widget = QtWidgets.QWidget()
         self.constrain_widget.setLayout(self.left_box)
-        self.constrain_widget.setMaximumSize(self.model.width,
-                                             self.constrain_widget.maximumHeight())
+        self.constrain_widget.setMaximumSize(
+            self.model.width, self.constrain_widget.maximumHeight()
+        )
         self.horizontal_divider.addWidget(self.constrain_widget)
         self.controllers = []
 
