@@ -565,7 +565,11 @@ class Application:
 
         # Box for left side (simulation area + controllers)
         self.left_box = QtWidgets.QVBoxLayout()
-        self.horizontal_divider.addLayout(self.left_box)
+        self.constrain_widget = QtWidgets.QWidget()
+        self.constrain_widget.setLayout(self.left_box)
+        self.constrain_widget.setMaximumSize(self.model.width,
+                                             self.constrain_widget.maximumHeight())
+        self.horizontal_divider.addWidget(self.constrain_widget)
         self.controllers = []
 
         # Box for right side (plots)
