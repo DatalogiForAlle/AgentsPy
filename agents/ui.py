@@ -724,8 +724,11 @@ def run(model):
     # Launch the application
     qapp.exec_()
 
+    # Temporarily disabling sys.exit(0), as
+    # it provokes an error / stack trace being shown
+
     # Application was closed, clean up and exit
-    sys.exit(0)
+    # sys.exit(0)
 
 
 def quick_run():
