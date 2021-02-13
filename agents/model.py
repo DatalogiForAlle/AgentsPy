@@ -397,8 +397,6 @@ class Tile:
         The model that the tile is a part of.
     """
 
-    __visual_changed = []
-
     def __init__(self, x, y, model):
         self.x = x
         self.y = y
