@@ -397,11 +397,13 @@ class Tile:
         The model that the tile is a part of.
     """
 
+    __visual_changed = []
+
     def __init__(self, x, y, model):
         self.x = x
         self.y = y
         self.info = {}
-        self.color = (0, 0, 0)
+        self.__color = (0, 0, 0)
         self.__agents = set()
         self.__model = model
 
@@ -434,6 +436,20 @@ class Tile:
         Gets the set of agents currently on the tile.
         """
         return self.__agents
+
+    @property
+    def color(self):
+        """
+        The color of the agent. Must be provided as an RGB 3-tuple, e.g. (255,
+        255, 255) to color the agent white.
+        """
+        return self.__color
+
+    @color.setter
+    def color(self, color):
+        r, g, b = color
+        self.__color = [r, g, b]
+        self.__model._vu_tiles.append(self)
 
 
 class Spec:
@@ -602,6 +618,9 @@ class Model:
         self._wrapping = True
         self._close_func = None
         self._shapes = []
+
+        # Model elements that have been visually updated
+        self._vu_tiles = []
 
     def add_agent(self, agent, setup=True):
         """

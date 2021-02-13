@@ -61,8 +61,7 @@ class SimulationArea(QtWidgets.QWidget):
 
         if self.model:
             # Draw tiles
-            for tile in self.model.tiles:
-                self.paintTile(painter, tile)
+            self.paintTiles(painter)
 
             # Draw shapes
             for shape in self.model.get_shapes():
@@ -179,13 +178,15 @@ class SimulationArea(QtWidgets.QWidget):
             ]
             painter.drawPolygon(QPolygonF(point_list))
 
-    def paintTile(self, painter, tile):
-        r, g, b = tile.color
-        color = QtGui.QColor(r, g, b)
-        painter.setBrush(color)
-        x = self.model.tile_size * tile.x
-        y = self.model.tile_size * tile.y
-        painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+    def paintTiles(self, painter):
+        for tile in self.model._vu_tiles:
+            r, g, b = tile.color
+            color = QtGui.QColor(r, g, b)
+            painter.setBrush(color)
+            x = self.model.tile_size * tile.x
+            y = self.model.tile_size * tile.y
+            painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+        self.model._vu_tiles = []
 
     def mousePressEvent(self, e):
         x = e.localPos().x()
