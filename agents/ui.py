@@ -31,10 +31,35 @@ from agents.model import (
     RectStruct,
 )
 
-
-class SimulationArea(QtWidgets.QWidget):
+class TileArea(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.model = None
+
+    def paintEvent(self, e):
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        painter.end()
+
+class AgentArea(QtWidgets.QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = None
+
+    def paintEvent(self, e):
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        painter.end()
+
+class SimulationArea(QtWidgets.QStackedLayout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add(TileArea())
+        self.add(AgentArea()
         self.__model = None
 
     @property
@@ -51,7 +76,7 @@ class SimulationArea(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-
+        """
         # Default to a black background
         white = QtGui.QColor("black")
         painter.setBrush(white)
@@ -108,6 +133,7 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
+        """
         painter.end()
 
     def paintAgent(self, painter, agent):
