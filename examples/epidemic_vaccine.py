@@ -53,7 +53,6 @@ def model_step(model):
     for person in model.agents:
         person.step(model)
 
-    print(model.Vaccine_timer, 30 / model.Vaccine_rate)
     model.Vaccine_timer += 1
     if model.Vaccine_timer > 30 / model.Vaccine_rate:
         model.Vaccine_timer = 0
