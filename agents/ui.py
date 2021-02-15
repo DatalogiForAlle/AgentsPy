@@ -41,6 +41,12 @@ class TileArea(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
+        painter.setBrush(QColor(200, 0, 0))
+        painter.setPen(QColor(200, 0, 0))
+        painter.drawRect(
+            100,100,50,50
+        )
+
         painter.end()
 
 class AgentArea(QtWidgets.QWidget):
@@ -53,13 +59,20 @@ class AgentArea(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
+        painter.setBrush(QColor(0, 0, 200))
+        painter.setPen(QColor(0, 0, 200))
+        painter.drawEllipse(
+            300,300,50,50
+        )
+
         painter.end()
 
 class SimulationArea(QtWidgets.QStackedLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add(TileArea())
-        self.add(AgentArea()
+        self.addWidget(TileArea())
+        self.addWidget(AgentArea())
+        self.setStackingMode(1)
         self.__model = None
 
     @property
@@ -69,7 +82,6 @@ class SimulationArea(QtWidgets.QStackedLayout):
     @model.setter
     def model(self, model):
         self.__model = model
-        self.setFixedSize(model.width, model.height)
         self.enable_rendering = True
 
     def paintEvent(self, e):
@@ -603,9 +615,11 @@ class Application:
         # self.right_box.addStretch(1)
 
         # Simulation area
-        self.simulation_area = SimulationArea()
+        self.area_wrapper = QtWidgets.QWidget()
+        self.simulation_area = SimulationArea(self.area_wrapper)
         self.simulation_area.model = self.model
-        self.left_box.addWidget(self.simulation_area)
+        self.area_wrapper.setFixedSize(self.model.width, self.model.height)
+        self.left_box.addWidget(self.area_wrapper)
 
         # Controller box (bottom left)
         self.controller_box = QtWidgets.QVBoxLayout()
