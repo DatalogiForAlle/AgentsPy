@@ -67,7 +67,7 @@ def model_step(model):
         model.Vaccine_timer = 0
         for person in model.agents:
             # If not infected or already vaccinated
-            if person.category != 1 or person.category != 3:
+            if person.category != 1 and person.category != 3:
                 person.vaccinate(model)
                 break
 
@@ -84,5 +84,10 @@ epidemic_model.line_chart(
     ["Susceptible", "Infectious", "Recovered", "Vaccinated"], [(0, 200, 0), (200, 0, 0), (0, 0, 200), (100, 100, 200)]
 )
 epidemic_model.bar_chart(["Susceptible", "Infectious", "Recovered", "Vaccinated"], (200, 200, 200))
+
+epidemic_model.monitor("Susceptible")
+epidemic_model.monitor("Infectious")
+epidemic_model.monitor("Recovered")
+epidemic_model.monitor("Vaccinated")
 
 run(epidemic_model)
