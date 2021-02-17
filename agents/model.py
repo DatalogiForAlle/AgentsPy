@@ -36,7 +36,7 @@ class Agent:
 
         self.x = 0
         self.y = 0
-        self.size = 8
+        self.__size = 8
         self.__direction = random.randint(0, 359)
         self.speed = 1
         self.__current_tile = None
@@ -44,7 +44,8 @@ class Agent:
         self.__paths = []
         self.__prev_pos = (self.x, self.y)
         self.selected = False
-        self.shape = AgentShape.ARROW
+        self.__shape = AgentShape.ARROW
+        self.__vu = False
 
         # Associated simulation area.
         get_quickstart_model().add_agent(self, setup=False)
@@ -82,15 +83,20 @@ class Agent:
 
     # To be called after each movement step
     def __post_move(self):
-        skip_draw = False
+        skip_draw = False # Dont draw a path while wrapping around
         if self.__model.wrapping():
             skip_draw = self.__wraparound()
         else:
             self.__stay_inside()
         self.update_current_tile()
+
         new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
             self.__paths[-1].append((self.__prev_pos, new_pos))
+
+        if self.__prev_pos != new_pos and not self.__vu:
+            self.__model._vu_agents.append(self)
+            self.__vu = True
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
@@ -357,6 +363,9 @@ class Agent:
     def get_paths(self):
         return self.__paths
 
+    def confirm_visual_update(self):
+        self.__vu = False
+
     @property
     def color(self):
         """
@@ -368,6 +377,9 @@ class Agent:
     @color.setter
     def color(self, color):
         r, g, b = color
+        if self.__color != [r, g, b] and not self.__vu:
+            self.__model._vu_agents.append(self)
+            self.__vu = True
         self.__color = [r, g, b]
 
     @property
@@ -379,7 +391,39 @@ class Agent:
 
     @direction.setter
     def direction(self, direction):
+        if self.__direction != direction and not self.__vu:
+            self.__model._vu_agents.append(self)
+            self.__vu = True
         self.__direction = direction % 360
+
+    @property
+    def size(self):
+        """
+        The size of the agent. For an agent with the circle shape, this
+        corresponds to its radius.
+        """
+        return self.__size
+
+    @size.setter
+    def size(self, size):
+        if self.__size != size and not self.__vu:
+            self.__model._vu_agents.append(self)
+            self.__vu = True
+        self.__size = size
+
+    @property
+    def shape(self):
+        """
+        The shape of the agent.
+        """
+        return self.__shape
+
+    @shape.setter
+    def shape(self, shape):
+        if self.__shape != shape and not self.__vu:
+            self.__model._vu_agents.append(self)
+            self.__vu = True
+        self.__shape = shape
 
 
 class Tile:
@@ -446,8 +490,9 @@ class Tile:
     @color.setter
     def color(self, color):
         r, g, b = color
+        if self.__color != [r, g, b]:
+            self.__model._vu_tiles.append(self)
         self.__color = [r, g, b]
-        self.__model._vu_tiles.append(self)
 
 
 class Spec:
@@ -618,6 +663,7 @@ class Model:
         self._shapes = []
 
         # Model elements that have been visually updated
+        self._vu_agents = []
         self._vu_tiles = []
 
     def add_agent(self, agent, setup=True):

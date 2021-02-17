@@ -41,11 +41,17 @@ class TileArea(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        painter.setBrush(QColor(200, 0, 0))
-        painter.setPen(QColor(200, 0, 0))
-        painter.drawRect(
-            100,100,50,50
-        )
+        if self.model:
+            #print("hmm1")
+            for tile in self.model._vu_tiles:
+                #print("hmm2")
+                r, g, b = tile.color
+                color = QtGui.QColor(r, g, b)
+                painter.setBrush(color)
+                x = self.model.tile_size * tile.x
+                y = self.model.tile_size * tile.y
+                painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+            self.model._vu_tiles = []
 
         painter.end()
 
@@ -62,7 +68,7 @@ class AgentArea(QtWidgets.QWidget):
         painter.setBrush(QColor(0, 0, 200))
         painter.setPen(QColor(0, 0, 200))
         painter.drawEllipse(
-            300,300,50,50
+            150,150,100,100
         )
 
         painter.end()
@@ -70,8 +76,10 @@ class AgentArea(QtWidgets.QWidget):
 class SimulationArea(QtWidgets.QStackedLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.addWidget(TileArea())
-        self.addWidget(AgentArea())
+        self.tile_area = TileArea()
+        self.agent_area = AgentArea()
+        self.addWidget(self.agent_area)
+        self.addWidget(self.tile_area)
         self.setStackingMode(1)
         self.__model = None
 
@@ -82,20 +90,33 @@ class SimulationArea(QtWidgets.QStackedLayout):
     @model.setter
     def model(self, model):
         self.__model = model
+        self.agent_area.model = model
+        self.tile_area.model = model
         self.enable_rendering = True
+
+    def draw(self):
+        """
+        if len(self.__model._vu_tiles) > 0:
+            self.widget(1).setUpdatesEnabled(True)
+            print(":)")
+        else:
+            print(":(")
+        if len(self.__model._vu_agents) > 0:
+            self.widget(0).setUpdatesEnabled(True)
+        """
+        self.update()
+        """
+        self.widget(1).setUpdatesEnabled(False)
+        self.widget(0).setUpdatesEnabled(False)
+        """
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        print("hmm")
         """
         # Default to a black background
-        white = QtGui.QColor("black")
-        painter.setBrush(white)
-        painter.drawRect(
-            0, 0, painter.device().width(), painter.device().height()
-        )
-
         if self.model:
             # Draw tiles
             self.paintTiles(painter)
@@ -215,16 +236,6 @@ class SimulationArea(QtWidgets.QStackedLayout):
                 QPointF(x + size, y + 0.5 * size),
             ]
             painter.drawPolygon(QPolygonF(point_list))
-
-    def paintTiles(self, painter):
-        for tile in self.model._vu_tiles:
-            r, g, b = tile.color
-            color = QtGui.QColor(r, g, b)
-            painter.setBrush(color)
-            x = self.model.tile_size * tile.x
-            y = self.model.tile_size * tile.y
-            painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
-        self.model._vu_tiles = []
 
     def mousePressEvent(self, e):
         x = e.localPos().x()
@@ -651,7 +662,7 @@ class Application:
 
     def update_graphics(self):
         if self.simulation_area.enable_rendering:
-            self.simulation_area.update()
+            self.simulation_area.draw()
         for p in self.model.plots:
             p.redraw()
 
