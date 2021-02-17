@@ -41,10 +41,11 @@ class TileArea(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
+        print("hmm0")
         if self.model:
-            #print("hmm1")
+            print("hmm1")
             for tile in self.model._vu_tiles:
-                #print("hmm2")
+                print("hmm2")
                 r, g, b = tile.color
                 color = QtGui.QColor(r, g, b)
                 painter.setBrush(color)
@@ -95,26 +96,25 @@ class SimulationArea(QtWidgets.QStackedLayout):
         self.enable_rendering = True
 
     def draw(self):
-        """
         if len(self.__model._vu_tiles) > 0:
             self.widget(1).setUpdatesEnabled(True)
-            print(":)")
-        else:
-            print(":(")
+            self.widget(1).update()
+            self.widget(1).setUpdatesEnabled(False)
         if len(self.__model._vu_agents) > 0:
             self.widget(0).setUpdatesEnabled(True)
-        """
-        self.update()
-        """
-        self.widget(1).setUpdatesEnabled(False)
-        self.widget(0).setUpdatesEnabled(False)
-        """
+            self.widget(0).update()
+            self.widget(0.).setUpdatesEnabled(False)
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         print("hmm")
+        painter.setBrush(QColor(0, 0, 200))
+        painter.setPen(QColor(0, 0, 200))
+        painter.drawEllipse(
+            0,0,500,500
+        )
         """
         # Default to a black background
         if self.model:
