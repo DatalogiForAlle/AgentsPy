@@ -524,7 +524,9 @@ class Monitor(QtWidgets.QLabel):
 
     def update_label(self):
         if hasattr(self.model, self.variable):
-            self.setText(self.variable + ": " + str(getattr(self.model, self.variable)))
+            self.setText(
+                self.variable + ": " + str(getattr(self.model, self.variable))
+            )
 
 
 class Checkbox(QtWidgets.QCheckBox):
