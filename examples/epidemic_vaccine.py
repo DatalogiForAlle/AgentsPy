@@ -45,8 +45,17 @@ class Person(Agent):
         self.color = (100, 100, 200)
         self.category = 3
 
+counter = 0
+file_handle = None
 
 def model_setup(model):
+    global counter, file_handle
+    counter = 0
+    if file_handle is not None:
+        file_handle.close()
+    file_handle = open("vaccine.csv", "w")
+    file_handle.close()
+
     model.reset()
     model.Susceptible = 0
     model.Infectious = 0
@@ -59,6 +68,7 @@ def model_setup(model):
 
 
 def model_step(model):
+    global counter, file_handle
     for person in model.agents:
         person.step(model)
 
@@ -71,8 +81,21 @@ def model_step(model):
                 person.vaccinate(model)
                 break
 
+    file_handle = open("vaccine.csv", "a")
+    file_handle.write(str(counter)+","
+                      +str(model.Susceptible)+","
+                      +str(model.Infectious)+","
+                      +str(model.Recovered)+","
+                      +str(model.Vaccinated)+"\n")
+    file_handle.close()
+
+    counter += 1
     model.update_plots()
 
+def close(model):
+    print("yo")
+    if file_handle is not None:
+        file_handle.close()
 
 epidemic_model = Model("Epidemimodel", 100, 100)
 
@@ -89,5 +112,6 @@ epidemic_model.monitor("Susceptible")
 epidemic_model.monitor("Infectious")
 epidemic_model.monitor("Recovered")
 epidemic_model.monitor("Vaccinated")
+epidemic_model.on_close(close)
 
 run(epidemic_model)
