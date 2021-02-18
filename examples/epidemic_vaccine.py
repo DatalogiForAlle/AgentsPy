@@ -47,10 +47,12 @@ class Person(Agent):
 
 counter = 0
 file_handle = None
+exp_modifier = 0
 
 def model_setup(model):
-    global counter, file_handle
+    global counter, file_handle, exp_modifier
     counter = 0
+    exp_modifier = 0
     if file_handle is not None:
         file_handle.close()
     file_handle = open("vaccine.csv", "w")
@@ -68,17 +70,21 @@ def model_setup(model):
 
 
 def model_step(model):
-    global counter, file_handle
+    global counter, file_handle, exp_modifier
     for person in model.agents:
         person.step(model)
 
-    model.Vaccine_timer += 1
+    if model.Vaccine_exponential:
+        model.Vaccine_timer += 0.2 + exp_modifier
+    else:
+        model.Vaccine_timer += 1
     if model.Vaccine_timer > 30 / model.Vaccine_rate:
         model.Vaccine_timer = 0
         for person in model.agents:
             # If not infected or already vaccinated
             if person.category != 1 and person.category != 3:
                 person.vaccinate(model)
+                exp_modifier += 0.2
                 break
 
     file_handle = open("vaccine.csv", "a")
@@ -92,11 +98,6 @@ def model_step(model):
     counter += 1
     model.update_plots()
 
-def close(model):
-    print("yo")
-    if file_handle is not None:
-        file_handle.close()
-
 epidemic_model = Model("Epidemimodel", 100, 100)
 
 epidemic_model.add_button("Setup", model_setup)
@@ -108,10 +109,11 @@ epidemic_model.line_chart(
 )
 epidemic_model.bar_chart(["Susceptible", "Infectious", "Recovered", "Vaccinated"], (200, 200, 200))
 
+epidemic_model.add_checkbox("Vaccine_exponential")
+
 epidemic_model.monitor("Susceptible")
 epidemic_model.monitor("Infectious")
 epidemic_model.monitor("Recovered")
 epidemic_model.monitor("Vaccinated")
-epidemic_model.on_close(close)
 
 run(epidemic_model)
