@@ -31,15 +31,27 @@ from agents.model import (
     RectStruct,
 )
 
+class LineArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.lineimage = QImage(500,500,QImage.Format_ARGB32)
+        self.lineimage.fill(QColor(0, 0, 0))
+
+    def paintEvent(self, e):
+        linepainter = QtGui.QPainter(self.tileimage)
+        linepainter.setPen(QtCore.Qt.NoPen)
+        linepainter.setRenderHint(QtGui.QPainter.Antialiasing)
+
 class TileArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.tilemap = QImage(500,500,QImage.Format_ARGB32)
-        self.tilemap.fill(QColor(0, 0, 0))
+        self.tileimage = QImage(500,500,QImage.Format_ARGB32)
+        self.tileimage.fill(QColor(0, 0, 0))
 
     def paintEvent(self, e):
-        tilepainter = QtGui.QPainter(self.tilemap)
+        tilepainter = QtGui.QPainter(self.tileimage)
         tilepainter.setPen(QtCore.Qt.NoPen)
         tilepainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
@@ -57,24 +69,23 @@ class TileArea(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawImage(QPointF(0,0), self.tilemap)
+        painter.drawImage(QPointF(0,0), self.tileimage)
         painter.end()
-
 
 class AgentArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.agentmap = QImage(500,500,QImage.Format_ARGB32)
-        self.agentmap.fill(QColor(0, 0, 0, 0))
+        self.agentimage = QImage(500,500,QImage.Format_ARGB32)
+        self.agentimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
-        agentpainter = QtGui.QPainter(self.agentmap)
+        agentpainter = QtGui.QPainter(self.agentimage)
         agentpainter.setPen(QtCore.Qt.NoPen)
         agentpainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         if self.model:
-            self.agentmap.fill(QColor(0, 0, 0, 0))
+            self.agentimage.fill(QColor(0, 0, 0, 0))
             for agent in self.model.agents:
                 self.paintAgent(agentpainter, agent)
         agentpainter.end()
@@ -82,7 +93,7 @@ class AgentArea(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawImage(QPointF(0,0), self.agentmap)
+        painter.drawImage(QPointF(0,0), self.agentimage)
         painter.end()
 
     def paintAgent(self, painter, agent):
