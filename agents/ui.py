@@ -13,7 +13,7 @@ from PyQt5.QtChart import (
     QBarCategoryAxis,
 )
 from PyQt5.QtCore import QPointF, QLineF, Qt
-from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF, QImage
 
 from agents.model import (
     get_quickstart_model,
@@ -32,141 +32,57 @@ from agents.model import (
 )
 
 class TileArea(QtWidgets.QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model = None
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.tilemap = QImage(500,500,QImage.Format_ARGB32)
+        self.tilemap.fill(QColor(0, 0, 0))
 
     def paintEvent(self, e):
-        painter = QtGui.QPainter(self)
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        tilepainter = QtGui.QPainter(self.tilemap)
+        tilepainter.setPen(QtCore.Qt.NoPen)
+        tilepainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        print("hmm0")
         if self.model:
-            print("hmm1")
             for tile in self.model._vu_tiles:
-                print("hmm2")
                 r, g, b = tile.color
                 color = QtGui.QColor(r, g, b)
-                painter.setBrush(color)
+                tilepainter.setBrush(color)
                 x = self.model.tile_size * tile.x
                 y = self.model.tile_size * tile.y
-                painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+                tilepainter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
             self.model._vu_tiles = []
+        tilepainter.end()
 
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.drawImage(QPointF(0,0), self.tilemap)
         painter.end()
+
 
 class AgentArea(QtWidgets.QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model = None
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.agentmap = QImage(500,500,QImage.Format_ARGB32)
+        self.agentmap.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
-        painter = QtGui.QPainter(self)
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        agentpainter = QtGui.QPainter(self.agentmap)
+        agentpainter.setPen(QtCore.Qt.NoPen)
+        agentpainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        painter.setBrush(QColor(0, 0, 200))
-        painter.setPen(QColor(0, 0, 200))
-        painter.drawEllipse(
-            150,150,100,100
-        )
-
-        painter.end()
-
-class SimulationArea(QtWidgets.QStackedLayout):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tile_area = TileArea()
-        self.agent_area = AgentArea()
-        self.addWidget(self.agent_area)
-        self.addWidget(self.tile_area)
-        self.setStackingMode(1)
-        self.__model = None
-
-    @property
-    def model(self):
-        return self.__model
-
-    @model.setter
-    def model(self, model):
-        self.__model = model
-        self.agent_area.model = model
-        self.tile_area.model = model
-        self.enable_rendering = True
-
-    def draw(self):
-        if len(self.__model._vu_tiles) > 0:
-            self.widget(1).setUpdatesEnabled(True)
-            self.widget(1).update()
-            self.widget(1).setUpdatesEnabled(False)
-        if len(self.__model._vu_agents) > 0:
-            self.widget(0).setUpdatesEnabled(True)
-            self.widget(0).update()
-            self.widget(0.).setUpdatesEnabled(False)
-
-    def paintEvent(self, e):
-        painter = QtGui.QPainter(self)
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        print("hmm")
-        painter.setBrush(QColor(0, 0, 200))
-        painter.setPen(QColor(0, 0, 200))
-        painter.drawEllipse(
-            0,0,500,500
-        )
-        """
-        # Default to a black background
         if self.model:
-            # Draw tiles
-            self.paintTiles(painter)
-
-            # Draw shapes
-            for shape in self.model.get_shapes():
-                c = shape.color
-                painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
-                if type(shape) is EllipseStruct:
-                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
-                elif type(shape) is RectStruct:
-                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
-
-            # Draw lines
+            self.agentmap.fill(QColor(0, 0, 0, 0))
             for agent in self.model.agents:
-                painter.setPen(
-                    QColor(agent.color[0], agent.color[1], agent.color[2])
-                )
-                # Pretty terrible code here
-                # Replaces line-tuples in agent.__paths with QLineF's
-                for path in agent.get_paths():
-                    for i in range(len(path)):
-                        if type(path[i]) is tuple:
-                            path[i] = QLineF(
-                                path[i][0][0],
-                                path[i][0][1],
-                                path[i][1][0],
-                                path[i][1][1],
-                            )
-                    painter.drawLines(path)
+                self.paintAgent(agentpainter, agent)
+        agentpainter.end()
 
-            # Draw agents
-            select = None
-            for agent in self.model.agents:
-                self.paintAgent(painter, agent)
-                if agent.selected:
-                    select = agent
-
-            if select:
-                path = QPainterPath()
-                path.addRect(0, 0, self.model.width, self.model.height)
-                path.addEllipse(
-                    select.x - select.size * 1.5,
-                    select.y - select.size * 1.5,
-                    select.size * 3,
-                    select.size * 3,
-                )
-                painter.setBrush(QColor(0, 0, 0, 150))
-                painter.drawPath(path)
-        """
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.drawImage(QPointF(0,0), self.agentmap)
         painter.end()
 
     def paintAgent(self, painter, agent):
@@ -236,6 +152,87 @@ class SimulationArea(QtWidgets.QStackedLayout):
                 QPointF(x + size, y + 0.5 * size),
             ]
             painter.drawPolygon(QPolygonF(point_list))
+
+
+class SimulationArea(QtWidgets.QStackedLayout):
+    def __init__(self, wrapper, model):
+        super().__init__(wrapper)
+        self.tile_area = TileArea(model)
+        self.agent_area = AgentArea(model)
+        self.addWidget(self.agent_area)
+        self.addWidget(self.tile_area)
+        self.setStackingMode(1)
+        self.enable_rendering = True
+        self.__model = model
+
+    def draw(self):
+        self.widget(1).update()
+        self.widget(0).update()
+
+    def paintEvent(self, e):
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setBrush(QColor(0, 0, 200))
+        painter.setPen(QColor(0, 0, 200))
+        painter.drawEllipse(
+            0,0,500,500
+        )
+        """
+        # Default to a black background
+        if self.model:
+            # Draw tiles
+            self.paintTiles(painter)
+
+            # Draw shapes
+            for shape in self.model.get_shapes():
+                c = shape.color
+                painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
+                if type(shape) is EllipseStruct:
+                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
+                elif type(shape) is RectStruct:
+                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+
+            # Draw lines
+            for agent in self.model.agents:
+                painter.setPen(
+                    QColor(agent.color[0], agent.color[1], agent.color[2])
+                )
+                # Pretty terrible code here
+                # Replaces line-tuples in agent.__paths with QLineF's
+                for path in agent.get_paths():
+                    for i in range(len(path)):
+                        if type(path[i]) is tuple:
+                            path[i] = QLineF(
+                                path[i][0][0],
+                                path[i][0][1],
+                                path[i][1][0],
+                                path[i][1][1],
+                            )
+                    painter.drawLines(path)
+
+            # Draw agents
+            select = None
+            for agent in self.model.agents:
+                self.paintAgent(painter, agent)
+                if agent.selected:
+                    select = agent
+
+            if select:
+                path = QPainterPath()
+                path.addRect(0, 0, self.model.width, self.model.height)
+                path.addEllipse(
+                    select.x - select.size * 1.5,
+                    select.y - select.size * 1.5,
+                    select.size * 3,
+                    select.size * 3,
+                )
+                painter.setBrush(QColor(0, 0, 0, 150))
+                painter.drawPath(path)
+        """
+        painter.end()
+
+    
 
     def mousePressEvent(self, e):
         x = e.localPos().x()
@@ -627,8 +624,7 @@ class Application:
 
         # Simulation area
         self.area_wrapper = QtWidgets.QWidget()
-        self.simulation_area = SimulationArea(self.area_wrapper)
-        self.simulation_area.model = self.model
+        self.simulation_area = SimulationArea(self.area_wrapper, self.model)
         self.area_wrapper.setFixedSize(self.model.width, self.model.height)
         self.left_box.addWidget(self.area_wrapper)
 

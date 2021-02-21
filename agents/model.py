@@ -45,7 +45,6 @@ class Agent:
         self.__prev_pos = (self.x, self.y)
         self.selected = False
         self.__shape = AgentShape.ARROW
-        self.__vu = False
 
         # Associated simulation area.
         get_quickstart_model().add_agent(self, setup=False)
@@ -94,9 +93,6 @@ class Agent:
         if self.__draw_path and not skip_draw:
             self.__paths[-1].append((self.__prev_pos, new_pos))
 
-        if self.__prev_pos != new_pos and not self.__vu:
-            self.__model._vu_agents.append(self)
-            self.__vu = True
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
@@ -363,9 +359,6 @@ class Agent:
     def get_paths(self):
         return self.__paths
 
-    def confirm_visual_update(self):
-        self.__vu = False
-
     @property
     def color(self):
         """
@@ -377,9 +370,6 @@ class Agent:
     @color.setter
     def color(self, color):
         r, g, b = color
-        if self.__color != [r, g, b] and not self.__vu:
-            self.__model._vu_agents.append(self)
-            self.__vu = True
         self.__color = [r, g, b]
 
     @property
@@ -391,9 +381,6 @@ class Agent:
 
     @direction.setter
     def direction(self, direction):
-        if self.__direction != direction and not self.__vu:
-            self.__model._vu_agents.append(self)
-            self.__vu = True
         self.__direction = direction % 360
 
     @property
@@ -406,9 +393,6 @@ class Agent:
 
     @size.setter
     def size(self, size):
-        if self.__size != size and not self.__vu:
-            self.__model._vu_agents.append(self)
-            self.__vu = True
         self.__size = size
 
     @property
@@ -420,9 +404,6 @@ class Agent:
 
     @shape.setter
     def shape(self, shape):
-        if self.__shape != shape and not self.__vu:
-            self.__model._vu_agents.append(self)
-            self.__vu = True
         self.__shape = shape
 
 
@@ -663,7 +644,6 @@ class Model:
         self._shapes = []
 
         # Model elements that have been visually updated
-        self._vu_agents = []
         self._vu_tiles = []
 
     def add_agent(self, agent, setup=True):
