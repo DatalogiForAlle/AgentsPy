@@ -243,29 +243,6 @@ class SimulationArea(QtWidgets.QStackedLayout):
         for i in range(self.count()):
             self.widget(i).update()
 
-    def paintEvent(self, e):
-        painter = QtGui.QPainter(self)
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setBrush(QColor(0, 0, 200))
-        painter.setPen(QColor(0, 0, 200))
-        painter.drawEllipse(0, 0, 500, 500)
-        """
-        # Default to a black background
-        if self.model:
-            # Draw tiles
-            self.paintTiles(painter)
-
-            # Draw shapes
-            
-
-            # Draw lines
-
-            # Draw agents
-            
-        """
-        painter.end()
-
     def mousePressEvent(self, e):
         x = e.localPos().x()
         y = e.localPos().y()
