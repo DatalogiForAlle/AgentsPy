@@ -35,19 +35,61 @@ class LineArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.lineimage = QImage(500,500,QImage.Format_ARGB32)
-        self.lineimage.fill(QColor(0, 0, 0))
+        self.lineimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.lineimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
-        linepainter = QtGui.QPainter(self.tileimage)
+        linepainter = QtGui.QPainter(self.lineimage)
         linepainter.setPen(QtCore.Qt.NoPen)
         linepainter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        for agent in self.model.agents:
+            linepainter.setPen(
+                QColor(agent.color[0], agent.color[1], agent.color[2])
+            )
+            for line in agent.path.get_not_drawn():
+                linepainter.drawLine(QLineF(
+                    line[0][0],
+                    line[0][1],
+                    line[1][0],
+                    line[1][1]
+                ))
+            agent.path.mark_as_drawn()
+        linepainter.end()
+
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.drawImage(QPointF(0,0), self.lineimage)
+        painter.end()
+
+class ShapeArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.shapeimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.shapeimage.fill(QColor(0, 0, 0, 0))
+
+    def paintEvent(self, e):
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        for shape in self.model.get_shapes():
+            c = shape.color
+            painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
+            if type(shape) is EllipseStruct:
+                painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
+            elif type(shape) is RectStruct:
+                painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+
+        painter.end()
 
 class TileArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.tileimage = QImage(500,500,QImage.Format_ARGB32)
+        self.tileimage = QImage(model.width,model.height,QImage.Format_ARGB32)
         self.tileimage.fill(QColor(0, 0, 0))
 
     def paintEvent(self, e):
@@ -76,24 +118,34 @@ class AgentArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.agentimage = QImage(500,500,QImage.Format_ARGB32)
+        self.agentimage = QImage(model.width,model.height,QImage.Format_ARGB32)
         self.agentimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
-        agentpainter = QtGui.QPainter(self.agentimage)
-        agentpainter.setPen(QtCore.Qt.NoPen)
-        agentpainter.setRenderHint(QtGui.QPainter.Antialiasing)
-
-        if self.model:
-            self.agentimage.fill(QColor(0, 0, 0, 0))
-            for agent in self.model.agents:
-                self.paintAgent(agentpainter, agent)
-        agentpainter.end()
-
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawImage(QPointF(0,0), self.agentimage)
+
+        if self.model:
+            self.agentimage.fill(QColor(0, 0, 0, 0))
+            select = None
+            for agent in self.model.agents:
+                self.paintAgent(painter, agent)
+                if agent.selected:
+                    select = agent
+
+            if select:
+                path = QPainterPath()
+                path.addRect(0, 0, self.model.width, self.model.height)
+                path.addEllipse(
+                    select.x - select.size * 1.5,
+                    select.y - select.size * 1.5,
+                    select.size * 3,
+                    select.size * 3,
+                )
+                painter.setBrush(QColor(0, 0, 0, 150))
+                painter.drawPath(path)
+
         painter.end()
 
     def paintAgent(self, painter, agent):
@@ -168,17 +220,17 @@ class AgentArea(QtWidgets.QWidget):
 class SimulationArea(QtWidgets.QStackedLayout):
     def __init__(self, wrapper, model):
         super().__init__(wrapper)
-        self.tile_area = TileArea(model)
-        self.agent_area = AgentArea(model)
-        self.addWidget(self.agent_area)
-        self.addWidget(self.tile_area)
+        self.addWidget(AgentArea(model))
+        self.addWidget(LineArea(model))
+        self.addWidget(ShapeArea(model))
+        self.addWidget(TileArea(model))
         self.setStackingMode(1)
         self.enable_rendering = True
         self.__model = model
 
     def draw(self):
-        self.widget(1).update()
-        self.widget(0).update()
+        for i in range(self.count()):
+            self.widget(i).update()
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
@@ -196,50 +248,12 @@ class SimulationArea(QtWidgets.QStackedLayout):
             self.paintTiles(painter)
 
             # Draw shapes
-            for shape in self.model.get_shapes():
-                c = shape.color
-                painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
-                if type(shape) is EllipseStruct:
-                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
-                elif type(shape) is RectStruct:
-                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+            
 
             # Draw lines
-            for agent in self.model.agents:
-                painter.setPen(
-                    QColor(agent.color[0], agent.color[1], agent.color[2])
-                )
-                # Pretty terrible code here
-                # Replaces line-tuples in agent.__paths with QLineF's
-                for path in agent.get_paths():
-                    for i in range(len(path)):
-                        if type(path[i]) is tuple:
-                            path[i] = QLineF(
-                                path[i][0][0],
-                                path[i][0][1],
-                                path[i][1][0],
-                                path[i][1][1],
-                            )
-                    painter.drawLines(path)
 
             # Draw agents
-            select = None
-            for agent in self.model.agents:
-                self.paintAgent(painter, agent)
-                if agent.selected:
-                    select = agent
-
-            if select:
-                path = QPainterPath()
-                path.addRect(0, 0, self.model.width, self.model.height)
-                path.addEllipse(
-                    select.x - select.size * 1.5,
-                    select.y - select.size * 1.5,
-                    select.size * 3,
-                    select.size * 3,
-                )
-                painter.setBrush(QColor(0, 0, 0, 150))
-                painter.drawPath(path)
+            
         """
         painter.end()
 

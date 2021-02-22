@@ -11,6 +11,20 @@ class AgentShape(Enum):
     PERSON = 3
     HOUSE = 4
 
+class AgentPath:
+    def __init__(self):
+        self.__not_drawn = []
+        self.__drawn = []
+
+    def add_point(self, old, new):
+        self.__not_drawn.append((old,new))
+
+    def get_not_drawn(self):
+        return self.__not_drawn
+
+    def mark_as_drawn(self):
+        self.__drawn.extend(self.__not_drawn)
+        self.__not_drawn = []
 
 class Agent:
     """
@@ -41,7 +55,7 @@ class Agent:
         self.speed = 1
         self.__current_tile = None
         self.__draw_path = False
-        self.__paths = []
+        self.path = AgentPath()
         self.__prev_pos = (self.x, self.y)
         self.selected = False
         self.__shape = AgentShape.ARROW
@@ -91,7 +105,7 @@ class Agent:
 
         new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
-            self.__paths[-1].append((self.__prev_pos, new_pos))
+            self.path.add_point(self.__prev_pos, new_pos)
 
         self.__prev_pos = new_pos
 
@@ -351,13 +365,9 @@ class Agent:
 
     def pendown(self):
         self.__draw_path = True
-        self.__paths.append([])
 
     def penup(self):
         self.__draw_path = False
-
-    def get_paths(self):
-        return self.__paths
 
     @property
     def color(self):
