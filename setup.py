@@ -29,7 +29,7 @@ extras_require["dev"] = extras_require["tests"] + extras_require["docs"]
 setup(
   name='AgentsPy',
   packages=['agents'],
-  version='0.8.2',
+  version='0.9',
   license='gpl-3.0',
   description='Simple agent-based modeling library for python',
   long_description=long_description,
