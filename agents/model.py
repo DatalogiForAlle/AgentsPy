@@ -11,13 +11,14 @@ class AgentShape(Enum):
     PERSON = 3
     HOUSE = 4
 
+
 class AgentPath:
     def __init__(self):
         self.__not_drawn = []
         self.__drawn = []
 
     def add_point(self, old, new):
-        self.__not_drawn.append((old,new))
+        self.__not_drawn.append((old, new))
 
     def get_not_drawn(self):
         return self.__not_drawn
@@ -25,6 +26,7 @@ class AgentPath:
     def mark_as_drawn(self):
         self.__drawn.extend(self.__not_drawn)
         self.__not_drawn = []
+
 
 class Agent:
     """
@@ -96,7 +98,7 @@ class Agent:
 
     # To be called after each movement step
     def __post_move(self):
-        skip_draw = False # Dont draw a path while wrapping around
+        skip_draw = False  # Dont draw a path while wrapping around
         if self.__model.wrapping():
             skip_draw = self.__wraparound()
         else:

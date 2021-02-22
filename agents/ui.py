@@ -31,11 +31,14 @@ from agents.model import (
     RectStruct,
 )
 
+
 class LineArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.lineimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.lineimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
         self.lineimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
@@ -48,26 +51,26 @@ class LineArea(QtWidgets.QWidget):
                 QColor(agent.color[0], agent.color[1], agent.color[2])
             )
             for line in agent.path.get_not_drawn():
-                linepainter.drawLine(QLineF(
-                    line[0][0],
-                    line[0][1],
-                    line[1][0],
-                    line[1][1]
-                ))
+                linepainter.drawLine(
+                    QLineF(line[0][0], line[0][1], line[1][0], line[1][1])
+                )
             agent.path.mark_as_drawn()
         linepainter.end()
 
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawImage(QPointF(0,0), self.lineimage)
+        painter.drawImage(QPointF(0, 0), self.lineimage)
         painter.end()
+
 
 class ShapeArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.shapeimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.shapeimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
         self.shapeimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
@@ -85,11 +88,14 @@ class ShapeArea(QtWidgets.QWidget):
 
         painter.end()
 
+
 class TileArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.tileimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.tileimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
         self.tileimage.fill(QColor(0, 0, 0))
 
     def paintEvent(self, e):
@@ -104,21 +110,26 @@ class TileArea(QtWidgets.QWidget):
                 tilepainter.setBrush(color)
                 x = self.model.tile_size * tile.x
                 y = self.model.tile_size * tile.y
-                tilepainter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+                tilepainter.drawRect(
+                    x, y, self.model.tile_size, self.model.tile_size
+                )
             self.model._vu_tiles = []
         tilepainter.end()
 
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawImage(QPointF(0,0), self.tileimage)
+        painter.drawImage(QPointF(0, 0), self.tileimage)
         painter.end()
+
 
 class AgentArea(QtWidgets.QWidget):
     def __init__(self, model):
         super().__init__()
         self.model = model
-        self.agentimage = QImage(model.width,model.height,QImage.Format_ARGB32)
+        self.agentimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
         self.agentimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
@@ -238,9 +249,7 @@ class SimulationArea(QtWidgets.QStackedLayout):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(QColor(0, 0, 200))
         painter.setPen(QColor(0, 0, 200))
-        painter.drawEllipse(
-            0,0,500,500
-        )
+        painter.drawEllipse(0, 0, 500, 500)
         """
         # Default to a black background
         if self.model:
@@ -256,8 +265,6 @@ class SimulationArea(QtWidgets.QStackedLayout):
             
         """
         painter.end()
-
-    
 
     def mousePressEvent(self, e):
         x = e.localPos().x()
