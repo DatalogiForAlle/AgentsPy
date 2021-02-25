@@ -223,6 +223,18 @@ Prøv at køre modellen, indtil der ikke er flere inficerede agenter tilbage, og
 .. image:: ../images/epidemic/epidemic-2.4.png
    :height: 400
 
+Forskelle mellem SIR-modellen og den agent-baserede model
+---------------------------------------------------------
+Du har nu udviklet en agent-baseret model, der approksimerer SIR-modellen. Men hvad er fordelene og ulemperne egentlig ved at bruge de to forskellige modeller?
+
+**SIR-modellen**
+ * `Fordele`: Da SIR-modellen er baseret på et sæt matematiske formler, er det nemmere at beregne direkte på modellens resultater, samt at kombinere og sammenligne den med andre matematiske modeller. Derudover er modellen også konsistent: hvis man giver det samme input flere gange til den samme model, vil man altid få det samme output.
+ * `Ulemper`: SIR-modellen er en meget generaliserende model, da den antager, at alle individer opfører sig ens, for eksempel ved at alle har samme infektionsrate og sygdomsforløb. Man kan approksimere forskellige opførsler ved at justere på parametrene, men det er svært at sige, hvor meget det hænger sammen med virkeligheden.
+
+**Agent-baseret model**
+ * `Fordele`: Med den agent-baserede model er det nemmere at modellere både forskellige typer adfærd og karakteristika for både personer og virus, for eksempel superspredere, virusmutationer, social afstand, og så videre. Selvom modellen aldrig kan være helt præcis, kan den stadig give god indsigt i, hvilken indflydelse disse faktorer har på epidemien, og hvordan de interagerer med hinanden.
+ * `Ulemper`: Den agent-baserede model har en stor tilfældighedsfaktor i sig. Agenterne starter tilfældige steder, bevæger sig tilfældigt, og smittes tilfældigt. Derfor er det nødvendigt at køre modellen mange gange for at fastlægge endelige resultater, og selv da kan man ikke garantere det. Derudover er det også svært at kombinere den agent-baserede model med andre eksisterende matematiske modeller.
+
 Opgave 1
 --------
 Tilføj en tilfældighed, så smitte ikke spredes med 100% sandsynlighed,
