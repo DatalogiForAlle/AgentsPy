@@ -19,12 +19,12 @@ Installation af Mu-editoren
 ---------------------------
 Hent og installér denne alpha-udgave af Mu-editoren:
 
-- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/suites/1782896084/artifacts/34089824>`_
-- `Hent Mu-editor til Mac OS X <https://github.com/mu-editor/mu/suites/1782896084/artifacts/34089823>`_
-- `Hent Mu-editor til Linux <https://github.com/mu-editor/mu/archive/1.1.0-alpha.2.tar.gz>`_
+- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/releases/download/1.1.0-alpha.2/mu-editor_1.1.0-alpha.2_win64.exe>`_
+- `Hent Mu-editor til Mac OS X <http://dybber.dk/mu_editor_1.1.0b1.dmg>`_
+- `Hent Mu-editor til Linux <https://github.com/mu-editor/mu/archive/1.1.0-beta.1.tar.gz>`_
 
 
-.. warning:: Nyeste udgave af Mu fra deres hjemmeside er 1,5 år gammel
+.. warning:: Nyeste udgave af Mu fra deres hjemmeside er 1 år gammel
              og understøtter ikke nyeste udgaver af Mac OS X og heller
              ikke installation af eksterne biblioteker, såsom AgentsPy.
 
@@ -39,6 +39,9 @@ Start Mu
     :width: 400px
 
 
+Har du problemer med at åbne Mu på Mac? Læs :ref:`fejlsøgningsguiden i
+bunden af denne side <mu-on-mac-issues>`.
+            
 Installer AgentsPy
 ------------------
 1. Klik på |SETTINGS|-ikonet nederst i højre hjørne.
@@ -79,6 +82,9 @@ står ``# Write your code here :-)``,og skriver følgende::
 Når du har skrevet ovenstående, kan du prøve programmet ved at trykke
 på Run |RUN|.
 
+Du bliver nu bedt om at gemme filen. Gem filen som ``agentdemo.py``
+(**OBS!** Du må IKKE gemme den som ``agents.py``)
+
 Du burde nu se følgende vindue:
 
 .. figure:: images/godtigang/first_model.png
@@ -102,3 +108,35 @@ Hvis du vil vide mere om selve Mu-editoren, så har holdet bag
 Mu-editoren en række tutorials, der kan gøre dig fortrolig med hvordan
 Mu fungere, de er på engelsk og du finder dem her:
 https://codewith.mu/en/tutorials/
+
+.. _mu-on-mac-issues:
+
+Problemer med at åbne Mu på Mac?
+--------------------------------
+.. figure:: images/godtigang/muMacopen.png
+   :alt: open
+   :width: 500px
+
+Hvis du er Mac-bruger og ser en besked om, at programmet ikke kan
+åbnes, fordi det stammer fra en ukendt udvikler eller ikke blev hentet
+fra App Store, skal du gøre følgende:
+
+* Finde programmet i *Finder*. 
+* Holde *control* nede og klikke - eller højreklikke, hvis du har mus tilsluttet. 
+* Der dukker nu en menu frem og øverst kan du vælge *open*. 
+* Der vil nu dukke et vindue op, hvor du igen vælger *open*
+* Fremover vil programmet åbne, som alle andre programmer. 
+
+.. figure:: images/godtigang/macOpenMu.png
+   :alt: open
+   :width: 500px
+
+Hvis det stadig ikke virker, så prøv først at genstarte computere, og
+hvis det så stadig ikke virker, kan du prøve følgende, der slår nogle
+sikkerhedstjeks fra:
+
+* Åben en Terminal
+* Indtast kommandoen ``sudo spctl --master-disable``
+* Indtast dit password og tryk enter
+* For at returnere til de oprindelige indstillinger, kan du køre
+  kommandoen ``sudo spctl --master-enable`` i en terminal.

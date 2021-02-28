@@ -104,7 +104,7 @@ def model_step(model):
 epidemic_model = Model("Epidemimodel", 100, 100)
 
 epidemic_model.add_button("Setup", model_setup)
-epidemic_model.add_toggle_button("Go", model_step)
+epidemic_model.add_button("Go", model_step, toggle=True)
 epidemic_model.line_chart(["Susceptible", "Infectious"], [(0, 200, 0), (200, 0, 0)])
 epidemic_model.add_checkbox("enable_groups")
 epidemic_model.add_controller_row()
