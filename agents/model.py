@@ -108,7 +108,6 @@ class Agent:
         new_pos = (self.x, self.y)
         if self.__draw_path and not skip_draw:
             self.path.add_point(self.__prev_pos, new_pos)
-
         self.__prev_pos = new_pos
 
     # Makes the agent wrap around the simulation area
@@ -370,7 +369,13 @@ class Agent:
         self.__draw_path = True
 
     def penup(self):
-        self.__draw_path = False
+        self.__stored_paths = False
+
+    def get_stored_paths(self):
+        return self.__stored_paths
+
+    def clear_stored_paths(self):
+        self.__stored_paths = []
 
     @property
     def color(self):
