@@ -30,7 +30,7 @@ galaxy = Model("Planet simulation", 100, 100)
 
 def model_setup(model):
     model.reset()
-    model.disable_wrapping()
+    #model.disable_wrapping()
     for i in range(100):
         planet = Planet()
         planet.name = "Planet "+str(i)
