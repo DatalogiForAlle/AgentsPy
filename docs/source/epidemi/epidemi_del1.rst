@@ -52,7 +52,7 @@ Slet først de sidste to linjer, du tilføjede ovenfor (altså dem, der
 laver en agent og tilføjer den til modellen). Tilføj så denne
 funktion, lige efter, at du har importeret ``agents``::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       model.add_agent(Agent())
 
@@ -62,20 +62,20 @@ men det vil blive brugbart senere.
 
 Tilføj så, efter du har lavet ``epidemic_model``, følgende linje::
 
-  epidemic_model.add_button("Setup", setup)
+  epidemic_model.add_button("Setup", model_setup)
 
 Linjen tilføjer en knap til vinduet som, når den klikkes på, kører
-``setup``-funktionen.
+``model_setup``-funktionen.
 
 .. image:: ../images/epidemic/epidemic-1.2.png
    :height: 400
 
 Flere agenter
 -------------
-Lad os tilføje lidt flere agenter. Ændr ``setup`` funktionen, sådan at
+Lad os tilføje lidt flere agenter. Ændr ``model_setup`` funktionen, sådan at
 den siger følgende::
 
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for agent in range(100):
           model.add_agent(Agent())
@@ -83,10 +83,10 @@ den siger følgende::
 Nu laver vi 100 agenter og tilføjer dem til modellen.
 
 Lige nu laver agenterne ikke særlig meget. Lad os gøre det muligt for
-agenterne at gå rundt omkring. Tilføj denne ``step`` funktion under
-``setup`` funktionen::
+agenterne at gå rundt omkring. Tilføj denne ``model_step`` funktion under
+``model_setup`` funktionen::
 
-  def step(model):
+  def model_step(model):
       for agent in model.agents:
           agent.direction += randint(-10,10)
           agent.forward()
@@ -106,10 +106,10 @@ dette i toppen af filen, sammen med at du importerer ``agents``)::
 
 Slut af med at tilføje denne linje efter at du tilføjer `setup`-knappen::
 
-  epidemic_model.add_button("Go", step, toggle=True)
+  epidemic_model.add_button("Go", model_step, toggle=True)
 
 Dette laver en knap, som man kan slå til og fra. Når den er slået til,
-kører den ``step``-funktionen konstant, hvilket får agenterne til
+kører den ``model_step``-funktionen konstant, hvilket får agenterne til
 at bevæge sig rundt.
 
 .. image:: ../images/epidemic/epidemic-1.3.png
@@ -126,20 +126,20 @@ Her er den samlede kode du gerne skulle have nu::
   epidemic_model = Model("Epidemi-model", 50, 50)
 
   # Reset model
-  def setup(model):
+  def model_setup(model):
       model.reset()
       for agent in range(100):
           model.add_agent(Agent())
 
   # Tag et skridt i modellen
-  def step(model):
+  def model_step(model):
       for agent in model.agents:
           agent.direction += randint(-10,10)
           agent.forward()
 
   # Tilføj knapper til reset og go
-  epidemic_model.add_button("Setup", setup)
-  epidemic_model.add_button("Go", step, toggle=True)
+  epidemic_model.add_button("Setup", model_setup)
+  epidemic_model.add_button("Go", model_step, toggle=True)
 
   # Kør modellen
   run(epidemic_model)

@@ -13,7 +13,7 @@ from PyQt5.QtChart import (
     QBarCategoryAxis,
 )
 from PyQt5.QtCore import QPointF, QLineF, Qt
-from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF, QImage
 
 from agents.model import (
     get_quickstart_model,
@@ -32,84 +32,113 @@ from agents.model import (
 )
 
 
-class SimulationArea(QtWidgets.QWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__model = None
+class LineArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.lineimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
+        self.lineimage.fill(QColor(0, 0, 0, 0))
 
-    @property
-    def model(self):
-        return self.__model
+    def paintEvent(self, e):
+        linepainter = QtGui.QPainter(self.lineimage)
+        linepainter.setPen(QtCore.Qt.NoPen)
+        linepainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-    @model.setter
-    def model(self, model):
-        self.__model = model
-        self.setFixedSize(model.width, model.height)
-        self.enable_rendering = True
+        for agent in self.model.agents:
+            linepainter.setPen(
+                QColor(agent.color[0], agent.color[1], agent.color[2])
+            )
+            for line in agent.path.get_not_drawn():
+                linepainter.drawLine(
+                    QLineF(line[0][0], line[0][1], line[1][0], line[1][1])
+                )
+            agent.path.mark_as_drawn()
+        linepainter.end()
+
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.drawImage(QPointF(0, 0), self.lineimage)
+        painter.end()
+
+
+class ShapeArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.shapeimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
+        self.shapeimage.fill(QColor(0, 0, 0, 0))
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        # Default to a black background
-        white = QtGui.QColor("black")
-        painter.setBrush(white)
-        painter.drawRect(
-            0, 0, painter.device().width(), painter.device().height()
+        for shape in self.model.get_shapes():
+            c = shape.color
+            painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
+            if type(shape) is EllipseStruct:
+                painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
+            elif type(shape) is RectStruct:
+                painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+
+        painter.end()
+
+
+class TileArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.tileimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
         )
+        self.tileimage.fill(QColor(0, 0, 0))
+
+    def paintEvent(self, e):
+        tilepainter = QtGui.QPainter(self.tileimage)
+        tilepainter.setPen(QtCore.Qt.NoPen)
+        tilepainter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         if self.model:
-            # Draw tiles
-            for tile in self.model.tiles:
-                self.paintTile(painter, tile)
+            for tile in self.model._vu_tiles:
+                r, g, b = tile.color
+                color = QtGui.QColor(r, g, b)
+                tilepainter.setBrush(color)
+                x = self.model.tile_size * tile.x
+                y = self.model.tile_size * tile.y
+                tilepainter.drawRect(
+                    x, y, self.model.tile_size, self.model.tile_size
+                )
+            self.model._vu_tiles = []
+        tilepainter.end()
 
-            # Draw shapes
-            for shape in self.model.get_shapes():
-                c = shape.color
-                painter.setBrush(QtGui.QColor(c[0], c[1], c[2]))
-                if type(shape) is EllipseStruct:
-                    painter.drawEllipse(shape.x, shape.y, shape.w, shape.h)
-                elif type(shape) is RectStruct:
-                    painter.drawRect(shape.x, shape.y, shape.w, shape.h)
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.drawImage(QPointF(0, 0), self.tileimage)
+        painter.end()
 
-            # Draw lines
-            for agent in self.model.agents:
-                """
-                  How paths are drawn:
 
-                  Each agent, whenever they move, add points to their
-                  __stored_paths variable. Each point consists of a tuple with:
+class AgentArea(QtWidgets.QWidget):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+        self.agentimage = QImage(
+            model.width, model.height, QImage.Format_ARGB32
+        )
+        self.agentimage.fill(QColor(0, 0, 0, 0))
 
-                  0. A previous point (which is itself a tuple)
-                  1. The next point (also a tuple)
-                  2. The color of the agent at the time (also a tuple)
+    def paintEvent(self, e):
+        painter = QtGui.QPainter(self)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
-                  From this tuple, a new tuple is constructed, which consists
-                  of:
-
-                  0. A QLineF (from the previous point to the next point)
-                  1. The color at the time
-
-                  This tuple is put into the agent's other variable,
-                  __drawn_paths, of which the entirety is then drawn.
-                """
-                # Replaces line-tuples in agent.__paths with QLineF's
-                for path in agent.get_stored_paths():
-                    prev_p = path[0]
-                    next_p = path[1]
-                    line = QLineF(prev_p[0], prev_p[1], next_p[0], next_p[1])
-                    agent.get_draw_paths().append((line, path[2]))
-
-                agent.clear_stored_paths()
-
-                for path in agent.get_draw_paths():
-                    line = path[0]
-                    color = path[1]
-                    painter.setPen(QColor(color[0], color[1], color[2]))
-                    painter.drawLines(line)
-
-            # Draw agents
+        if self.model:
+            self.agentimage.fill(QColor(0, 0, 0, 0))
             select = None
             for agent in self.model.agents:
                 self.paintAgent(painter, agent)
@@ -127,6 +156,7 @@ class SimulationArea(QtWidgets.QWidget):
                 )
                 painter.setBrush(QColor(0, 0, 0, 150))
                 painter.drawPath(path)
+
         painter.end()
 
     def paintAgent(self, painter, agent):
@@ -197,13 +227,21 @@ class SimulationArea(QtWidgets.QWidget):
             ]
             painter.drawPolygon(QPolygonF(point_list))
 
-    def paintTile(self, painter, tile):
-        r, g, b = tile.color
-        color = QtGui.QColor(r, g, b)
-        painter.setBrush(color)
-        x = self.model.tile_size * tile.x
-        y = self.model.tile_size * tile.y
-        painter.drawRect(x, y, self.model.tile_size, self.model.tile_size)
+
+class SimulationArea(QtWidgets.QStackedLayout):
+    def __init__(self, wrapper, model):
+        super().__init__(wrapper)
+        self.addWidget(AgentArea(model))
+        self.addWidget(LineArea(model))
+        self.addWidget(ShapeArea(model))
+        self.addWidget(TileArea(model))
+        self.setStackingMode(1)
+        self.enable_rendering = True
+        self.__model = model
+
+    def draw(self):
+        for i in range(self.count()):
+            self.widget(i).update()
 
     def mousePressEvent(self, e):
         x = e.localPos().x()
@@ -541,8 +579,10 @@ class Monitor(QtWidgets.QLabel):
         self.model = model
 
     def update_label(self):
-        if self.variable in self.model.variables:
-            self.setText(self.variable + ": " + str(self.model[self.variable]))
+        if hasattr(self.model, self.variable):
+            self.setText(
+                self.variable + ": " + str(getattr(self.model, self.variable))
+            )
 
 
 class Checkbox(QtWidgets.QCheckBox):
@@ -583,7 +623,12 @@ class Application:
 
         # Box for left side (simulation area + controllers)
         self.left_box = QtWidgets.QVBoxLayout()
-        self.horizontal_divider.addLayout(self.left_box)
+        self.constrain_widget = QtWidgets.QWidget()
+        self.constrain_widget.setLayout(self.left_box)
+        self.constrain_widget.setMaximumSize(
+            self.model.width, self.constrain_widget.maximumHeight()
+        )
+        self.horizontal_divider.addWidget(self.constrain_widget)
         self.controllers = []
 
         # Box for right side (plots)
@@ -594,9 +639,10 @@ class Application:
         # self.right_box.addStretch(1)
 
         # Simulation area
-        self.simulation_area = SimulationArea()
-        self.simulation_area.model = self.model
-        self.left_box.addWidget(self.simulation_area)
+        self.area_wrapper = QtWidgets.QWidget()
+        self.simulation_area = SimulationArea(self.area_wrapper, self.model)
+        self.area_wrapper.setFixedSize(self.model.width, self.model.height)
+        self.left_box.addWidget(self.area_wrapper)
 
         # Controller box (bottom left)
         self.controller_box = QtWidgets.QVBoxLayout()
@@ -628,7 +674,7 @@ class Application:
 
     def update_graphics(self):
         if self.simulation_area.enable_rendering:
-            self.simulation_area.update()
+            self.simulation_area.draw()
         for p in self.model.plots:
             p.redraw()
 
@@ -742,8 +788,11 @@ def run(model):
     # Launch the application
     qapp.exec_()
 
+    # Temporarily disabling sys.exit(0), as
+    # it provokes an error / stack trace being shown
+
     # Application was closed, clean up and exit
-    sys.exit(0)
+    # sys.exit(0)
 
 
 def quick_run():

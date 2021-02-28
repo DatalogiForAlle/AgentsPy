@@ -14,9 +14,9 @@ from datetime import datetime
 #
 import os
 import sys
-import mock
+import unittest.mock
 sys.path.insert(0, os.path.abspath('../..'))
-sys.modules["PyQt5.QtChart"] = mock.Mock()
+sys.modules["PyQt5.QtChart"] = unittest.mock.Mock()
 import agents
 
 # -- Project information -----------------------------------------------------
