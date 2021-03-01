@@ -8,9 +8,9 @@ Introduktion til Python
 
 Turtle-biblioteket
 ------------------
-Som indledning til at bruge det agent-baserede bibliotek ``AgentsPy`` vil vi bruge et andet bibliotek, kaldet ``turtle``. Et bibliotek er en samling af eksterne funktioner, som man kan vælge bruge i sit eget program.
+Som indledning til at bruge det agent-baserede bibliotek ``AgentsPy`` vil vi bruge et andet bibliotek, kaldet ``turtle``. Et bibliotek er en samling af eksterne funktioner, som man kan bruge i sit eget program.
 
-Start med at åbne din editor, lav en ny fil, og dem den som ``turtle_test.py``.
+Start med at åbne din editor, lav en ny fil, og gem den som ``turtle_test.py``.
 
 Lad os nu prøve at kode med ``turtle`` biblioteket. For at bruge et bibliotek, skal man først *importere* det. Tilføj følgende linje kode til din fil::
 
@@ -65,15 +65,15 @@ Det er vigtigt, at kode, som er en del af funktionen, rykkes ud, sådan at det s
 
   def draw_square(turtle):
       turtle.left(90)
-	  turtle.forward(100)
-	  turtle.left(90)
-	  turtle.forward(100)
-	  turtle.left(90)
-	  turtle.forward(100)
-	  turtle.left(90)
-	  turtle.forward(100)
+      turtle.forward(100)
+      turtle.left(90)
+      turtle.forward(100)
+      turtle.left(90)
+      turtle.forward(100)
+      turtle.left(90)
+      turtle.forward(100)
 
-Prøv nu at lave et turtle-objekt, gemt i variablen ``t``, og så *kald* funktionen ved at skrive::
+Prøv nu at lave et turtle-objekt, gemt i variablen ``t``, og *kald* så funktionen ved at skrive::
 
   draw_square(t)
 
@@ -96,8 +96,8 @@ Nu burde hele funktionen se sådan ud::
 
   def draw_square(t):
       for i in range(4):
-	      turtle.left(90)
-		  turtle.forward(100)
+          turtle.left(90)
+          turtle.forward(100)
 
 Kører du koden igen, burde du gerne få samme resultat.
 
