@@ -3,12 +3,8 @@ Introduktion til Python
 
 *Hvis du ikke endnu har installeret en editor, så brug en af følgende guides:*
 
-.. toctree::
-   :maxdepth: 1
-
-   ../godtigang_mu
-   ../godtigang_thonny
-
+ * :doc:`godtigang_mu`
+ * :doc:`godtigang_thonny`
 
 Turtle-biblioteket
 ------------------
