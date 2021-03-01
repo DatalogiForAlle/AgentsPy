@@ -14,14 +14,13 @@ til at forudse, hvad der kommer til at ske i den virkelige verden. Du
 tænker, at dette lyder som en fantastisk ide, og går straks i gang med
 at kode en simpel model.
 
-Denne tutorial er delt i fem dele. I den første del gives en kort introduktion
-til sproget Python. I de to næste dele opbygges grundmodellen. I de sidste to
-introduceres forskellige variationer over den indledende model.
+Denne tutorial er delt i fire dele. I de første to dele opbygges grundmodellen.
+I de sidste to introduceres forskellige variationer over den indledende model.
 
 .. toctree::
    :maxdepth: 1
 
-   epidemi/epidemi_del0
+   introduktion
    epidemi/epidemi_del1
    epidemi/epidemi_del2
    epidemi/epidemi_del3

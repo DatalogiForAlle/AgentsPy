@@ -29,6 +29,7 @@ Første skridt
 .. toctree::
    :maxdepth: 2
 
+   introduktion
    epidemi
    predator_prey
 
