@@ -38,6 +38,10 @@ Kører du filen, burde gerne se din turtle rykke sig lidt fremad. Giv den lidt f
 
 Det her er bare nogle af de funktioner, man kan bruge på sin "turtle" (agenterne fra ``AgentsPy`` har nogle lignende funktioner).
 
+Opgave 1
+--------
+Brug `t.forward` og `t.left` til at få turtle-objektet til at tegne en firkant.
+
 Egne funktioner
 ---------------
 Indtil videre har vi kun brugt eksisterende funktioner fra biblioteket, men det er også muligt at lave sine egne funktioner. Funktioner definerer en sekvens af kode, som man kan køre gentagne gange ved at "kalde" funktionen.
@@ -101,7 +105,7 @@ Nu burde hele funktionen se sådan ud::
 
 Kører du koden igen, burde du gerne få samme resultat.
 
-Opgave 1
+Opgave 2
 --------
 Prøv at lave en funktion, ``draw_circle``, der ligesom ``draw_square`` tager et turtle-objekt, men i stedet tegner en cirkel.
 
@@ -122,7 +126,7 @@ Når vi skriver ``for i in range(360)``, kommer variablen ``i`` til at antage v�
 
 Prøv at kalde funktionen og se, om din turtle tegner noget, der ligner et "S".
 
-Opgave 2
+Opgave 3
 --------
 Lav en funktion ``draw_hill``, der tegner følgende figur:
 
