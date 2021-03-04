@@ -40,7 +40,7 @@ Det her er bare nogle af de funktioner, man kan bruge på sin "turtle" (agentern
 
 Opgave 1
 --------
-Brug `t.forward` og `t.left` til at få turtle-objektet til at tegne en firkant.
+Brug ``t.forward`` og ``t.left`` til at få turtle-objektet til at tegne en firkant.
 
 Egne funktioner
 ---------------
