@@ -143,7 +143,7 @@ def step(model):
 bnb_model = Model("Bread & butter economy", 50, 50)
 bnb_model.add_button("Setup", setup)
 bnb_model.add_button("Step", step)
-bnb_model.add_toggle_button("Go", step)
+bnb_model.add_button("Go", step, toggle=True)
 bnb_model.add_controller_row()
 bnb_model.add_slider("movespeed", 0.1, 0.1, 1)
 bnb_model.line_chart(["total_util"], [(0, 0, 0)])

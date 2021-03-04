@@ -61,7 +61,7 @@ def step(model):
 modello = Model("Electricity", 50, 25)
 modello.add_button("Setup", setup)
 modello.add_button("Step", step)
-modello.add_toggle_button("Go", step)
+modello.add_button("Go", step, toggle=True)
 modello.add_controller_row()
 modello.add_slider("speed", 2, 0.1, 3)
 modello.line_chart(["charge_flow"], [(100, 100, 250)])

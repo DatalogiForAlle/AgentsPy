@@ -65,11 +65,6 @@ class Person(Agent):
         elif not self.immune:
             if self.current_tile().info["infection"] > 0:
                 self.infect(model)
-                print("infected by standing on tile",
-                      self.current_tile().x,
-                      self.current_tile().y,
-                      "(x and y is "+str(self.x)+" "+str(self.y)+")")
-
         if self.infection > 0:
             self.color = (200, 200, 0)
         elif self.immune:

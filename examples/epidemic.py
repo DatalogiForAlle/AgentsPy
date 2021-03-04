@@ -62,11 +62,6 @@ class Person(Agent):
         elif not self.immune:
             if self.current_tile().info["infection"] > 0:
                 self.infect(model)
-                print("infected by standing on tile",
-                      self.current_tile().x,
-                      self.current_tile().y,
-                      "(x and y is "+str(self.x)+" "+str(self.y)+")")
-
         if self.infection > 0:
             self.color = (200, 200, 0)
         elif self.immune:
@@ -93,16 +88,9 @@ def setup(model):
     model.add_agent(patient_zero)
     patient_zero.infect(model)
 
-    someone = Person()
-    model.add_agent(someone)
-    someone.pendown()
-
     for t in model.tiles:
         t.info["infection"] = 0
-        if t.x < 50:
-            t.color = (75, 0, 0)
-        else:
-            t.color = (0, 0, 75)
+        t.color = (0, 50, 0)
     model.clear_plots()
 
 
@@ -114,15 +102,9 @@ def step(model):
     for t in model.tiles:
         if t.info["infection"] > 0:
             t.info["infection"] -= 1
-            if t.x < 50:
-                t.color = (175, 100, 0)
-            else:
-                t.color = (100, 100, 75)
+            t.color = (100, 100, 0)
         else:
-            if t.x < 50:
-                t.color = (75, 0, 0)
-            else:
-                t.color = (0, 0, 75)
+            t.color = (0, 50, 0)
     model.update_plots()
 
 

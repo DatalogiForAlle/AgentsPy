@@ -26,6 +26,6 @@ epidemic_model = Model("Epidemimodel", 100, 100)
 
 epidemic_model.add_button("Setup", model_setup)
 
-epidemic_model.add_toggle_button("Go", model_step)
+epidemic_model.add_button("Go", model_step, toggle=True)
 
 run(epidemic_model)
