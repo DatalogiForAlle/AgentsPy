@@ -144,3 +144,21 @@ Gør nu sådan, at turtle-objektet bevæger sig en længde på ``size`` frem i h
 Det giver ikke mening at tegne en firkant, hvor størrelsen på siderne er negative. Brug derfor en if-sætning til at sikre, at *hele* for-loopet kun køres, hvis ``size`` er større end 0.
 
 *Hint: husk at sikre, at din kode har din rigtige indrykning.*
+
+Opgave 4
+^^^^^^^^
+Vi laver funktionen ``walk_random()``, der får den pågældende turtle til at gå tilfældigt rundt på skærmen.
+
+Tilføj først denne linje til dine "imports", altså lige under den linje, hvor du importerer ``turtle``-biblioteket:
+::
+
+   from random import randint
+
+``randint(a,b)`` giver et tilfældigt tal mellem ``a`` og ``b``.
+
+Lav nu funktionserklæringen til ``walk_random()``:
+::
+
+   def walk_random(t):
+
+I selve funktionen, lav et for-loop, der kører i 500 iterationer. Inde i for-loopet, få ``t`` til at bevæge sig fremad, og lav så en if-sætning, der checker, om et tilfældigt tal er 1 eller 0. Hvis tallet er 1, skal ``t`` dreje 10 grader til venstre, ellers 10 grader til højre.
