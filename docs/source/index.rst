@@ -14,15 +14,10 @@ vil prøve kræfter med modellen, så se epidemi-tutorialen nedenfor.
 Første skridt
 ---------------
 
- ..
-    * Kom godt i gang med AgentsPy og Mu-editoren (TODO)
-
-*  Hvad er en agentbaseret model?
-
-      
 .. toctree::
    :maxdepth: 1
 
+   abm
    godtigang_mu
    godtigang_thonny
 
