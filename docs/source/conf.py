@@ -76,3 +76,7 @@ html_theme_options = {
     "show_relbar_bottom": True,
     "show_powered_by": False,
 }
+
+html_sidebars = {
+   '**': [ "sidebar.html" ],
+}
