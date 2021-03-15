@@ -14,7 +14,7 @@ Eksempler på modeller:
  * `COVID-19 modellerne
    <https://covid19.ssi.dk/analyser-og-prognoser/modelberegninger>`_
    fra Statens Serum Institut's ekspertgruppe bruges til at afprøve
-   forskellige genåbnings scenarier for pandemien, og estimere sygehusbelastning.
+   forskellige genåbningsscenarier for pandemien, og estimere sygehusbelastning.
 
 En model kan have mange former. nogle gange er det så simpelt som en
 matematisk funktion; andre gange er det et helt computerprogram. En af
@@ -51,7 +51,11 @@ hinanden, eller indirekte med hinanden ved at interagere med det miljø de færd
    *Illustration fra artiklen "Using AnyLogic and agent-based approach
    to model consumer market" af Garifullin et al. (2007)*
 
-Kom godt i gang med at lave din første agent-baserede model:
+Agenternes adfærd beskrives som programkode, og det er det vi med
+`AgentsPy` håber at gøre lidt nemmere og sjovere. `AgentsPy` er et
+bibliotek til programmeringssproget Python. For at komme i gang, skal
+du starte med at installere en Python editor ved at følge
+instruktionerne på en af de følgende sider:
 
  * :doc:`godtigang_mu`
  * :doc:`godtigang_thonny`
