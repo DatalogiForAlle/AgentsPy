@@ -14,7 +14,7 @@ Eksempler på modeller:
  * `COVID-19 modellerne
    <https://covid19.ssi.dk/analyser-og-prognoser/modelberegninger>`_
    fra Statens Serum Institut's ekspertgruppe bruges til at afprøve
-   forskellige genåbnings scenarier for pandemien, og estimere sygehusbelastning.
+   forskellige genåbningsscenarier for pandemien, og estimere sygehusbelastning.
 
 En model kan have mange former. nogle gange er det så simpelt som en
 matematisk funktion; andre gange er det et helt computerprogram. En af
