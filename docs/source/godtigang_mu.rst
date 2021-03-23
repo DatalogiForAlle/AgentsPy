@@ -17,11 +17,11 @@ Kom godt i gang (Mu-editor)
 
 Installation af Mu-editoren
 ---------------------------
-Hent og installér denne alpha-udgave af Mu-editoren:
+Hent og installér denne beta-udgave af Mu-editoren:
 
-- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/releases/download/1.1.0-alpha.2/mu-editor_1.1.0-alpha.2_win64.exe>`_
-- `Hent Mu-editor til Mac OS X <http://dybber.dk/mu_editor_1.1.0b1.dmg>`_
-- `Hent Mu-editor til Linux <https://github.com/mu-editor/mu/archive/1.1.0-beta.1.tar.gz>`_
+- `Hent Mu-editor til Windows (64 bit) <https://github.com/mu-editor/mu/releases/download/1.1.0-beta.2/Mu-Editor-Win64-1.1.0b2.msi>`_
+- `Hent Mu-editor til Mac OS X <https://github.com/mu-editor/mu/releases/download/1.1.0-beta.2/Mu.Editor.1.1.0b2.dmg>`_
+- `Hent Mu-editor til Linux <https://github.com/mu-editor/mu/archive/1.1.0-beta.2.tar.gz>`_
 
 
 .. warning:: Nyeste udgave af Mu fra deres hjemmeside er 1 år gammel

@@ -68,12 +68,13 @@ Prøv at slå op i registeret eller søg i dokumentationen:
 
 .. * :ref:`modindex`
 
-
-
 License
 -------
-AgentsPy er udgivet under GPLv3 licensen. Valget af licens stammer fra
+AgentsPy er udgivet under `GPLv3 licensen <https://www.gnu.org/licenses/gpl-3.0.html>`_. Valget af licens stammer fra
 vores brug af PyQt5, som også er udgivet under GPLv3.
+
+Dokumentationen er udgivet under `Creative Commons BY-SA 4.0 <http://creativecommons.org/licenses/by-sa/4.0/>`_, undtagen
+enkelte figurer hvor vi har angivet original kildehenvisning
 
 .. toctree::
    :maxdepth: 1
