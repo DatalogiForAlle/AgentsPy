@@ -9,12 +9,39 @@ class Person(Agent):
         self.color = (0, 200, 0)
         if randint(1, 50) == 1:
             self.infect(model)
+        if model.enable_groups:
+            self.group = randint(1, 5)
+            self.group_indicator = model.add_ellipse(
+                self.x - 10, self.y - 10, 20, 20, (0, 0, 0)
+            )
+            if self.group == 1:
+                self.group_indicator.color = (200, 200, 0)
+            elif self.group == 2:
+                self.group_indicator.color = (0, 200, 200)
+            elif self.group == 3:
+                self.group_indicator.color = (200, 0, 200)
+            elif self.group == 4:
+                self.group_indicator.color = (100, 100, 100)
+            elif self.group == 5:
+                self.group_indicator.color = (250, 150, 0)
 
     def step(self, model):
-        self.direction += randint(-10, 10)
+        if model.enable_groups:
+            self.group_indicator.x = self.x - 10
+            self.group_indicator.y = self.y - 10
+        new_direction = 0
+        nearby_agents = 0
+        for agent in self.agents_nearby(model.Social_distance):
+            if model.enable_groups and agent.group != self.group:
+                new_direction += self.direction_to(agent.x, agent.y)
+                nearby_agents += 1
+        if nearby_agents > 0:
+            self.direction = (new_direction / nearby_agents) + 180
+        else:
+            self.direction += randint(-10, 10)
         self.forward()
         if self.category == 1:
-            for agent in self.agents_nearby(12):
+            for agent in self.agents_nearby(model.Infection_distance):
                 if agent.category == 0:
                     agent.infect(model)
             self.infection_level -= 1
@@ -102,18 +129,18 @@ epidemic_model = Model("Epidemimodel", 100, 100)
 
 epidemic_model.add_button("Setup", model_setup)
 epidemic_model.add_button("Go", model_step, toggle=True)
-epidemic_model.add_slider("Vaccine_rate", 0.2, 0.1, 1.0)
 
 epidemic_model.line_chart(
     ["Susceptible", "Infectious", "Recovered", "Vaccinated"], [(0, 200, 0), (200, 0, 0), (0, 0, 200), (100, 100, 200)]
 )
 epidemic_model.bar_chart(["Susceptible", "Infectious", "Recovered", "Vaccinated"], (200, 200, 200))
-
+epidemic_model.add_checkbox("enable_groups")
 epidemic_model.add_checkbox("Vaccine_exponential")
-
-epidemic_model.monitor("Susceptible")
-epidemic_model.monitor("Infectious")
-epidemic_model.monitor("Recovered")
-epidemic_model.monitor("Vaccinated")
+epidemic_model.add_controller_row()
+epidemic_model.add_slider("Social_distance", 50, 0, 80)
+epidemic_model.add_controller_row()
+epidemic_model.add_slider("Infection_distance", 15, 0, 40)
+epidemic_model.add_controller_row()
+epidemic_model.add_slider("Vaccine_rate", 0.2, 0.1, 1.0)
 
 run(epidemic_model)
